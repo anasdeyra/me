@@ -1,5 +1,13 @@
-<img src="assets/icon.svg" width="64" height="64" alt="">
+# Anas Deyra - Portfolio
 
-# portfolio
+Conversion-focused developer portfolio (Astro, React islands, Tailwind v4, shadcn/ui, Keystatic) deployed on Vercel.
+This is currently a bare scaffold. Goals, architecture, conventions and the roadmap are in [AGENTS.md](./AGENTS.md).
 
-Created in [T3 Code](https://t3.codes).
+## Quickstart
+
+```sh
+pnpm install
+cp .env.example .env
+pnpm dev       # http://localhost:4321 , CMS at /keystatic (dev only)
+pnpm build && pnpm check
+```

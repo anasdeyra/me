@@ -1,0 +1,28 @@
+---
+import '@/styles/global.css';
+import { t } from '@/i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = t('site.name'), description = t('site.description') } =
+  Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-background text-foreground min-h-screen antialiased">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Counter from '@/components/islands/Counter';
+import { Button } from '@/components/ui/button';
+import { reader } from '@/lib/reader';
+import { t } from '@/i18n';
+
+const settings = await reader.singletons.settings.read();
+---
+
+<BaseLayout>
+  <main class="mx-auto max-w-2xl p-8">
+    <h1 class="text-3xl font-semibold tracking-tight">
+      {settings?.siteTitle ?? t('home.title')}
+    </h1>
+    <p class="text-muted-foreground mt-2">{t('home.lead')}</p>
+    <div class="mt-6 flex gap-3">
+      <Button asChild>
+        <a href="#contact">{t('cta.contact')}</a>
+      </Button>
+      <Counter client:visible label={t('island.counter')} />
+    </div>
+  </main>
+</BaseLayout>
