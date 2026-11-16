@@ -27,7 +27,7 @@ export const en = {
   'contact.github': 'GitHub',
 
   // Footer
-  'footer.cta.title': "Tell me what you're building.",
+  'footer.cta.title': 'Tell me what you’re building.',
   'footer.cta.body':
     'Message me on WhatsApp: I usually reply within an hour. Prefer email? I reply within a day.',
   'footer.base':
@@ -42,9 +42,9 @@ export const en = {
   // 404
   'notFound.title': 'Page not found',
   'notFound.description':
-    "This page doesn't exist. Go to the home page, or message me on WhatsApp.",
+    'This page doesn’t exist. Go to the home page, or message me on WhatsApp.',
   'notFound.code': '404',
-  'notFound.heading': "This page doesn't exist.",
+  'notFound.heading': 'This page doesn’t exist.',
   'notFound.body': 'The link may be broken, or the page has moved.',
   'notFound.home': 'Go to the home page',
   'notFound.help':

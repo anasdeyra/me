@@ -27,7 +27,11 @@ const contact = [
     href: whatsappHref(settings.whatsappNumber),
     newTab: true,
   },
-  { label: settings.email, href: mailtoHref(settings.email) },
+  {
+    label: settings.email,
+    href: mailtoHref(settings.email),
+    noTranslate: true,
+  },
   { label: t('contact.linkedin'), href: settings.links.linkedin, rel: 'me' },
   { label: t('contact.upwork'), href: settings.links.upwork, rel: 'me' },
   { label: t('contact.github'), href: settings.links.github, rel: 'me' },
@@ -52,7 +56,11 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
       </p>
       <div class="col-span-12 mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
         <WhatsAppButton size="lg" />
-        <a href={mailtoHref(settings.email)} class="link text-lg text-ink">
+        <a
+          href={mailtoHref(settings.email)}
+          class="link text-lg text-ink"
+          translate="no"
+        >
           {settings.email}
         </a>
       </div>
@@ -107,13 +115,14 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
         <h2 class="mb-3 text-sm font-medium text-muted-foreground">
           {t('footer.contact')}
         </h2>
-        <ul class="grid gap-1.5">
+        <ul class="grid gap-1.5 wrap-anywhere">
           {contact.map((c) => (
             <li>
               <a
                 href={c.href}
                 class={listLink}
                 rel={c.newTab ? 'noopener noreferrer' : c.rel}
+                translate={c.noTranslate ? 'no' : undefined}
                 target={c.newTab ? '_blank' : undefined}
               >
                 {c.label}
@@ -130,7 +139,10 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
          grid edge. Decorative duplicate of the header wordmark, so hidden from assistive tech. */}
     <div class="wrap" aria-hidden="true">
       <div class="@container">
-        <p class="-ms-[0.08em] pb-[0.16em] text-[length:40.2cqi] leading-[0.75] font-semibold tracking-[-0.05em] text-ink select-none">
+        <p
+          translate="no"
+          class="-ms-[0.08em] pb-[0.16em] text-[length:40.2cqi] leading-[0.75] font-semibold tracking-[-0.05em] text-ink select-none"
+        >
           {settings.brand}
         </p>
       </div>

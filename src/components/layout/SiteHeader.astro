@@ -21,7 +21,8 @@ const atHome = isCurrent('/', pathname);
   <div class="wrap flex h-header items-center lg:grid-page">
     <a
       href="/"
-      class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink lg:col-span-6 lg:justify-self-start"
+      class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink decoration-1 underline-offset-[0.2em] hover:underline lg:col-span-6 lg:justify-self-start"
+      translate="no"
       aria-label={t('nav.home', { brand: settings.brand })}
       aria-current={atHome ? 'page' : undefined}
     >
@@ -37,7 +38,7 @@ const atHome = isCurrent('/', pathname);
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="relative flex h-full items-center text-sm text-ink decoration-1 underline-offset-[0.4em] not-aria-[current=page]:hover:underline aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-[3px] aria-[current=page]:after:bg-ink"
+                  class="relative flex h-full items-center text-sm text-ink decoration-1 underline-offset-[0.4em] not-aria-[current=page]:hover:underline aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-[3px] aria-[current=page]:after:bg-ink forced-colors:aria-[current=page]:after:bg-[CanvasText]"
                 >
                   {item.label}
                 </a>
@@ -72,7 +73,7 @@ const atHome = isCurrent('/', pathname);
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-ink"
+                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-ink forced-colors:aria-[current=page]:after:bg-[CanvasText]"
                 >
                   {item.label}
                 </a>

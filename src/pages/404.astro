@@ -58,7 +58,11 @@ const help = tParts('notFound.help');
             <span class="sr-only"> {t('a11y.newTab')}</span>
           </a>
         ) : (
-          <a href={mailtoHref(settings.email)} class="link text-ink">
+          <a
+            href={mailtoHref(settings.email)}
+            class="link text-ink"
+            translate="no"
+          >
             {settings.email}
           </a>
         ),
