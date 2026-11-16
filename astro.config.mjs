@@ -11,12 +11,28 @@ import tailwindcss from '@tailwindcss/vite';
 const isDev =
   process.argv.includes('dev') || process.env.NODE_ENV === 'development';
 
+/**
+ * Dev-only design lab at /lab (font and direction experiments). Never built for production.
+ * @type {import('astro').AstroIntegration}
+ */
+const devLab = {
+  name: 'dev-lab',
+  hooks: {
+    'astro:config:setup': ({ injectRoute }) => {
+      injectRoute({
+        pattern: '/lab',
+        entrypoint: new URL('./src/dev/lab/Lab.astro', import.meta.url),
+      });
+    },
+  },
+};
+
 // https://astro.build/config
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL ?? 'https://example.com',
   // Static by default; opt single routes into SSR with `export const prerender = false`.
   adapter: vercel(),
-  integrations: [react(), ...(isDev ? [markdoc(), keystatic()] : [])],
+  integrations: [react(), ...(isDev ? [markdoc(), keystatic(), devLab] : [])],
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],

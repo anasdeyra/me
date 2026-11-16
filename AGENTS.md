@@ -39,6 +39,7 @@ docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, conten
 src/
   components/ui/        shadcn components (button)
   content/settings.json Keystatic singleton data (committed)
+  dev/lab/              design lab at /lab (dev only: fonts/direction experiments, Google Fonts, no i18n)
   i18n/                 en.ts dictionary + t() helper
   layouts/BaseLayout.astro  head/meta/OG, global CSS
   lib/                  utils.ts (cn), reader.ts (Keystatic reader)
@@ -120,6 +121,7 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
 ## Do not
 
 - Do not ship Keystatic routes to production; keep the integration dev-only.
+- Do not ship `/lab` to production; it is injected only in `astro dev` (`devLab` in `astro.config.mjs`).
 - Do not add heavy animation libraries (framer-motion, GSAP) without a measured reason.
 - Do not add a captcha; use a honeypot.
 - Do not require more than 3 fields in the contact form.

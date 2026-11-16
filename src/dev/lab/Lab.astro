@@ -1,0 +1,178 @@
+---
+// Dev-only design lab, injected at /lab by astro.config.mjs when running `astro dev`.
+// Never part of the production build. UI strings here are tooling, not site copy.
+import './lab.css';
+import Specimen from './Specimen.astro';
+import { FONTS, CATEGORY_LABELS, type FontCategory } from './fonts';
+import { PRESETS, RATIOS, RADII } from './presets';
+
+const categories = Object.keys(CATEGORY_LABELS) as FontCategory[];
+const roles = [
+  { key: 'display', label: 'Display', help: 'H1, H2, big figures, wordmark' },
+  { key: 'text', label: 'Text', help: 'Paragraphs and long-form' },
+  { key: 'ui', label: 'UI', help: 'Nav, buttons, chips, labels, forms' },
+  { key: 'quote', label: 'Quote', help: 'Client testimonials' },
+  { key: 'mono', label: 'Mono', help: 'Code and Spec mode notes' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Design lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body class="lab-body">
+    <div class="lab" data-view="split" data-frame="fluid">
+      <main class="lab-stage" aria-label="Specimens">
+        <Specimen name="A" />
+        <Specimen name="B" />
+      </main>
+
+      <aside class="lab-panel" aria-label="Lab controls">
+        <div class="lab-panel-head">
+          <h1>Design lab</h1>
+          <p>Dev only. Pick a slot, then tune it. Keys: 1 / 2 / 3 view, T theme, D direction.</p>
+        </div>
+
+        <fieldset class="lab-group">
+          <legend>View</legend>
+          <div class="lab-seg" role="radiogroup" aria-label="View">
+            <label><input type="radio" name="view" value="A" data-lab="view" />A</label>
+            <label><input type="radio" name="view" value="B" data-lab="view" />B</label>
+            <label><input type="radio" name="view" value="split" data-lab="view" />A | B</label>
+          </div>
+          <div class="lab-seg" role="radiogroup" aria-label="Frame width">
+            <label><input type="radio" name="frame" value="fluid" data-lab="frame" />Fluid</label>
+            <label><input type="radio" name="frame" value="1024" data-lab="frame" />1024</label>
+            <label><input type="radio" name="frame" value="768" data-lab="frame" />768</label>
+            <label><input type="radio" name="frame" value="390" data-lab="frame" />390</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Editing slot</legend>
+          <div class="lab-seg lab-seg-lg" role="radiogroup" aria-label="Active slot">
+            <label><input type="radio" name="active" value="A" data-lab="active" />Slot A</label>
+            <label><input type="radio" name="active" value="B" data-lab="active" />Slot B</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Preset</legend>
+          <div class="lab-presets">
+            {
+              PRESETS.map((p) => (
+                <button type="button" class="lab-preset" data-preset={p.id} title={p.hint}>
+                  {p.label}
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Direction and theme</legend>
+          <div class="lab-seg" role="radiogroup" aria-label="Direction">
+            <label><input type="radio" name="direction" value="swiss" data-slot="direction" />Swiss</label>
+            <label
+              ><input type="radio" name="direction" value="instrument" data-slot="direction" />Instrument</label
+            >
+          </div>
+          <div class="lab-seg" role="radiogroup" aria-label="Theme">
+            <label><input type="radio" name="theme" value="light" data-slot="theme" />Light</label>
+            <label><input type="radio" name="theme" value="dark" data-slot="theme" />Dark</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Fonts</legend>
+          {
+            roles.map((r) => (
+              <label class="lab-field">
+                <span>
+                  {r.label} <small>{r.help}</small>
+                </span>
+                <select data-slot={r.key}>
+                  {categories.map((c) => (
+                    <optgroup label={CATEGORY_LABELS[c]}>
+                      {FONTS.filter((f) => f.category === c).map((f) => (
+                        <option value={f.id}>
+                          {f.family}
+                          {f.note ? ` (${f.note})` : ''}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+            ))
+          }
+          <label class="lab-check">
+            <input type="checkbox" data-slot="quoteItalic" />Quotes in italic
+          </label>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Display tuning</legend>
+          <label class="lab-field">
+            <span>Weight <output data-out="displayWeight"></output></span>
+            <input type="range" data-slot="displayWeight" min="100" max="900" step="10" />
+          </label>
+          <label class="lab-field" data-width-field>
+            <span>Width <output data-out="displayWidth"></output></span>
+            <input type="range" data-slot="displayWidth" min="75" max="125" step="1" />
+          </label>
+          <label class="lab-field">
+            <span>Tracking <output data-out="displayTracking"></output></span>
+            <input type="range" data-slot="displayTracking" min="-0.06" max="0.04" step="0.005" />
+          </label>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Text and scale</legend>
+          <label class="lab-field">
+            <span>Body size (desktop) <output data-out="textSize"></output></span>
+            <input type="range" data-slot="textSize" min="15" max="20" step="0.5" />
+          </label>
+          <label class="lab-field">
+            <span>Line height <output data-out="textLeading"></output></span>
+            <input type="range" data-slot="textLeading" min="1.35" max="1.8" step="0.05" />
+          </label>
+          <label class="lab-field">
+            <span>Scale ratio</span>
+            <select data-slot="ratio">
+              {RATIOS.map((r) => <option value={r.value}>{r.label}</option>)}
+            </select>
+          </label>
+          <label class="lab-field">
+            <span>Radius</span>
+            <select data-slot="radius">
+              {RADII.map((r) => <option value={r}>{r}px</option>)}
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset class="lab-group">
+          <legend>Export</legend>
+          <textarea class="lab-export" readonly rows="8" aria-label="Current config (JSON)"
+          ></textarea>
+          <div class="lab-row">
+            <button type="button" data-action="copy-config">Copy config</button>
+            <button type="button" data-action="copy-link">Copy link</button>
+            <button type="button" data-action="reset">Reset</button>
+          </div>
+          <p class="lab-status" role="status" aria-live="polite"></p>
+        </fieldset>
+      </aside>
+    </div>
+
+    <script>
+      import './lab';
+    </script>
+  </body>
+</html>
