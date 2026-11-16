@@ -21,3 +21,17 @@ export function t(
     String(vars[k] ?? `{${k}}`),
   );
 }
+
+export type Part = { text: string } | { slot: string };
+
+/**
+ * Split a translated sentence around `{slot}` placeholders, so a component can render links or other
+ * markup in place while translators still see (and reorder) the whole sentence.
+ * `tParts('notFound.help')` -> [{ text: 'Looking for… ' }, { slot: 'whatsapp' }, { text: ' or email ' }, …]
+ */
+export function tParts(key: Key, locale: Locale = defaultLocale): Part[] {
+  return lookup(key, locale)
+    .split(/(\{\w+\})/)
+    .filter(Boolean)
+    .map((s) => (/^\{\w+\}$/.test(s) ? { slot: s.slice(1, -1) } : { text: s }));
+}

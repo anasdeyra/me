@@ -38,4 +38,15 @@ export const en = {
   'footer.copyright': '© {year} {name}',
   'footer.privacy': 'Privacy',
   'footer.rss': 'RSS',
+
+  // 404
+  'notFound.title': 'Page not found',
+  'notFound.description':
+    "This page doesn't exist. Go to the home page, or message me on WhatsApp.",
+  'notFound.code': '404',
+  'notFound.heading': "This page doesn't exist.",
+  'notFound.body': 'The link may be broken, or the page has moved.',
+  'notFound.home': 'Go to the home page',
+  'notFound.help':
+    'Looking for something specific? {whatsapp} or email {email}.',
 } as const;
