@@ -34,14 +34,15 @@ Principles:
 astro.config.mjs        Integrations, i18n, Tailwind vite plugin, dev-only Keystatic
 keystatic.config.ts     CMS schema (singleton `settings` only, for now)
 components.json         shadcn config
+docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, content model). Build details not decided yet
+.agents/                product-marketing.md (positioning, voice, proof)
 src/
   components/ui/        shadcn components (button)
-  components/islands/   React islands (Counter placeholder)
   content/settings.json Keystatic singleton data (committed)
   i18n/                 en.ts dictionary + t() helper
   layouts/BaseLayout.astro  head/meta/OG, global CSS
   lib/                  utils.ts (cn), reader.ts (Keystatic reader)
-  pages/index.astro     placeholder home
+  pages/index.astro     blank home (build not started)
   styles/global.css     Tailwind + shadcn theme tokens
 .claude/skills/         project-local agent skills (see skills-lock.json)
 .env.example            planned env vars
@@ -88,19 +89,33 @@ Pages move under `src/pages/<loc>/`.
 
 ## Planned work (not implemented)
 
-- **Contact:** Cal.com booking link (`PUBLIC_CAL_LINK`); short form (name, email, message; honeypot, no captcha) via
-  Astro Action (`prerender = false`) sending through Resend; LinkedIn and WhatsApp links. Env vars in `.env.example`.
-- **Analytics:** Vercel Analytics; conversion events for contact CTA clicks, form submits, booking clicks.
-- **Content model:** profile, case studies (problem/approach/result), services, testimonials, experience.
-- **Pages/sections:** hero with two paths, proof, services & engagement types, availability/timezone, CV, contact.
-- **Locales:** more languages later (see above).
-- Run `product-marketing` skill first to produce `.agents/product-marketing.md` (shared positioning context).
+Study (not a build plan yet): **`docs/ux-study.md`** (personas, user stories, FR/NFR, IA, page layouts, content model, analytics, content
+strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
+
+- **Audiences:** startup founders (clients) and recruiters (actively job hunting, full-stack roles), equal priority.
+  Neutral, proof-first home with two doors: WhatsApp (clients) and CV (recruiters).
+- **Contact:** WhatsApp is the primary CTA (context-aware prefilled `wa.me` links, QR on desktop). Secondary: email
+  (copy + mailto), 3-field form (Astro Action, `prerender = false`, Resend, honeypot), LinkedIn, Upwork.
+- **Proof:** Upwork Top Rated / 100% JSS / 5.0 strip, Upwork review quotes, client world map from Tunis (build-time
+  dot-grid SVG, CSS-only animation), research projects; case studies added later (sections are content-gated).
+- **Content types (2):** `projects` at /work/[slug] (type: client | side | research) and `posts` at /blog/[slug]
+  (type: article | note). Type = chip + zero-JS filter on the index; pillars and topics are tags at /tag/[tag].
+- **Pages:** home (services, process, FAQ live here only), /work, /blog, /tag/[tag], /about, /cv
+  (+ text PDF, ATS-friendly), /contact, /privacy, 404 (no /legal: not a French business).
+- **Signature:** Spec mode, a blueprint overlay showing spacing, type, contrast, and page weight (lazy island, `S` key).
+- **Analytics:** Vercel Web Analytics (cookieless), events via `[data-track]`.
+- **Locales:** EN at launch, FR later; use CSS logical properties so RTL stays cheap.
 
 ## Decisions log
 
 - 2026-11: Astro + React + Tailwind v4 + shadcn + Keystatic (local, dev-only) on Vercel, pnpm.
 - `astro check` needs TypeScript 6 (Astro 7 rejects TS 7 for now); `typescript` pinned to `^6`.
 - Keystatic reader over content collections (documented Keystatic+Astro approach).
+- 2026-11-16 discovery: domain `deyra.dev`; WhatsApp primary CTA (no Cal.com); no public prices; no availability
+  badge; blog pillars = polished products + founder guides (research is a project type, not a blog pillar); 2+ posts/month incl. notes;
+  base Tunis (UTC+1); visual direction precise & minimal with a metallic silver accent; theme system + toggle; Spec mode is the signature feature.
+- 2026-11-16: content flattened from 4 types (case studies, articles, notes, research) to 2 collections, `projects`
+  and `posts`, each with a `type` field; pillar hubs, /notes and /research routes dropped in favor of chips + /tag/[tag].
 
 ## Do not
 
