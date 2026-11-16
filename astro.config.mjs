@@ -13,21 +13,6 @@ import { securityHeaders } from './config/security-headers.mjs';
 const isDev =
   process.argv.includes('dev') || process.env.NODE_ENV === 'development';
 
-/**
- * Dev-only design lab at /lab (font and direction experiments). Never built for production.
- * @type {import('astro').AstroIntegration}
- */
-const devLab = {
-  name: 'dev-lab',
-  hooks: {
-    'astro:config:setup': ({ injectRoute }) => {
-      injectRoute({
-        pattern: '/lab',
-        entrypoint: new URL('./src/dev/lab/Lab.astro', import.meta.url),
-      });
-    },
-  },
-};
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,14 +25,14 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap(),
-    ...(isDev ? [markdoc(), keystatic(), devLab] : []),
+    ...(isDev ? [markdoc(), keystatic()] : []),
     // Last, so it runs after the adapter has written .vercel/output/config.json.
     securityHeaders(),
   ],
   security: {
     // Enforced CSP in production builds: Astro hashes every script and style it renders; no 'unsafe-inline'.
     // Off in dev: Astro would send it there too, without hashes, blocking Vite's inline dev styles,
-    // the Keystatic admin and the /lab fonts. Verify CSP on a Vercel preview deployment instead.
+    // and the Keystatic admin. Verify CSP on a Vercel preview deployment instead.
     csp: isDev ? false : {
       algorithm: 'SHA-256',
       directives: [

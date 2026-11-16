@@ -31,7 +31,7 @@ Principles:
 ## Layout
 
 ```
-astro.config.mjs        Integrations, i18n, CSP, trailingSlash, sitemap, Tailwind vite plugin, dev-only Keystatic + /lab
+astro.config.mjs        Integrations, i18n, CSP, trailingSlash, sitemap, Tailwind vite plugin, dev-only Keystatic
 config/security-headers.mjs  adds HSTS/nosniff/Referrer/Permissions/COOP/XFO to .vercel/output/config.json at build
 keystatic.config.ts     CMS config: composes schemas from src/keystatic (locale-suffixed keys, e.g. projects_en)
 components.json         shadcn config
@@ -43,7 +43,6 @@ src/
   content/shared/       language-neutral content (settings.yaml, clients/*.yaml)
   content/en/           translatable content: profile/, home/, skills.yaml, projects/<slug>/, posts/<slug>/,
                         testimonials/, experience/, education/, tags/ (YAML; folder per project/post, images co-located)
-  dev/lab/              design lab at /lab (dev only: fonts/direction experiments, Google Fonts, no i18n)
   i18n/                 en.ts dictionary + t() helper
   keystatic/            schemas: shared.ts (settings, clients), locale.ts (per-locale factories), options.ts
   layouts/BaseLayout.astro  head/meta/OG, global CSS
@@ -134,23 +133,27 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
 - Keystatic reader over content collections (documented Keystatic+Astro approach).
 - 2026-11-16 discovery: domain `deyra.dev`; WhatsApp primary CTA (no Cal.com); no public prices; no availability
   badge; blog pillars = polished products + founder guides (research is a project type, not a blog pillar); 2+ posts/month incl. notes;
-  base Tunis (UTC+1); visual direction precise & minimal with a metallic silver accent; theme system + toggle; Spec mode is the signature feature.
+  base Tunis (UTC+1); visual direction precise & minimal with a metallic silver accent (superseded: see visual direction below); theme system + toggle; Spec mode is the signature feature.
 - 2026-11-16: content flattened from 4 types (case studies, articles, notes, research) to 2 collections, `projects`
   and `posts`, each with a `type` field; pillar hubs, /notes and /research routes dropped in favor of chips + /tag/[tag].
-- 2026-11-16 foundation: brand is **"Deyra"** (wordmark; favicon = "D" on a steel plate). Titles: home
+- 2026-11-16 foundation: brand is **"Deyra"** (wordmark; favicon = "D" monogram). Titles: home
   "Anas Deyra | Full-stack engineer for startups", other pages "<Page> | Deyra"; og:site_name "Deyra"; Person name
   "Anas Deyra", alternateName "Deyra". Theme is light-led (founders/recruiters browse light; ~20% of web traffic is dark),
-  first visit follows the OS, 2-state toggle. Neutrals: cool steel (OKLCH hue ~250, low chroma). Header always sticky; mobile
+  first visit follows the OS, 2-state toggle. Header always sticky; mobile
   menu via the Popover API (browser floor: Safari/iOS 17+). Static UI = Astro components reusing shadcn cva variants;
   React only for real islands. Fonts via the Astro Fonts API (self-hosted, metric-matched fallbacks). URLs without trailing
   slash. CSP enforced from day one (Astro hashes + Vercel static headers). Keystatic: all 11 types, locale-ready paths
-  (`shared/` + `<locale>/`), folder per project/post with co-located images, YAML data. Pending: typeface and visual
-  direction (Swiss editorial vs Precision instrument), being chosen in `/lab`.
+  (`shared/` + `<locale>/`), folder per project/post with co-located images, YAML data.
+- 2026-11-16 visual direction (chosen in the design lab, now removed; restore from commit `de117ae` if needed):
+  **Swiss editorial**, **black and white** (pure neutral grays for secondary text and rules; primary CTA is solid
+  black, inverted in dark), **generous whitespace on large screens** (margins and section spacing grow with the
+  viewport; text measure stays fixed). **No silver accent and no accent color**: color appears only as **grainy
+  gradients** (gradient + film-grain noise, decorative touches). The **hero shows Anas's headshot**. Pending: typeface,
+  gradient palette and placement, hero layout, photo treatment.
 
 ## Do not
 
 - Do not ship Keystatic routes to production; keep the integration dev-only.
-- Do not ship `/lab` to production; it is injected only in `astro dev` (`devLab` in `astro.config.mjs`).
 - Do not add heavy animation libraries (framer-motion, GSAP) without a measured reason.
 - Do not add a captcha; use a honeypot.
 - Do not require more than 3 fields in the contact form.

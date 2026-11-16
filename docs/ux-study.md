@@ -1,6 +1,6 @@
 # UX / Product Study: deyra.dev
 
-**Status:** v3 draft, 2026-11-16 (v2: Tunis base, research page, silver accent, contact details, launch without case studies; v3: content flattened to 2 types, `projects` and `posts`, with type chips + tags). Source: discovery interview with Anas (9 rounds).
+**Status:** v4 draft, 2026-11-16 (v4: Swiss editorial in black and white, silver accent dropped for grainy-gradient color touches, headshot in the hero; v2: Tunis base, research page, silver accent, contact details, launch without case studies; v3: content flattened to 2 types, `projects` and `posts`, with type chips + tags). Source: discovery interview with Anas (9 rounds).
 Positioning and voice live in `.agents/product-marketing.md`; this file is the build spec. Items marked **TBD** need input.
 
 ---
@@ -211,7 +211,7 @@ Footer: contact links, nav, RSS, privacy, "Built with Spec mode: press `S`".
 
 | #   | Section           | Content                                                                                                                                                                                                                               | Serves                  |
 | --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| 1   | Hero              | H1 outcome headline, subline, **[Message me on WhatsApp]** (primary) + **[Hiring? View my CV]** (secondary), photo optional                                                                                                           | All (two doors)         |
+| 1   | Hero              | H1 outcome headline, subline, **[Message me on WhatsApp]** (primary) + **[Hiring? View my CV]** (secondary), headshot                                                                                                           | All (two doors)         |
 | 2   | Trust strip       | Upwork Top Rated · 100% Job Success · 5.0 ★ (N reviews) · "Clients in 7 countries" -> links to map                                                                                                                                    | P1, P5                  |
 | 3   | Selected work     | 3-4 featured project cards (any type): image, type chip, headline metric (or status for research), stack chips -> /work/[slug]. At launch: side + research projects until client case studies exist                                   | P1, P3                  |
 | 4   | Testimonials      | 3 Upwork review quotes, name/role/country, "Verified on Upwork" link                                                                                                                                                                  | P1                      |
@@ -276,32 +276,24 @@ WhatsApp card (button + QR on >= 768px, number +216 93 028 674 shown as text too
 
 ### 7.1 Visual language: precise and minimal
 
-- Swiss/editorial: strong type hierarchy, generous whitespace, 12-col grid, one accent (metallic silver, see 7.1b), hairline rules. Theme reads as "machined aluminum": precise instrument, not chrome bling.
-- Type: Geist (UI/body), Geist Mono (metrics, labels, Spec mode annotations). Fluid type scale (`clamp`).
-- Color: cool neutral grayscale + the silver accent, used for CTAs, key numerals, map markers, focus rings. Spec mode lines use a separate functional cyan so annotations never blend with the accent.
+- Swiss editorial: strong type hierarchy, flush-left ragged-right text, 12-col grid with an asymmetric section split, strong full-measure rules.
+- Whitespace: generous, and growing with the viewport. On large screens margins and section spacing widen; the text measure stays fixed instead of stretching.
+- Hero: Anas's headshot. A human face before any claim builds trust with founders and recruiters.
+- Type: TBD (the lab's Swiss preset used Geist + Geist Mono). Mono only for code and Spec mode. Fluid type scale (`clamp`).
+- Color: black and white (light: black on white; dark: white on black), pure neutral grays for secondary text and rules. No accent color: the primary CTA is solid black (inverted in dark). Color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
 - Motion: subtle, purposeful (map pulses, focus transitions); off under reduced motion.
-- Components: shadcn (button, dialog for search, sheet for mobile nav, tooltip for Spec mode), restyled with tokens.
+- Components: shadcn (button, dialog for search, tooltip for Spec mode), restyled with tokens. Mobile nav uses the Popover API.
 
-### 7.1b Silver accent system (an effect, not a flat color)
+### 7.1b Color touches: grainy gradients
 
-Silver is low-contrast by nature (light gray on white fails WCAG), so it is built as a **material** with theme-specific recipes. Text contrast is always checked against the worst gradient stop.
+The only color on the site: soft gradients with a film-grain noise layer, used as touches on a black-and-white page.
 
-| Token / use                         | Dark theme (where silver shines)                                 | Light theme                                                     |
-| ----------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------- |
-| `--silver-gradient`                 | `#f5f7fa -> #c9ced6 -> #8b929c -> #e3e7ec` (brushed, 3-4 stops)  | Graphite steel: `#2b2f35 -> #5b626c -> #3a3f46 -> #1f2328`      |
-| Primary CTA                         | Silver gradient fill, near-black label (>= 7:1 on lightest stop) | Graphite gradient fill, white label (>= 7:1)                    |
-| Metallic text (H1 keyword, metrics) | `background-clip: text`, large sizes only (>= 24 px)             | Steel gradient text, darkest stops only, >= 4.5:1 at worst stop |
-| Hairlines / borders                 | Silver gradient border via `border-image` or mask                | Steel gradient border                                           |
-| Sheen                               | Diagonal highlight sweeping across CTA on hover/focus            | Same, lower opacity                                             |
-
-Rules:
-
-- **Sheen animation** uses a pseudo-element moved with `transform` (compositor-only, no `background-position` animation); runs on hover/focus and once on load for the hero CTA; disabled under `prefers-reduced-motion`.
-- Optional subtle noise texture (inline SVG `feTurbulence`, < 1 KB) for a brushed-metal feel on the hero CTA only.
-- `forced-colors: active`: gradients drop to system colors (`ButtonText`, `CanvasText`) with solid borders.
-- The silver is a CSS token set in `global.css` (`--accent-*`), so Tailwind utilities (`bg-accent`, `text-accent`) map to it; gradient utilities via `@utility silver` / `@utility silver-text`.
-- Brand color for WhatsApp is **not** used on the CTA (icon only, monochrome) to keep one accent.
-- Spec mode shows the computed worst-stop contrast for metallic text (a craft detail recruiters notice).
+- **Construction:** stacked CSS gradients plus noise from an SVG `feTurbulence` filter as a `data:` URI (allowed by the CSP's `img-src 'self' data:`). No raster images, no JS.
+- **Decorative only:** `aria-hidden`; never behind body text. Any text placed on a gradient must pass AA at its worst point.
+- **Themes:** same hues in light and dark; grain and opacity tuned per theme.
+- **Motion:** static by default; if a gradient drifts, it animates `transform`/`opacity` only and stops under `prefers-reduced-motion`.
+- **`forced-colors: active`:** gradients are removed.
+- **TBD:** palette, placement, intensity.
 
 ### 7.2 Screenshot treatment (assets "don't look that good")
 
@@ -327,7 +319,7 @@ A toggle (header button + `S` key) that overlays a blueprint layer explaining th
 "Clients in 7 countries": Singapore, Germany, France, India, Tunisia, Spain, United States. Home base: **Tunis**.
 
 - **Rendering:** dot-grid world map generated **at build time** into inline SVG (land dots from a simplified dataset, computed in an Astro component/script). No map library ships to the browser. Target <= 15 KB gzip.
-- **Markers:** silver dots at client countries with a CSS pulse (staggered `animation-delay`); Tunis marker styled distinctly ("Based here", ring + label). Thin silver arcs drawn from Tunis to each client country using `stroke-dashoffset`, triggered once when visible (`animation-timeline: view()`, static fallback).
+- **Markers:** dots in the foreground color at client countries with a CSS pulse (staggered `animation-delay`); Tunis marker styled distinctly ("Based here", ring + label). Thin arcs drawn from Tunis to each client country using `stroke-dashoffset`, triggered once when visible (`animation-timeline: view()`, static fallback).
 - **Timezone layer (answers the objection):** caption under the map: "Based in Tunis (UTC+1, no DST): full overlap with Europe, mornings with India and Singapore, afternoons with the US East Coast."
 - **Interaction:** hover/focus on a marker shows country + number of projects (optional field); markers are focusable buttons with labels; no JS beyond tooltip (CSS `:hover`/`:focus-within` is enough).
 - **Accessibility:** `role="img"` + `aria-label="Clients in 7 countries: ..."` and a visible inline list of countries below the map (also good for SEO).
@@ -377,7 +369,7 @@ comes from the project label, the endorsement badge, and placement. Prices and d
 | T4  | React form app                                           | "I really think you have a superpower around front-end"                                                                                                                                                                                                                                                                                                                                                                | —                    | Pull quote (hero/about) |
 | T5  | Next.js static site for QuickSeat                        | "Anas did an amazing job! Thank you so much."                                                                                                                                                                                                                                                                                                                                                                          | Committed to Quality | Secondary (/about)      |
 
-Card anatomy: quote · project label · "Upwork client" · ★ 5.0 · endorsement chip (silver) · "Verified on Upwork" link.
+Card anatomy: quote · project label · "Upwork client" · ★ 5.0 · endorsement chip · "Verified on Upwork" link.
 Badge tally for the trust strip/about: "Committed to Quality" x3, "Detail Oriented" x1.
 These projects (NFT marketplace, ArtBeat, QuickSeat) are candidates for the launch "Selected work" cards if screenshots/repos exist.
 
@@ -439,7 +431,7 @@ Research (Information Systems): not a post pillar; each research project is a `p
 ## 11. Open items (TBD)
 
 Resolved 2026-11-16: Upwork URL + stats (10+ jobs) + 5 reviews (section 8b), WhatsApp number, country list, base (Tunis),
-work mode ("Open to relocation", soft), accent (silver effect), no /legal, degree (Research Master's in Information Systems),
+work mode ("Open to relocation", soft), accent (silver effect, dropped 2026-11-16 for black and white + grainy gradients), no /legal, degree (Research Master's in Information Systems),
 WhatsApp reply time ("Usually replies within an hour"), contact links:
 email `anasdoura607@gmail.com`, GitHub `https://github.com/anasdeyra`, LinkedIn `https://tn.linkedin.com/in/anas-deyra-7015b9240`
 (canonicalize to `https://www.linkedin.com/in/anas-deyra-7015b9240` for `sameAs`).

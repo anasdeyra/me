@@ -1,6 +1,6 @@
 # Product Marketing Context
 
-**Document version:** v3
+**Document version:** v4
 **Last updated:** 2026-11-16
 
 ## Product Overview
@@ -107,7 +107,7 @@
 | Term      | Meaning                                                             |
 | --------- | ------------------------------------------------------------------- |
 | Spec mode | Site feature: blueprint overlay showing the craft behind each page  |
-| Silver    | Brand accent: a metallic material effect (brushed silver in dark theme, graphite steel in light), never a flat gray |
+| Grainy gradient | Brand color touch: a soft gradient with film grain on a black-and-white page; the only color on the site |
 
 ## Brand Voice
 
@@ -157,6 +157,7 @@ _Decisions and tested lessons. Newest first. Keep it to about 20 active entries.
 
 | Date       | Learning                                                                      | Evidence      | Applies to       | Status |
 | ---------- | ----------------------------------------------------------------------------- | ------------- | ---------------- | ------ |
+| 2026-11-16 | Visual identity: Swiss editorial, black and white, generous whitespace; color only as grainy gradients; silver accent dropped; hero shows a real face | User decision (design lab) | design, OG images | active |
 | 2026-11-16 | Research is shared as project pages (/work, type research), not as a blog pillar or client message | User decision | copy, blog, CV | active |
 | 2026-11-16 | Testimonials stay verbatim; professionalism comes from labels, badges and placement, never rewording | Trust: quotes link to Upwork | copy | active |
 | 2026-11-16 | Case studies come later; launch proof = Upwork record, reviews, map, side projects, research | User decision | home | active |
@@ -167,6 +168,7 @@ _Decisions and tested lessons. Newest first. Keep it to about 20 active entries.
 
 _Newest first. One line per revision: what changed and why._
 
+- v4 (2026-11-16) — Visual identity: Swiss editorial in black and white with grainy-gradient touches; silver accent dropped; headshot in the hero.
 - v3 (2026-11-16) — Added Upwork reviews, endorsements and verbatim customer language; degree is a Research Master's in Information Systems; relocation wording softened.
 - v2 (2026-11-16) — Base corrected to Tunis (not France); research shared as project pages; silver accent; contact details and client countries confirmed.
 - v1 (2026-11-16) — Initial context from discovery interview.
