@@ -31,13 +31,15 @@ Principles:
 ## Layout
 
 ```
-astro.config.mjs        Integrations, i18n, Tailwind vite plugin, dev-only Keystatic
+astro.config.mjs        Integrations, i18n, CSP, trailingSlash, sitemap, Tailwind vite plugin, dev-only Keystatic + /lab
+config/security-headers.mjs  adds HSTS/nosniff/Referrer/Permissions/COOP/XFO to .vercel/output/config.json at build
 keystatic.config.ts     CMS config: composes schemas from src/keystatic (locale-suffixed keys, e.g. projects_en)
 components.json         shadcn config
 docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, content model). Build details not decided yet
 .agents/                product-marketing.md (positioning, voice, proof)
 src/
   components/ui/        shadcn components (button)
+  components/seo/       JsonLd.astro
   content/shared/       language-neutral content (settings.yaml, clients/*.yaml)
   content/en/           translatable content: profile/, home/, skills.yaml, projects/<slug>/, posts/<slug>/,
                         testimonials/, experience/, education/, tags/ (YAML; folder per project/post, images co-located)
@@ -45,8 +47,9 @@ src/
   i18n/                 en.ts dictionary + t() helper
   keystatic/            schemas: shared.ts (settings, clients), locale.ts (per-locale factories), options.ts
   layouts/BaseLayout.astro  head/meta/OG, global CSS
-  lib/                  utils.ts (cn), reader.ts (Keystatic reader), content.ts (typed content helpers)
-  pages/index.astro     blank home (build not started)
+  lib/                  utils.ts (cn), reader.ts (Keystatic reader), content.ts (typed content helpers),
+                        seo.ts (canonical URLs), schema.ts (JSON-LD builders: WebSite, Person)
+  pages/index.astro     blank home (build not started); robots.txt.ts
   styles/global.css     Tailwind + shadcn theme tokens
 .claude/skills/         project-local agent skills (see skills-lock.json)
 .env.example            secrets only (contact form); everything else is Keystatic settings
@@ -74,6 +77,12 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - Accessibility: semantic HTML, visible focus, contrast AA, keyboard reachable, alt text, reduced-motion respected.
 - Performance budget: Lighthouse >= 95 in all categories, minimal JS, optimized images (`astro:assets`), self-hosted fonts.
 - SEO: unique title/description per page, canonical, OG tags, `Person` JSON-LD on the home/about page.
+  `BaseLayout` props: `title` (omit on home), `description`, `image`, `type`, `noindex`, `schema` (JSON-LD nodes).
+  Mark up only visible content; no FAQPage (Google retired FAQ rich results in 2026).
+- Security: CSP is enforced (Astro hashes scripts/styles; sent as a header via the adapter's `staticHeaders`).
+  No `style=""` attributes, no third-party scripts/fonts/images without adding them to `security.csp` in
+  `astro.config.mjs`. Shiki is off (inline styles); code highlighting must emit classes.
+  Other headers live in `config/security-headers.mjs` (verify in `.vercel/output/config.json` after build).
 
 ## Keystatic (content)
 

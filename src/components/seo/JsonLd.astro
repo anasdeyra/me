@@ -1,0 +1,12 @@
+---
+import type { SchemaNode } from '@/lib/schema';
+
+interface Props {
+  graph: SchemaNode[];
+}
+const { graph } = Astro.props;
+// Escape "<" so content can never close the script element.
+const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

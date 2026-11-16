@@ -1,7 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getSettings } from '@/lib/content';
+import { websiteNode } from '@/lib/schema';
+
+const settings = await getSettings();
+// Person node joins the graph with the hero in Phase 2 (schema must match visible content).
 ---
 
-<BaseLayout>
+<BaseLayout schema={[websiteNode(settings)]}>
   <main id="main"></main>
 </BaseLayout>
