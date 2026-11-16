@@ -92,7 +92,7 @@ ATS note: recruiters often parse the CV with HR tools. CV and About must be mach
 
 | ID    | Requirement                                                                                                                             | Priority |
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| FR-1  | Global header: name/logo, nav (Work, Writing, About, CV), theme toggle, Spec mode toggle, WhatsApp button                               | Must     |
+| FR-1  | Global header: name/logo, nav (Work, Writing, About, CV), theme toggle, WhatsApp button; Spec mode toggle floats in a corner (7.3)      | Must     |
 | FR-2  | Mobile nav: disclosure menu, WhatsApp button stays visible outside the menu                                                             | Must     |
 | FR-3  | Home page sections in order of section 6.1                                                                                              | Must     |
 | FR-4  | Projects (`/work`): one index + one detail template for all types (client, side, research); CSS-only type chips filter the index        | Must     |
@@ -110,7 +110,7 @@ ATS note: recruiters often parse the CV with HR tools. CV and About must be mach
 | FR-16 | Theme: system default + toggle, persisted, inline head script (no flash)                                                                | Must     |
 | FR-17 | 404 page with search + links to Work/Writing/Contact                                                                                    | Must     |
 | FR-18 | /privacy: form data, analytics, retention (GDPR applies to EU visitors; Tunisian law 2004-63). No /legal page (not a French business)   | Must     |
-| FR-22 | Content-gated sections: a home section or nav item renders only when its collection has enough published entries (e.g. Work >= 2)       | Must     |
+| FR-22 | Content-gated sections: a home section or nav item renders only with enough published entries (Work >= 2, Writing >= 3)                 | Must     |
 | FR-19 | Copy-to-clipboard for email with live-region confirmation                                                                               | Should   |
 | FR-20 | Drafts and scheduled `publishedAt` excluded from production build                                                                       | Must     |
 
@@ -205,7 +205,9 @@ so there are no thin per-type pages to index. Tags (incl. pillars `polished-prod
 taxonomy routes.
 
 Main nav: **Work · Writing · About · CV** + [WhatsApp]. "Writing" = /blog. Work shows from launch (side + research projects count; FR-22).
-Footer: contact links, nav, RSS, privacy, "Built with Spec mode: press `S`".
+Footer: closing CTA (every page except home), base + timezone + languages, nav, contact links, the wordmark set edge to edge,
+small print (©, privacy, RSS), and "Built with Spec mode: press `S`" once Spec mode ships. Links to unbuilt or under-filled
+sections are hidden in production (FR-22) and shown in dev.
 
 ### 6.1 Home: section order and intent
 
@@ -280,7 +282,7 @@ WhatsApp card (button + QR on >= 768px, number +216 93 028 674 shown as text too
 - Whitespace: generous, and growing with the viewport. On large screens margins and section spacing widen; the text measure stays fixed instead of stretching.
 - Hero: Anas's headshot, in color, 4:5, in the right columns (9-12) with the text on the left (1-7). A human face before any claim builds trust with founders and recruiters.
 - Type: Geist (headings, body, UI) + Geist Mono (code and Spec mode only), self-hosted via the Astro Fonts API. Fluid type scale (`clamp`), ratio 1.333 on desktop; radius 2px.
-- Color: black and white (light: black on white; dark: white on black), pure neutral grays for secondary text and rules. No accent color: the primary CTA is solid black (inverted in dark). Color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
+- Color: black and white (light: black on white; dark: white on black, body text #EDEDED), pure neutral grays for secondary text and rules. No accent color: primary CTAs are solid black (inverted in dark), except **WhatsApp CTAs, which use WhatsApp green `#25D366` with a black label** (recognition; white on that green fails AA). Otherwise color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
 - Motion: subtle, purposeful (map pulses, focus transitions); off under reduced motion.
 - Components: shadcn (button, dialog for search, tooltip for Spec mode), restyled with tokens. Mobile nav uses the Popover API.
 
@@ -294,7 +296,7 @@ The only color on the site: soft gradients with a film-grain noise layer, used a
 - **Motion:** static by default; if a gradient drifts, it animates `transform`/`opacity` only and stops under `prefers-reduced-motion`.
 - **`forced-colors: active`:** gradients are removed.
 - **Palette: Dusk** (`#FFB238` amber -> `#FF4F81` pink -> `#7A3CFF` violet), as stacked radial gradients with grain.
-- **Placement:** only a soft glow behind the hero portrait for now. Considered and not chosen yet: the final contact block, project image backdrops, social cards and 404.
+- **Placement:** a soft glow behind the hero portrait, and a small glow beside the 404 numeral. Considered and not chosen yet: the final contact block, project image backdrops and social cards.
 
 ### 7.2 Screenshot treatment (assets "don't look that good")
 
@@ -307,7 +309,7 @@ Uniform frame makes average screenshots look deliberate:
 
 ### 7.3 Signature: Spec mode
 
-A toggle (header button + `S` key) that overlays a blueprint layer explaining the craft of the current page.
+A toggle (a floating button in a bottom corner, independent of the header, + `S` key) that overlays a blueprint layer explaining the craft of the current page. Keep that corner free of other floating UI.
 
 - **Shows:** spacing between key blocks, type size/line-height/weight, contrast ratios of text vs background (computed live), tap-target sizes, landmark/heading outline, image format + size, and a page panel: HTML/CSS/JS bytes (injected at build), Lighthouse scores (from CI), security header grade.
 - **Authoring:** elements opt in with `data-spec="..."` attributes in Astro markup; measurement computed client-side on toggle.

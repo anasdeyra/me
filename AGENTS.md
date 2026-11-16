@@ -23,6 +23,7 @@ Principles:
 | Framework       | Astro 7 (static output)                | Zero JS by default, best fit for a content site                 |
 | Islands         | React 19 via `@astrojs/react`          | Only for interactive bits; shadcn/ui is React                   |
 | Styling         | Tailwind CSS v4 (`@tailwindcss/vite`)  | Tokens in CSS, no config file                                   |
+| Fonts           | Astro Fonts API, `local` provider      | Geist + Geist Mono from pinned `@fontsource-variable` files     |
 | UI kit          | shadcn/ui (radix-nova, `@/*` alias)    | Owned, accessible components in `src/components/ui`             |
 | CMS             | Keystatic, **local storage, dev only** | Git-based content, no hosted admin                              |
 | Hosting         | Vercel via `@astrojs/vercel`           | Static by default; routes opt into SSR with `prerender = false` |
@@ -31,25 +32,30 @@ Principles:
 ## Layout
 
 ```
-astro.config.mjs        Integrations, i18n, CSP, trailingSlash, sitemap, Tailwind vite plugin, dev-only Keystatic
+astro.config.mjs        Integrations, i18n, CSP, fonts, trailingSlash, sitemap, Tailwind vite plugin, dev-only Keystatic
 config/security-headers.mjs  adds HSTS/nosniff/Referrer/Permissions/COOP/XFO to .vercel/output/config.json at build
 keystatic.config.ts     CMS config: composes schemas from src/keystatic (locale-suffixed keys, e.g. projects_en)
 components.json         shadcn config
 docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, content model). Build details not decided yet
 .agents/                product-marketing.md (positioning, voice, proof)
 src/
-  components/ui/        shadcn components (button)
+  components/ui/        shadcn components (button: `buttonVariants` is shared with the Astro components)
+  components/site/      static primitives: Button (cva variants, zero JS), WhatsAppButton, ThemeToggle, ThemeScript,
+                        DuskGlow, WhatsAppIcon
+  components/layout/    SiteHeader (sticky; Popover mobile menu), SiteFooter (closing CTA, columns, wordmark)
   components/seo/       JsonLd.astro
   content/shared/       language-neutral content (settings.yaml, clients/*.yaml)
   content/en/           translatable content: profile/, home/, skills.yaml, projects/<slug>/, posts/<slug>/,
                         testimonials/, experience/, education/, tags/ (YAML; folder per project/post, images co-located)
-  i18n/                 en.ts dictionary + t() helper
+  i18n/                 en.ts dictionary + t() / tParts() (sentence split around {slot} links)
   keystatic/            schemas: shared.ts (settings, clients), locale.ts (per-locale factories), options.ts
-  layouts/BaseLayout.astro  head/meta/OG, global CSS
+  layouts/BaseLayout.astro  head/meta/OG, fonts, theme script, skip link, header, footer (`footerCta` prop)
   lib/                  utils.ts (cn), reader.ts (Keystatic reader), content.ts (typed content helpers),
-                        seo.ts (canonical URLs), schema.ts (JSON-LD builders: WebSite, Person)
-  pages/index.astro     blank home (build not started); robots.txt.ts
-  styles/global.css     Tailwind + shadcn theme tokens
+                        seo.ts (canonical URLs), schema.ts (JSON-LD builders: WebSite, Person),
+                        routes.ts (nav registry + FR-22 gating), contact.ts (wa.me / mailto), place.ts (Intl names, UTC offset)
+  pages/index.astro     blank home (Phase 2); 404.astro; robots.txt.ts
+  styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link), .dusk
+public/                 favicon.svg, favicon.ico, apple-touch-icon.png (Geist Bold "D" monogram)
 .claude/skills/         project-local agent skills (see skills-lock.json)
 .env.example            secrets only (contact form); everything else is Keystatic settings
 ```
@@ -76,14 +82,37 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - Accessibility: semantic HTML, visible focus, contrast AA, keyboard reachable, alt text, reduced-motion respected.
 - Performance budget: Lighthouse >= 95 in all categories, minimal JS, optimized images (`astro:assets`), self-hosted fonts.
 - SEO: unique title/description per page, canonical, OG tags, `Person` JSON-LD on the home/about page.
-  `BaseLayout` props: `title` (omit on home), `description`, `image`, `type`, `noindex`, `schema` (JSON-LD nodes).
+  `BaseLayout` props: `title` (omit on home), `description`, `image`, `type`, `noindex`, `schema` (JSON-LD nodes),
+  `footerCta` (closing CTA above the footer; `false` on home).
   Mark up only visible content; no FAQPage (Google retired FAQ rich results in 2026).
 - Security: CSP is enforced in production builds only (Astro hashes scripts/styles; sent as a header via the
   adapter's `staticHeaders`). It is off in `astro dev` (no hashes there; it would block Vite styles), so check CSP on
   a Vercel preview deployment.
   No `style=""` attributes, no third-party scripts/fonts/images without adding them to `security.csp` in
   `astro.config.mjs`. Shiki is off (inline styles); code highlighting must emit classes.
+  `is:inline` scripts are **not** hashed by Astro: render them with `set:html` and add their hash with
+  `Astro.csp?.insertScriptHash()` (pattern: `src/components/site/ThemeScript.astro`). After a build, every inline
+  script/style must appear as a hash in the route's CSP in `.vercel/output/config.json`.
   Other headers live in `config/security-headers.mjs` (verify in `.vercel/output/config.json` after build).
+
+## Design system and shell
+
+Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw values.
+
+- **Layout:** every section is `wrap grid-page` (fluid margins, content capped at 1440px, 12 columns). Spacing tokens:
+  `py-section` / `pt-section` (64 -> 192px), `gap-x-gutter`, `max-w-measure` (68ch). Pages set their own top spacing;
+  the footer's closing CTA brings the spacing below the page (pages with `footerCta={false}` add their own).
+- **Type:** `text-xs`..`text-7xl` are the fluid scale (Tailwind's default sizes are removed); xs/sm are UI sizes,
+  base 16 -> 18px, tracking and line height come with each size. Headings are `text-ink`, semibold, balanced.
+- **Color:** tokens only. `text-ink` (headings, strong), `text-foreground` (body), `text-muted-foreground` (secondary),
+  `border-rule` (strong rules) vs `border-border` (hairlines). WhatsApp green only through `variant="whatsapp"`
+  (`<WhatsAppButton>`); Dusk only through `<DuskGlow />` in a `relative isolate` box, never behind text.
+- **Buttons/links:** `<Button>` from `src/components/site` (renders `<a>` with `href`), sizes sm 40 / default 44 /
+  lg 52px. Inline links use the `link` utility (always underlined). Focus is the global `:focus-visible` outline.
+- **Theme:** `.dark` on `<html>`, set before paint by `ThemeScript`; toggles are `[data-theme-toggle]`. No JS = light.
+- **Navigation:** routes live in `src/lib/routes.ts`. When a page ships, set `built: true`; links then appear in
+  production once their content gate passes (Work >= 2 projects, Writing and RSS >= 3 posts). Dev shows everything.
+- **Spec mode** (Phase 5) is a floating toggle in a bottom corner; keep that corner free of other floating UI.
 
 ## Keystatic (content)
 
@@ -122,7 +151,8 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
   (type: article | note). Type = chip + zero-JS filter on the index; pillars and topics are tags at /tag/[tag].
 - **Pages:** home (services, process, FAQ live here only), /work, /blog, /tag/[tag], /about, /cv
   (+ text PDF, ATS-friendly), /contact, /privacy, 404 (no /legal: not a French business).
-- **Signature:** Spec mode, a blueprint overlay showing spacing, type, contrast, and page weight (lazy island, `S` key).
+- **Signature:** Spec mode, a blueprint overlay showing spacing, type, contrast, and page weight (lazy island, `S` key,
+  floating toggle in a bottom corner, not in the header).
 - **Analytics:** Vercel Web Analytics (cookieless), events via `[data-track]`.
 - **Locales:** EN at launch, FR later; use CSS logical properties so RTL stays cheap.
 
@@ -153,7 +183,18 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
   **Dusk** (`#FFB238` -> `#FF4F81` -> `#7A3CFF`, with grain), used **only behind the hero portrait** for now. Hero:
   **text left (cols 1-7), portrait right (cols 9-12)**, 4:5. Photo: **color, as shot**
   (`src/content/en/profile/photo.jpg`, cropped to exclude the Gemini watermark). It is AI-generated: replace it with
-  a real photo when available (same file name, or via /keystatic).
+  a real photo when available (same file name, or via /keystatic). Amended by the design-system entry below
+  (WhatsApp green on WhatsApp CTAs; a small Dusk glow on the 404).
+- 2026-11-16 design system and shell (decided with rendered previews): dark theme = black with body text #EDEDED
+  (headings, rules and CTA pure white); AAA secondary grays #595959 / #A3A3A3; hairlines #E5E5E5 / #262626. Fluid type
+  scale 16 -> 18px, ratio 1.2 -> 1.333 (320 -> 1440px). Width: margins 16 -> 80px, content capped at 1440px, extra width
+  becomes margin. **WhatsApp CTAs use WhatsApp green #25D366 with a black label** (the one exception to "no accent").
+  Header: grid-aligned (nav from column 7, full-bleed ink rule, 3px active bar), WhatsApp button labelled "WhatsApp",
+  contrast-glyph theme toggle; mobile menu = full-screen Popover sheet. Footer: closing CTA "Tell me what you're
+  building." (not on home), base/timezone, site + contact columns, oversized edge-to-edge wordmark. 404: numeral as
+  type + small Dusk glow. Dusk grain: medium. Favicon: black tile, white Geist Bold D. Nav gating: hidden in prod until
+  built and filled (Work >= 2, Writing >= 3), all shown in dev. Spec mode: floating corner toggle, not in the header.
+  Fonts: local provider over `@fontsource-variable` files (the `npm` provider emits file:// URLs Astro cannot fetch).
 
 ## Do not
 
