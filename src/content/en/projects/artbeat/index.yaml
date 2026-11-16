@@ -1,0 +1,10 @@
+title: ArtBeat
+type:
+  discriminant: client
+  value:
+    clientType: '[TBD]'
+    nda: false
+outcome: '[TBD] Outcome. Web3 artwork marketplace with smart contracts.'
+featured: false
+order: 0
+draft: true

@@ -1,0 +1,10 @@
+title: '[TBD] Research project'
+type:
+  discriminant: research
+  value:
+    status: ongoing
+    lab: Higher Institute of Computer Science (ISI)
+outcome: '[TBD] First published research project in Information Systems.'
+featured: false
+order: 0
+draft: true

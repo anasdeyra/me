@@ -1,0 +1,19 @@
+groups:
+  - name: Languages
+    items:
+      - '[TBD]'
+  - name: Frontend
+    items:
+      - React
+      - Next.js
+  - name: Backend
+    items:
+      - '[TBD]'
+  - name: Infrastructure
+    items:
+      - '[TBD]'
+  - name: Practices
+    items:
+      - Performance budgets
+      - Accessibility (WCAG 2.2)
+      - Security headers

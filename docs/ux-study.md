@@ -170,7 +170,7 @@ The site is itself proof of "polished, fast, secure", so these are stricter than
 
 ### Compatibility
 
-- **NFR-C1** Last 2 versions of evergreen browsers + Safari iOS 16+; works without JS (except search, Spec mode, form enhancement; form still posts without JS).
+- **NFR-C1** Last 2 versions of evergreen browsers + Safari/iOS 17+ (Popover API for the mobile menu); works without JS (except search, Spec mode, form enhancement; form still posts without JS).
 - **NFR-C2** Layout from 320 px to 1920 px; no horizontal scroll; print stylesheet for /cv and posts.
 
 ---

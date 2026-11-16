@@ -32,21 +32,24 @@ Principles:
 
 ```
 astro.config.mjs        Integrations, i18n, Tailwind vite plugin, dev-only Keystatic
-keystatic.config.ts     CMS schema (singleton `settings` only, for now)
+keystatic.config.ts     CMS config: composes schemas from src/keystatic (locale-suffixed keys, e.g. projects_en)
 components.json         shadcn config
 docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, content model). Build details not decided yet
 .agents/                product-marketing.md (positioning, voice, proof)
 src/
   components/ui/        shadcn components (button)
-  content/settings.json Keystatic singleton data (committed)
+  content/shared/       language-neutral content (settings.yaml, clients/*.yaml)
+  content/en/           translatable content: profile/, home/, skills.yaml, projects/<slug>/, posts/<slug>/,
+                        testimonials/, experience/, education/, tags/ (YAML; folder per project/post, images co-located)
   dev/lab/              design lab at /lab (dev only: fonts/direction experiments, Google Fonts, no i18n)
   i18n/                 en.ts dictionary + t() helper
+  keystatic/            schemas: shared.ts (settings, clients), locale.ts (per-locale factories), options.ts
   layouts/BaseLayout.astro  head/meta/OG, global CSS
-  lib/                  utils.ts (cn), reader.ts (Keystatic reader)
+  lib/                  utils.ts (cn), reader.ts (Keystatic reader), content.ts (typed content helpers)
   pages/index.astro     blank home (build not started)
   styles/global.css     Tailwind + shadcn theme tokens
 .claude/skills/         project-local agent skills (see skills-lock.json)
-.env.example            planned env vars
+.env.example            secrets only (contact form); everything else is Keystatic settings
 ```
 
 ## Commands
@@ -77,8 +80,14 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - Config: `keystatic.config.ts`, `storage: { kind: 'local' }`. Content is files in the repo; edit in dev, then commit and push.
 - The integration (`@keystatic/astro` + `@astrojs/markdoc`) is loaded **only when running `astro dev`**, so `/keystatic`
   and its API are never in the production build.
-- Read content at build time with the **Keystatic reader API** (`src/lib/reader.ts`, e.g.
-  `await reader.singletons.settings.read()`). This is the officially documented path for Astro; do not mix in content collections.
+- Read content at build time through **`src/lib/content.ts`** (`getSettings()`, `getProjects('en')`, ...), which wraps the
+  Keystatic reader (`src/lib/reader.ts`), hides drafts and future posts in production, sorts, and resolves co-located images
+  (`contentImage(dir, file)`). This is the officially documented path for Astro; do not mix in content collections.
+- The reader validates every entry against the schema, so invalid content fails the build.
+- Placeholders: `[TBD]` marks a missing fact, `[Draft]` marks copy awaiting the copywriting pass. Unconfirmed projects and
+  experience are `draft: true`. Grep for both before launch.
+- Contact details, profile links and Upwork stats live in `src/content/shared/settings.yaml` (single source of truth);
+  UI microcopy (reply times, WhatsApp prefill templates) lives in `src/i18n`.
 - Edit: `pnpm dev`, open `http://localhost:4321/keystatic`.
 
 ## i18n groundwork
@@ -117,6 +126,15 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
   base Tunis (UTC+1); visual direction precise & minimal with a metallic silver accent; theme system + toggle; Spec mode is the signature feature.
 - 2026-11-16: content flattened from 4 types (case studies, articles, notes, research) to 2 collections, `projects`
   and `posts`, each with a `type` field; pillar hubs, /notes and /research routes dropped in favor of chips + /tag/[tag].
+- 2026-11-16 foundation: brand is **"Deyra"** (wordmark; favicon = "D" on a steel plate). Titles: home
+  "Anas Deyra | Full-stack engineer for startups", other pages "<Page> | Deyra"; og:site_name "Deyra"; Person name
+  "Anas Deyra", alternateName "Deyra". Theme is light-led (founders/recruiters browse light; ~20% of web traffic is dark),
+  first visit follows the OS, 2-state toggle. Neutrals: cool steel (OKLCH hue ~250, low chroma). Header always sticky; mobile
+  menu via the Popover API (browser floor: Safari/iOS 17+). Static UI = Astro components reusing shadcn cva variants;
+  React only for real islands. Fonts via the Astro Fonts API (self-hosted, metric-matched fallbacks). URLs without trailing
+  slash. CSP enforced from day one (Astro hashes + Vercel static headers). Keystatic: all 11 types, locale-ready paths
+  (`shared/` + `<locale>/`), folder per project/post with co-located images, YAML data. Pending: typeface and visual
+  direction (Swiss editorial vs Precision instrument), being chosen in `/lab`.
 
 ## Do not
 

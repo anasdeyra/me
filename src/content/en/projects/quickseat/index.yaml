@@ -1,0 +1,12 @@
+title: QuickSeat
+type:
+  discriminant: client
+  value:
+    clientType: '[TBD]'
+    nda: false
+outcome: '[TBD] Outcome. Next.js static site.'
+stack:
+  - Next.js
+featured: false
+order: 0
+draft: true
