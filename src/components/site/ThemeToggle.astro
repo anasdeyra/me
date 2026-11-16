@@ -1,0 +1,94 @@
+---
+// Two-state theme toggle (light/dark), persisted in localStorage. Pattern: a toggle button named
+// "Dark theme" with aria-pressed; the contrast glyph flips when dark is on. The first paint is set by
+// the inline script in BaseLayout; this script only syncs state and handles clicks.
+import { t } from '@/i18n';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  /** Show the "Dark theme" text next to the glyph (mobile menu). */
+  withLabel?: boolean;
+  class?: string;
+}
+
+const { withLabel = false, class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-pressed="false"
+  class={cn(
+    buttonVariants({
+      variant: withLabel ? 'outline' : 'ghost',
+      size: withLabel ? 'default' : 'icon',
+    }),
+    'group/theme',
+    className,
+  )}
+>
+  <span class={withLabel ? undefined : 'sr-only'}>{t('theme.dark')}</span>
+  <svg
+    class="size-5 transition-transform duration-200 group-aria-pressed/theme:rotate-180"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle
+      cx="10"
+      cy="10"
+      r="8"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+    ></circle>
+    <path d="M10 2a8 8 0 0 0 0 16z" fill="currentColor"></path>
+  </svg>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  // Keep in sync with --background in src/styles/global.css and the inline script in BaseLayout.
+  const chrome = { light: '#ffffff', dark: '#000000' };
+
+  const stored = () => {
+    try {
+      return localStorage.getItem('theme');
+    } catch {
+      return null;
+    }
+  };
+
+  function apply(dark: boolean) {
+    root.classList.toggle('dark', dark);
+    for (const b of document.querySelectorAll('[data-theme-toggle]')) {
+      b.setAttribute('aria-pressed', String(dark));
+    }
+    for (const m of document.querySelectorAll<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    )) {
+      m.content = dark ? chrome.dark : chrome.light;
+    }
+  }
+
+  apply(root.classList.contains('dark'));
+
+  for (const b of document.querySelectorAll('[data-theme-toggle]')) {
+    b.addEventListener('click', () => {
+      const dark = !root.classList.contains('dark');
+      apply(dark);
+      try {
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+      } catch {
+        // Private mode: the choice lasts for this page only.
+      }
+    });
+  }
+
+  // Until the visitor picks a theme, follow OS changes live.
+  media.addEventListener('change', (e) => {
+    if (!stored()) apply(e.matches);
+  });
+</script>

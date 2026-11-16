@@ -7,6 +7,6 @@ const settings = await getSettings();
 // Person node joins the graph with the hero in Phase 2 (schema must match visible content).
 ---
 
-<BaseLayout schema={[websiteNode(settings)]}>
+<BaseLayout schema={[websiteNode(settings)]} footerCta={false}>
   <main id="main"></main>
 </BaseLayout>

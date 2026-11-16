@@ -1,0 +1,147 @@
+---
+// Sticky site header (FR-1, FR-2). Desktop (lg+): wordmark on column 1, nav from column 7, then the theme
+// toggle and WhatsApp; the active page is a 3px bar sitting on the full-bleed rule. Below lg: wordmark,
+// WhatsApp and a Menu button opening a full-screen sheet (Popover API, zero JS). The Spec mode toggle
+// floats in the bottom corner (Phase 5) and is not part of the header.
+import { t } from '@/i18n';
+import { getSettings } from '@/lib/content';
+import { isCurrent, mainNav } from '@/lib/routes';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import ThemeToggle from '@/components/site/ThemeToggle.astro';
+import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
+
+const settings = await getSettings();
+const { pathname } = Astro.url;
+const nav = await mainNav(pathname);
+const atHome = isCurrent('/', pathname);
+---
+
+<header class="sticky top-0 z-40 border-b border-rule bg-background">
+  <div class="wrap flex h-header items-center lg:grid-page">
+    <a
+      href="/"
+      class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink lg:col-span-6 lg:justify-self-start"
+      aria-label={t('nav.home', { brand: settings.brand })}
+      aria-current={atHome ? 'page' : undefined}
+    >
+      {settings.brand}
+    </a>
+
+    <div class="ms-auto flex h-full items-center gap-2 lg:col-span-6 lg:ms-0">
+      {nav.length > 0 && (
+        <nav aria-label={t('nav.label')} class="hidden h-full lg:block">
+          <ul class="flex h-full gap-7">
+            {nav.map((item) => (
+              <li class="h-full">
+                <a
+                  href={item.href}
+                  aria-current={item.current ? 'page' : undefined}
+                  class="relative flex h-full items-center text-sm text-ink decoration-1 underline-offset-[0.4em] not-aria-[current=page]:hover:underline aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-[3px] aria-[current=page]:after:bg-ink"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
+      <div class="flex items-center gap-2 lg:ms-auto">
+        <ThemeToggle class="hidden lg:inline-flex" />
+        <WhatsAppButton label={t('whatsapp.short')} class="lg:h-10 lg:px-3" />
+        <button
+          type="button"
+          popovertarget="site-menu"
+          class={cn(buttonVariants({ variant: 'outline' }), 'lg:hidden')}
+        >
+          <span class="menu-label-open">{t('menu.open')}</span>
+          <span class="menu-label-close">{t('menu.close')}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="site-menu" popover class="site-menu bg-background text-foreground">
+    <div class="wrap flex min-h-full flex-col pt-2 pb-6">
+      {nav.length > 0 && (
+        <nav aria-label={t('nav.label')}>
+          <ul>
+            {nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={item.current ? 'page' : undefined}
+                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-ink"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+      <div class="mt-auto pt-8">
+        <ThemeToggle withLabel />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  /* Full-screen sheet below the sticky header; the header (WhatsApp, Close) stays usable above it. */
+  .site-menu {
+    position: fixed;
+    inset: var(--spacing-header) 0 0;
+    inset-block-start: calc(var(--spacing-header) + 1px);
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    opacity: 0;
+    translate: 0 -0.5rem;
+    transition:
+      opacity 0.18s ease-out,
+      translate 0.18s ease-out,
+      display 0.18s allow-discrete,
+      overlay 0.18s allow-discrete;
+  }
+  .site-menu:popover-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .site-menu:popover-open {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
+  }
+  /* Clicks outside still light-dismiss the menu, and reach the header controls below. */
+  .site-menu::backdrop {
+    pointer-events: none;
+  }
+  @media (width >= 64rem) {
+    .site-menu,
+    .site-menu:popover-open {
+      display: none;
+    }
+  }
+
+  .menu-label-close {
+    display: none;
+  }
+  :global(html:has(.site-menu:popover-open)) {
+    overflow: hidden;
+  }
+  :global(html:has(.site-menu:popover-open)) .menu-label-open {
+    display: none;
+  }
+  :global(html:has(.site-menu:popover-open)) .menu-label-close {
+    display: inline;
+  }
+</style>

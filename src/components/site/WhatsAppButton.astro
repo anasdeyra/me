@@ -1,0 +1,41 @@
+---
+// The primary CTA: a prefilled wa.me link in WhatsApp green. Opens in a new tab so the site stays open.
+import { t } from '@/i18n';
+import type { ButtonVariants } from '@/components/ui/button';
+import { whatsappHref } from '@/lib/contact';
+import { getSettings } from '@/lib/content';
+import Button from './Button.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+
+interface Props {
+  size?: ButtonVariants['size'];
+  /** Visible label; defaults to "Message me on WhatsApp". */
+  label?: string;
+  /** Prefilled message; defaults to the generic template. */
+  text?: string;
+  class?: string;
+}
+
+const {
+  size = 'default',
+  label = t('whatsapp.cta'),
+  text,
+  class: className,
+} = Astro.props;
+const settings = await getSettings();
+---
+
+<Button
+  href={whatsappHref(settings.whatsappNumber, text)}
+  variant="whatsapp"
+  size={size}
+  class={className}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <WhatsAppIcon />
+  <span>
+    {label}
+    <span class="sr-only"> {t('a11y.newTab')}</span>
+  </span>
+</Button>

@@ -2,6 +2,8 @@
 import '@/styles/global.css';
 import { Font } from 'astro:assets';
 import JsonLd from '@/components/seo/JsonLd.astro';
+import SiteFooter from '@/components/layout/SiteFooter.astro';
+import SiteHeader from '@/components/layout/SiteHeader.astro';
 import ThemeScript from '@/components/site/ThemeScript.astro';
 import { defaultLocale, t } from '@/i18n';
 import { getProfile, getSettings } from '@/lib/content';
@@ -19,6 +21,8 @@ interface Props {
   noindex?: boolean;
   /** JSON-LD nodes for this page's @graph (see src/lib/schema.ts). */
   schema?: SchemaNode[];
+  /** Closing CTA above the footer. Off on the home page, which has its own final CTA section. */
+  footerCta?: boolean;
 }
 
 const settings = await getSettings();
@@ -30,6 +34,7 @@ const {
   type = 'website',
   noindex = false,
   schema = [],
+  footerCta = true,
 } = Astro.props;
 
 const lang = Astro.currentLocale ?? defaultLocale;
@@ -94,7 +99,15 @@ const imageUrl = image ? new URL(image.src, Astro.site).href : undefined;
 
     {schema.length > 0 && <JsonLd graph={schema} />}
   </head>
-  <body class="min-h-dvh">
+  <body class="grid min-h-dvh grid-rows-[auto_1fr_auto]">
+    <a
+      href="#main"
+      class="sr-only z-50 bg-primary px-4 py-3 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:start-4 focus:top-2"
+    >
+      {t('a11y.skipToContent')}
+    </a>
+    <SiteHeader />
     <slot />
+    <SiteFooter cta={footerCta} />
   </body>
 </html>
