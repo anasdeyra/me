@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
 import keystatic from '@keystatic/astro';
@@ -13,6 +13,11 @@ import { securityHeaders } from './config/security-headers.mjs';
 const isDev =
   process.argv.includes('dev') || process.env.NODE_ENV === 'development';
 
+// Self-hosted fonts from the installed @fontsource-variable packages (pinned by the lockfile, no network
+// at build). Latin subset only: one variable woff2 per family covers every weight.
+/** @param {string} pkg @param {string} file */
+const fontFile = (pkg, file) =>
+  `./node_modules/@fontsource-variable/${pkg}/files/${file}`;
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,22 +38,59 @@ export default defineConfig({
     // Enforced CSP in production builds: Astro hashes every script and style it renders; no 'unsafe-inline'.
     // Off in dev: Astro would send it there too, without hashes, blocking Vite's inline dev styles,
     // and the Keystatic admin. Verify CSP on a Vercel preview deployment instead.
-    csp: isDev ? false : {
-      algorithm: 'SHA-256',
-      directives: [
-        "default-src 'self'",
-        "base-uri 'self'",
-        "object-src 'none'",
-        "form-action 'self'",
-        "frame-ancestors 'none'",
-        "img-src 'self' data:",
-        "font-src 'self'",
-        "connect-src 'self'",
-        "manifest-src 'self'",
-        'upgrade-insecure-requests',
-      ],
-    },
+    csp: isDev
+      ? false
+      : {
+          algorithm: 'SHA-256',
+          directives: [
+            "default-src 'self'",
+            "base-uri 'self'",
+            "object-src 'none'",
+            "form-action 'self'",
+            "frame-ancestors 'none'",
+            "img-src 'self' data:",
+            "font-src 'self'",
+            "connect-src 'self'",
+            "manifest-src 'self'",
+            'upgrade-insecure-requests',
+          ],
+        },
   },
+  // Fonts API: files are copied to /_astro/fonts and a metric-matched fallback (@font-face over a local
+  // system font) is generated, so the swap does not shift layout.
+  fonts: [
+    {
+      provider: fontProviders.local(),
+      name: 'Geist',
+      cssVariable: '--font-geist',
+      fallbacks: ['sans-serif'],
+      options: {
+        variants: [
+          {
+            src: [fontFile('geist', 'geist-latin-wght-normal.woff2')],
+            weight: '100 900',
+            style: 'normal',
+          },
+        ],
+      },
+    },
+    {
+      // Code and Spec mode only; never preloaded.
+      provider: fontProviders.local(),
+      name: 'Geist Mono',
+      cssVariable: '--font-geist-mono',
+      fallbacks: ['monospace'],
+      options: {
+        variants: [
+          {
+            src: [fontFile('geist-mono', 'geist-mono-latin-wght-normal.woff2')],
+            weight: '100 900',
+            style: 'normal',
+          },
+        ],
+      },
+    },
+  ],
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],

@@ -1,130 +1,273 @@
+/*
+ * Design system: Swiss editorial, black and white (docs/ux-study.md 7.1, 7.1b).
+ * Tokens are CSS variables mapped to shadcn's names, so shadcn components restyle themselves.
+ * The only colors are WhatsApp green (WhatsApp CTAs only) and the Dusk grainy gradient (decorative).
+ * Fonts come from the Astro Fonts API (astro.config.mjs) as --font-geist / --font-geist-mono.
+ */
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-@import '@fontsource-variable/geist';
 
+/* Theme is a class on <html>, set before first paint by the inline script in BaseLayout. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-geist), sans-serif;
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
+  --font-mono: var(--font-geist-mono), monospace;
+
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-rule: var(--rule);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
+
+  /* Radius is 2px everywhere; the shadcn steps all resolve to it. */
+  --radius-xs: var(--radius);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
+}
+
+@theme {
+  /*
+   * Fluid type scale: base 16px at 320px viewport -> 18px at 1440px; ratio 1.2 -> 1.333 over the same
+   * range (xl and up are steps 2..8 of the scale). Sizes stop growing at 1440px; xs/sm are UI sizes.
+   */
+  --text-*: initial;
+  --text-xs: clamp(0.7813rem, 0.7723rem + 0.0446vw, 0.8125rem);
+  --text-xs--line-height: 1.45;
+  --text-sm: clamp(0.875rem, 0.8571rem + 0.0893vw, 0.9375rem);
+  --text-sm--line-height: 1.45;
+  --text-base: clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem);
+  --text-base--line-height: 1.6;
+  --text-lg: clamp(1.2rem, 1.1144rem + 0.428vw, 1.5rem);
+  --text-lg--line-height: 1.45;
+  --text-lg--letter-spacing: -0.01em;
+  --text-xl: clamp(1.44rem, 1.2803rem + 0.7986vw, 2rem);
+  --text-xl--line-height: 1.25;
+  --text-xl--letter-spacing: -0.02em;
+  --text-2xl: clamp(1.728rem, 1.4604rem + 1.3381vw, 2.6647rem);
+  --text-2xl--line-height: 1.15;
+  --text-2xl--letter-spacing: -0.025em;
+  --text-3xl: clamp(2.0736rem, 1.6512rem + 2.112vw, 3.552rem);
+  --text-3xl--line-height: 1.08;
+  --text-3xl--letter-spacing: -0.03em;
+  --text-4xl: clamp(2.4883rem, 1.8465rem + 3.2093vw, 4.7348rem);
+  --text-4xl--line-height: 1.02;
+  --text-4xl--letter-spacing: -0.035em;
+  --text-5xl: clamp(2.986rem, 2.0358rem + 4.7508vw, 6.3115rem);
+  --text-5xl--line-height: 0.98;
+  --text-5xl--letter-spacing: -0.04em;
+  --text-6xl: clamp(3.5832rem, 2.2032rem + 6.9001vw, 8.4132rem);
+  --text-6xl--line-height: 0.94;
+  --text-6xl--letter-spacing: -0.045em;
+  --text-7xl: clamp(4.2998rem, 2.3248rem + 9.8749vw, 11.2139rem);
+  --text-7xl--line-height: 0.85;
+  --text-7xl--letter-spacing: -0.05em;
+
+  /*
+   * Layout (W1): page margins grow 16px -> 80px up to a 1440px viewport; content caps at 1440px and any
+   * extra width becomes margin. Section spacing grows 64px -> 192px. Text measure stays fixed.
+   */
+  --spacing-page: clamp(1rem, -0.1429rem + 5.7143vw, 5rem);
+  --spacing-gutter: clamp(1rem, 0.8571rem + 0.7143vw, 1.5rem);
+  --spacing-section: clamp(4rem, 2.2857rem + 8.5714vw, 12rem);
+  --spacing-header: 3.5rem; /* sticky header height; 4rem from lg (below) */
+  --container-page: 90rem;
+  --container-measure: 68ch;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  color-scheme: light;
+  --radius: 2px;
+
+  --background: #ffffff;
+  --foreground: #000000; /* body text */
+  --ink: #000000; /* headings, strong rules, primary CTA */
+  --rule: var(--ink);
+  --muted: #f2f2f2; /* hover surfaces */
+  --muted-foreground: #595959; /* secondary text, 7.0:1 (AAA) */
+  --border: #e5e5e5; /* hairlines */
+  --input: #8a8a8a; /* form control borders, 3.4:1 */
+  --ring: var(--ink); /* focus outline */
+
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+  --primary: var(--ink);
+  --primary-foreground: var(--background);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--ink);
+  --accent: var(--muted);
+  --accent-foreground: var(--ink);
+  --destructive: #c4001a; /* errors only (forms); 6.0:1 on white */
+
+  /* WhatsApp CTAs: the brand green with a black label (10.6:1); white on this green fails AA. */
+  --whatsapp: #25d366;
+  --whatsapp-hover: #1fbd5a;
+  --whatsapp-foreground: #000000;
+
+  /*
+   * Dusk grainy gradient (decorative only, see .dusk). Grain: SVG feTurbulence as a data: URI
+   * (CSP img-src allows data:), contrast-boosted and blended with overlay.
+   */
+  --dusk-amber: #ffb238;
+  --dusk-pink: #ff4f81;
+  --dusk-violet: #7a3cff;
+  --dusk-gradient:
+    radial-gradient(closest-side at 26% 70%, var(--dusk-amber), transparent),
+    radial-gradient(closest-side at 70% 48%, var(--dusk-pink), transparent),
+    radial-gradient(closest-side at 50% 22%, var(--dusk-violet), transparent);
+  --dusk-opacity: 1;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='3' intercept='-1'/%3E%3CfeFuncG type='linear' slope='3' intercept='-1'/%3E%3CfeFuncB type='linear' slope='3' intercept='-1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain-opacity: 0.55;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #ededed; /* body text softened against halation, 17.9:1 */
+  --ink: #ffffff;
+  --muted: #141414;
+  --muted-foreground: #a3a3a3; /* 8.3:1 (AAA) */
+  --border: #262626;
+  --input: #757575;
+  --destructive: #ff6b6b;
+}
+
+/* Desktop header (nav visible) from lg = 1024px; the mobile menu is used below. */
+@media (width >= 64rem) {
+  :root {
+    --spacing-header: 4rem;
+  }
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+    @apply border-border outline-ring;
   }
   html {
-    @apply font-sans;
+    @apply bg-background text-foreground font-sans;
+    /* Anchors and focused elements land below the sticky header (WCAG 2.4.11). */
+    scroll-padding-block-start: calc(var(--spacing-header) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground text-base antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading text-ink font-semibold;
+    text-wrap: balance;
+  }
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background-color: var(--ink);
+    color: var(--background);
+  }
+  /* Theme toggles need JS; hide them when it is off (the theme then follows light defaults). */
+  html:not(.js) [data-theme-toggle] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Centered page column: fluid margins, content capped at --container-page. */
+@utility wrap {
+  width: 100%;
+  max-width: calc(var(--container-page) + 2 * var(--spacing-page));
+  margin-inline: auto;
+  padding-inline: var(--spacing-page);
+}
+
+/* The 12-column grid every section aligns to. */
+@utility grid-page {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+}
+
+/* Inline text link: always underlined (not color-dependent), thicker on hover. */
+@utility link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/*
+ * Dusk glow: place <DuskGlow /> inside a `relative isolate` box; it bleeds past the box by
+ * --dusk-inset (default -20%) and fades out radially. Never put it behind body text.
+ */
+@layer components {
+  .dusk {
+    position: absolute;
+    inset: var(--dusk-inset, -20%);
+    z-index: -1;
+    pointer-events: none;
+    background: var(--dusk-gradient);
+    opacity: var(--dusk-opacity);
+    mask-image: radial-gradient(closest-side, #000 55%, transparent);
+  }
+  .dusk::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--grain);
+    background-size: 240px;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+  }
+  @media (forced-colors: active) {
+    .dusk {
+      display: none;
+    }
   }
 }

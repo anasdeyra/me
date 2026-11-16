@@ -1,0 +1,30 @@
+---
+// Static button or link with shadcn's variants (zero JS). Renders <a> when `href` is set.
+import type { HTMLAttributes } from 'astro/types';
+import { buttonVariants, type ButtonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+type Props = ButtonVariants &
+  (
+    | ({ href: string } & Omit<HTMLAttributes<'a'>, 'href'>)
+    | ({ href?: undefined } & HTMLAttributes<'button'>)
+  );
+
+const { variant, size, class: className, ...rest } = Astro.props;
+const classes = cn(buttonVariants({ variant, size }), className);
+---
+
+{'href' in rest && rest.href ? (
+  <a class={classes} data-slot="button" {...(rest as HTMLAttributes<'a'>)}>
+    <slot />
+  </a>
+) : (
+  <button
+    type="button"
+    class={classes}
+    data-slot="button"
+    {...(rest as HTMLAttributes<'button'>)}
+  >
+    <slot />
+  </button>
+)}

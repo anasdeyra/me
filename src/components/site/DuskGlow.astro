@@ -1,0 +1,11 @@
+---
+// Dusk grainy-gradient glow (decorative). Put it inside a `relative isolate` box; it sits behind the
+// box's content and bleeds past it by --dusk-inset (default -20%; e.g. class="[--dusk-inset:0%]").
+// Never behind body text. Removed under forced colors. Styles: .dusk in src/styles/global.css.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<div class:list={['dusk', className]} aria-hidden="true"></div>
