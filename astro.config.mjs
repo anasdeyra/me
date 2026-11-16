@@ -45,8 +45,10 @@ export default defineConfig({
     securityHeaders(),
   ],
   security: {
-    // Enforced CSP: Astro hashes every script and style it renders; no 'unsafe-inline'.
-    csp: {
+    // Enforced CSP in production builds: Astro hashes every script and style it renders; no 'unsafe-inline'.
+    // Off in dev: Astro would send it there too, without hashes, blocking Vite's inline dev styles,
+    // the Keystatic admin and the /lab fonts. Verify CSP on a Vercel preview deployment instead.
+    csp: isDev ? false : {
       algorithm: 'SHA-256',
       directives: [
         "default-src 'self'",

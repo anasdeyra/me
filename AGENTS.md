@@ -79,7 +79,9 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - SEO: unique title/description per page, canonical, OG tags, `Person` JSON-LD on the home/about page.
   `BaseLayout` props: `title` (omit on home), `description`, `image`, `type`, `noindex`, `schema` (JSON-LD nodes).
   Mark up only visible content; no FAQPage (Google retired FAQ rich results in 2026).
-- Security: CSP is enforced (Astro hashes scripts/styles; sent as a header via the adapter's `staticHeaders`).
+- Security: CSP is enforced in production builds only (Astro hashes scripts/styles; sent as a header via the
+  adapter's `staticHeaders`). It is off in `astro dev` (no hashes there; it would block Vite styles), so check CSP on
+  a Vercel preview deployment.
   No `style=""` attributes, no third-party scripts/fonts/images without adding them to `security.csp` in
   `astro.config.mjs`. Shiki is off (inline styles); code highlighting must emit classes.
   Other headers live in `config/security-headers.mjs` (verify in `.vercel/output/config.json` after build).
