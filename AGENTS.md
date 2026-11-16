@@ -148,8 +148,12 @@ strategy). Positioning/voice: `.agents/product-marketing.md`. Summary:
   **Swiss editorial**, **black and white** (pure neutral grays for secondary text and rules; primary CTA is solid
   black, inverted in dark), **generous whitespace on large screens** (margins and section spacing grow with the
   viewport; text measure stays fixed). **No silver accent and no accent color**: color appears only as **grainy
-  gradients** (gradient + film-grain noise, decorative touches). The **hero shows Anas's headshot**. Pending: typeface,
-  gradient palette and placement, hero layout, photo treatment.
+  gradients** (gradient + film-grain noise, decorative touches). The **hero shows Anas's headshot**.
+  Details: typeface **Geist** + Geist Mono (code/Spec mode only); type scale 1.333; radius 2px. Gradient palette
+  **Dusk** (`#FFB238` -> `#FF4F81` -> `#7A3CFF`, with grain), used **only behind the hero portrait** for now. Hero:
+  **text left (cols 1-7), portrait right (cols 9-12)**, 4:5. Photo: **color, as shot**
+  (`src/content/en/profile/photo.jpg`, cropped to exclude the Gemini watermark). It is AI-generated: replace it with
+  a real photo when available (same file name, or via /keystatic).
 
 ## Do not
 

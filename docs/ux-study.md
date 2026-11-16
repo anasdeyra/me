@@ -278,8 +278,8 @@ WhatsApp card (button + QR on >= 768px, number +216 93 028 674 shown as text too
 
 - Swiss editorial: strong type hierarchy, flush-left ragged-right text, 12-col grid with an asymmetric section split, strong full-measure rules.
 - Whitespace: generous, and growing with the viewport. On large screens margins and section spacing widen; the text measure stays fixed instead of stretching.
-- Hero: Anas's headshot. A human face before any claim builds trust with founders and recruiters.
-- Type: TBD (the lab's Swiss preset used Geist + Geist Mono). Mono only for code and Spec mode. Fluid type scale (`clamp`).
+- Hero: Anas's headshot, in color, 4:5, in the right columns (9-12) with the text on the left (1-7). A human face before any claim builds trust with founders and recruiters.
+- Type: Geist (headings, body, UI) + Geist Mono (code and Spec mode only), self-hosted via the Astro Fonts API. Fluid type scale (`clamp`), ratio 1.333 on desktop; radius 2px.
 - Color: black and white (light: black on white; dark: white on black), pure neutral grays for secondary text and rules. No accent color: the primary CTA is solid black (inverted in dark). Color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
 - Motion: subtle, purposeful (map pulses, focus transitions); off under reduced motion.
 - Components: shadcn (button, dialog for search, tooltip for Spec mode), restyled with tokens. Mobile nav uses the Popover API.
@@ -293,7 +293,8 @@ The only color on the site: soft gradients with a film-grain noise layer, used a
 - **Themes:** same hues in light and dark; grain and opacity tuned per theme.
 - **Motion:** static by default; if a gradient drifts, it animates `transform`/`opacity` only and stops under `prefers-reduced-motion`.
 - **`forced-colors: active`:** gradients are removed.
-- **TBD:** palette, placement, intensity.
+- **Palette: Dusk** (`#FFB238` amber -> `#FF4F81` pink -> `#7A3CFF` violet), as stacked radial gradients with grain.
+- **Placement:** only a soft glow behind the hero portrait for now. Considered and not chosen yet: the final contact block, project image backdrops, social cards and 404.
 
 ### 7.2 Screenshot treatment (assets "don't look that good")
 
