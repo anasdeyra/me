@@ -5,7 +5,6 @@ import JsonLd from '@/components/seo/JsonLd.astro';
 import SiteFooter from '@/components/layout/SiteFooter.astro';
 import SiteHeader from '@/components/layout/SiteHeader.astro';
 import Analytics from '@/components/site/Analytics.astro';
-import SpecToggle from '@/components/site/SpecToggle.astro';
 import ThemeScript from '@/components/site/ThemeScript.astro';
 import { defaultLocale, t } from '@/i18n';
 import { getProfile, getSettings } from '@/lib/content';
@@ -31,8 +30,6 @@ interface Props {
   footerCta?: boolean;
   /** Vercel Web Analytics + [data-track] events (production only). Turn off for pages that should not be measured. */
   tracking?: boolean;
-  /** Spec mode toggle (bottom-end). Off on the noindex result pages. */
-  spec?: boolean;
   /** Canonical URL override (a post first published elsewhere). OG url stays on this page. */
   canonical?: string;
   /** Article meta (`type="article"`): `YYYY-MM-DD` dates and topic labels. */
@@ -53,7 +50,6 @@ const {
   schema = [],
   footerCta = true,
   tracking = true,
-  spec = true,
   canonical: canonicalOverride,
   publishedTime,
   modifiedTime,
@@ -159,8 +155,7 @@ const graph =
     </a>
     <SiteHeader />
     <slot />
-    <SiteFooter cta={footerCta} spec={spec} />
-    {spec && <SpecToggle />}
+    <SiteFooter cta={footerCta} />
     <script>
       import '@/scripts/pointer';
     </script>

@@ -1,13 +1,12 @@
 ---
-// Home (study 6.1). Sections 3, 4, 5 (Phase 3) and 10 (Phase 4) are gated by isSectionLive and added later.
+// Home (study 6.1). Sections 3, 4 (Phase 3) and 10 (Phase 4) are gated by isSectionLive and added later.
 import AboutTeaser from '@/components/home/AboutTeaser.astro';
 import Faq from '@/components/home/Faq.astro';
 import LatestWriting from '@/components/home/LatestWriting.astro';
 import Hero from '@/components/home/Hero.astro';
 import Process from '@/components/home/Process.astro';
 import ClientsMapStyle from '@/components/proof/ClientsMapStyle.astro';
-import ClientsWorldwide from '@/components/home/ClientsWorldwide.astro';
-import Testimonials from '@/components/home/Testimonials.astro';
+import Proof from '@/components/home/Proof.astro';
 import SelectedWork from '@/components/home/SelectedWork.astro';
 import Services from '@/components/home/Services.astro';
 import TrustStrip from '@/components/home/TrustStrip.astro';
@@ -27,7 +26,7 @@ const portrait = photo
       Astro.site,
     ).href
   : undefined;
-const clientsLive = await isSectionLive('clients');
+const proofLive = await isSectionLive('proof');
 ---
 
 <BaseLayout
@@ -37,13 +36,12 @@ const clientsLive = await isSectionLive('clients');
   ]}
   footerCta={false}
 >
-  {clientsLive && <ClientsMapStyle slot="head" />}
+  {proofLive && <ClientsMapStyle slot="head" />}
   <main id="main">
     <Hero />
     <TrustStrip />
     <SelectedWork />
-    <Testimonials />
-    <ClientsWorldwide />
+    <Proof />
     <Services />
     <Process />
     <AboutTeaser />

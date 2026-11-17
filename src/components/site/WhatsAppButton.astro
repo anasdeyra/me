@@ -18,8 +18,6 @@ interface Props {
   /** Optional analytics slug (project pages): adds data-track-slug. */
   trackSlug?: string;
   class?: string;
-  /** Spec mode annotation; defaults to a 44px target plus contrast. */
-  'data-spec'?: string;
 }
 
 const {
@@ -29,7 +27,6 @@ const {
   trackLocation,
   trackSlug,
   class: className,
-  'data-spec': spec = 'target:44 contrast',
 } = Astro.props;
 const settings = await getSettings();
 ---
@@ -41,7 +38,6 @@ const settings = await getSettings();
   class={className}
   target="_blank"
   rel="noopener noreferrer"
-  data-spec={spec}
   data-track={trackLocation ? 'contact_whatsapp' : undefined}
   data-track-location={trackLocation}
   data-track-slug={trackLocation ? trackSlug : undefined}

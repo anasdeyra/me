@@ -3,23 +3,59 @@
 // in the page head (pass `slot="head"` to BaseLayout), hashed for the CSP (config/security-headers.mjs adds the hash
 // to style-src for prerendered pages). Valid placement: <style> is not allowed inside body content.
 import { createHash } from 'node:crypto';
-import { getClients } from '@/lib/content';
+import { getClients, getSettings } from '@/lib/content';
 import { countryName } from '@/lib/place';
+import { getProofPlaces } from '@/lib/proof';
+import { buildWorldMap } from '@/lib/world-map';
 
-const clients = (await getClients())
-  .map((c) => ({ iso: c.entry.isoCode, name: countryName(c.entry.isoCode) }))
+const [settings, clientEntries, { places }] = await Promise.all([
+  getSettings(),
+  getClients(),
+  getProofPlaces(),
+]);
+const clients = clientEntries
+  .map((c) => ({
+    iso: c.entry.isoCode,
+    name: countryName(c.entry.isoCode),
+    latitude: c.entry.latitude,
+    longitude: c.entry.longitude,
+  }))
   .sort((a, b) => a.name.localeCompare(b.name));
+
+// Marker positions as percentages of the map frame (the markup cannot carry style="" under the CSP). The map is
+// not mirrored in RTL, so these are physical left/top on purpose.
+const { latitude, longitude, countryCode } = settings.location;
+const map = buildWorldMap({
+  home: { latitude, longitude, countryCode },
+  clients,
+});
+const [, , width, height] = map.viewBox.split(' ').map(Number);
+const pct = (n: number) => `${Math.round(n * 1000) / 1000}%`;
+const spot = (iso: string) =>
+  iso === countryCode ? map.home : map.markers.find((m) => m.iso === iso);
+const placed = new Map(places.map((p) => [p.iso, p]));
+
 // The sequence slot `--a` (scroll-linked entry order), the stagger `--k`, and the list item <-> marker pairing
-// (hover on either lights the arc, label, spark and ripple of that client).
+// (hover on either lights the arc, label, spark and ripple of that client). For countries with a review the
+// selected radio (#pc-<ISO>:checked) also shows its panel, ring, arc and label; :focus-visible rings the marker.
 const rules = clients
   .map((c, i) => {
     const k = `.m-${c.iso}`;
-    const on = `.cmap:is(:has(li${k}:hover),:has(.cl${k}:hover))`;
-    return [
+    const on = `.cmap:is(:has(li${k}:hover),:has(.cl${k}:hover),:has(.mk${k}:hover))`;
+    const out = [
       `${k}{--a:${Math.min(2 + i * 2, 20)};--k:${Math.min(i, 8)}}`,
       `@media (hover:hover){${on} .cl${k} .arc{stroke-opacity:1!important}${on} .cl${k} .core{scale:1.5;opacity:1!important}${on} .tip${k}{opacity:1}}`,
       `@media (hover:hover) and (prefers-reduced-motion:no-preference){${on} .cl${k} .spark{animation:travel 1.8s var(--ease-in-out) 2 both;animation-timeline:auto;animation-delay:0s}${on} .cl${k} .ripple{animation:ripple 1.8s var(--ease-out) 2 both;animation-timeline:auto;animation-delay:0s}}`,
-    ].join('');
+    ];
+    const at = placed.has(c.iso) ? spot(c.iso) : undefined;
+    if (at) {
+      const sel = `.cmap:has(#pc-${c.iso}:checked)`;
+      out.push(
+        `.mk${k}{left:${pct((at.x / width) * 100)};top:${pct((at.y / height) * 100)}}`,
+        `@supports selector(:has(*)){${sel} .panel${k}{visibility:visible;opacity:1;transition-delay:0s}${sel} .mk${k}{outline:2px solid var(--ink)}${sel} .cl${k} .arc{stroke-opacity:1!important}${sel} .cl${k} .core{scale:1.5;opacity:1!important}${sel} .tip${k}{display:block;opacity:1}.cmap:has(#pc-${c.iso}:focus-visible) .mk${k}{outline:3px solid var(--ring);outline-offset:3px}}`,
+      );
+    }
+    return out.join('');
   })
   .join('');
 const css = rules;

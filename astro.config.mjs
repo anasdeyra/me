@@ -88,7 +88,7 @@ export default defineConfig({
       },
     },
     {
-      // Code and Spec mode only; never preloaded.
+      // Code blocks only; never preloaded.
       provider: fontProviders.local(),
       name: 'Geist Mono',
       cssVariable: '--font-geist-mono',

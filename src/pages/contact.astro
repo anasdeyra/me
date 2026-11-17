@@ -32,10 +32,7 @@ const rowTitle = 'col-span-12 text-xl font-semibold text-ink md:col-span-4';
   >
     {/* Warm backdrop in the empty top-end corner beside the heading (lg+ only), never behind text. */}
     <DuskGlow class="hidden size-[22rem] inset-auto end-[3%] top-[-1rem] [--dusk-opacity:0.85] lg:block" />
-    <h1
-      class="col-span-12 text-5xl md:col-span-9 lg:col-span-8"
-      data-spec="type:text-5xl contrast"
-    >
+    <h1 class="col-span-12 text-5xl md:col-span-9 lg:col-span-8">
       {t('contact.heading')}
     </h1>
     <div class="col-span-12 mt-6 max-w-measure space-y-4 text-lg md:col-span-7 lg:col-span-6">
@@ -68,8 +65,6 @@ const rowTitle = 'col-span-12 text-xl font-semibold text-ink md:col-span-4';
             value={prefilled}
             label={t('contact.qr.label')}
             class="w-full max-w-32 border border-border p-2"
-            data-spec="note"
-            data-spec-note={t('spec.note.qr')}
           />
           <p class="mt-3 text-sm text-muted-foreground">
             {t('contact.whatsapp.scan')}

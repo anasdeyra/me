@@ -104,21 +104,18 @@ export async function footerNav(pathname: string) {
 }
 
 // Home sections gated like routes (FR-22). Each section has a `built` flag and a content gate.
-let testimonialCount: Promise<number> | undefined;
-let clientCount: Promise<number> | undefined;
+let proofCount: Promise<number> | undefined;
 
 export const sections = {
   selectedWork: { built: true, gate: enoughProjects },
-  testimonials: {
+  // Clients map + testimonials in one section: live when there is a client country or a review to show.
+  proof: {
     built: true,
     gate: async () =>
-      (await (testimonialCount ??= getTestimonials().then((t) => t.length))) >=
-      1,
-  },
-  clients: {
-    built: true,
-    gate: async () =>
-      (await (clientCount ??= getClients().then((c) => c.length))) >= 1,
+      (await (proofCount ??= Promise.all([
+        getClients(),
+        getTestimonials(),
+      ]).then(([c, r]) => c.length + r.length))) >= 1,
   },
   writing: { built: true, gate: enoughPosts },
 } satisfies Record<string, { built: boolean; gate?: () => Promise<boolean> }>;

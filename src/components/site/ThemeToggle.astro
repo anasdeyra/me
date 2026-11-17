@@ -10,16 +10,14 @@ interface Props {
   /** Show the "Dark theme" text next to the glyph (mobile menu). */
   withLabel?: boolean;
   class?: string;
-  'data-spec'?: string;
 }
 
-const { withLabel = false, class: className, 'data-spec': spec } = Astro.props;
+const { withLabel = false, class: className } = Astro.props;
 ---
 
 <button
   type="button"
   data-theme-toggle
-  data-spec={spec}
   aria-pressed="false"
   class={cn(
     buttonVariants({

@@ -26,7 +26,6 @@ const atHome = isCurrent('/', pathname);
       href="/"
       class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink decoration-1 underline-offset-[0.2em] transition-colors duration-(--dur-1) hover:text-link-hover hover:underline focus-visible:text-link-hover lg:col-span-6 lg:justify-self-start"
       translate="no"
-      data-spec="type"
       aria-label={t('nav.home', { brand: settings.brand })}
       aria-current={atHome ? 'page' : undefined}
     >
@@ -53,7 +52,7 @@ const atHome = isCurrent('/', pathname);
       )}
 
       <div class="flex items-center gap-2 lg:ms-auto">
-        <ThemeToggle class="hidden lg:inline-flex" data-spec="target" />
+        <ThemeToggle class="hidden lg:inline-flex" />
         <a
           href={settings.links.github}
           target="_blank"
@@ -62,7 +61,6 @@ const atHome = isCurrent('/', pathname);
             buttonVariants({ variant: 'ghost', size: 'icon-lg' }),
             'hidden sm:inline-flex',
           )}
-          data-spec="target"
           data-track="contact_github"
           data-track-location="header"
         >
@@ -73,7 +71,6 @@ const atHome = isCurrent('/', pathname);
         </a>
         <Button
           href="/contact"
-          data-spec="target:44 contrast"
           data-track="contact_cta"
           data-track-location="header"
         >
@@ -82,7 +79,6 @@ const atHome = isCurrent('/', pathname);
         <button
           type="button"
           popovertarget="site-menu"
-          data-spec="target"
           class={cn(buttonVariants({ variant: 'outline' }), 'lg:hidden')}
         >
           <span class="menu-label-open">{t('menu.open')}</span>
@@ -92,11 +88,7 @@ const atHome = isCurrent('/', pathname);
     </div>
   </div>
 
-  <div
-    id="site-menu"
-    popover
-    class="site-menu bg-background text-foreground"
-  >
+  <div id="site-menu" popover class="site-menu bg-background text-foreground">
     <div class="wrap flex min-h-full flex-col pt-2 pb-6">
       {nav.length > 0 && (
         <nav aria-label={t('nav.menuLabel')}>

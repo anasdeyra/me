@@ -17,7 +17,6 @@ const ownsPadding = /(^|\s)(?:[a-z]+:)*p[ytb]-/.test(className ?? '');
 <section
   id={id}
   aria-labelledby={labelledby}
-  data-spec="spacing:py-section"
   {...rest}
   class={cn('wrap grid-page', !ownsPadding && 'py-section', className)}
 >

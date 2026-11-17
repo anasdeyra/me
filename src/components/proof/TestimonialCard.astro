@@ -10,6 +10,8 @@ interface Props {
   testimonial: Testimonial;
   variant?: 'card' | 'pull';
   excerpt?: boolean;
+  /** Client country name, appended to the author line. */
+  country?: string;
   class?: string;
 }
 
@@ -17,6 +19,7 @@ const {
   testimonial,
   variant = 'card',
   excerpt = false,
+  country,
   class: className,
 } = Astro.props;
 const { entry } = testimonial;
@@ -25,6 +28,7 @@ const author = [
   entry.author || t('testimonial.client'),
   entry.role,
   entry.company,
+  country,
 ]
   .filter(Boolean)
   .join(', ');

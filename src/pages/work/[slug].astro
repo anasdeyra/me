@@ -80,10 +80,7 @@ const tagChips = await tagLinks(project.tagRefs);
   ]}
 >
   <main id="main">
-    <article
-      data-spec="spacing grid"
-      class="wrap grid-page pt-8 md:pt-14 lg:pt-20"
-    >
+    <article class="wrap grid-page pt-8 md:pt-14 lg:pt-20">
       <nav
         aria-label={t('work.breadcrumb.label')}
         class="col-span-12 mb-8 text-sm text-muted-foreground md:mb-12"
@@ -116,12 +113,7 @@ const tagChips = await tagLinks(project.tagRefs);
             </span>
           )}
         </div>
-        <h1
-          class="col-span-12 text-5xl lg:col-span-8"
-          data-spec="type:text-5xl contrast"
-        >
-          {project.title}
-        </h1>
+        <h1 class="col-span-12 text-5xl lg:col-span-8">{project.title}</h1>
         <p class="col-span-12 max-w-measure text-lg text-ink md:col-span-9 lg:col-span-7">
           {project.outcome}
         </p>
@@ -160,11 +152,7 @@ const tagChips = await tagLinks(project.tagRefs);
               <h2 id={`${s.id}-title`} class={h2}>
                 {s.title}
               </h2>
-              <div
-                class="prose-site text-lg"
-                data-spec={i === 0 ? 'type:prose' : undefined}
-                set:html={s.html}
-              />
+              <div class="prose-site text-lg" set:html={s.html} />
             </section>
           ))}
 
@@ -207,11 +195,7 @@ const tagChips = await tagLinks(project.tagRefs);
       </div>
     </article>
 
-    <section
-      aria-labelledby="cta-title"
-      data-spec="spacing:pt-section"
-      class="wrap grid-page pt-section"
-    >
+    <section aria-labelledby="cta-title" class="wrap grid-page pt-section">
       <div class="col-span-12 grid grid-cols-subgrid gap-y-6 border-t border-rule pt-8">
         <h2 id="cta-title" class="col-span-12 text-3xl lg:col-span-5">
           {t(research ? 'work.cta.research.title' : 'work.cta.title')}

@@ -7,7 +7,6 @@ import ClientsMap from '@/components/proof/ClientsMap.astro';
 import Button from '@/components/site/Button.astro';
 import DuskGlow from '@/components/site/DuskGlow.astro';
 import Section from '@/components/site/Section.astro';
-import SpecHook from '@/components/site/SpecHook.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
 import { t } from '@/i18n';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -39,7 +38,7 @@ const researchHref = (await isLive('work'))
 const facts = profile.facts ?? [];
 const endorsements = await endorsementTally();
 const cvLive = await isLive('cv');
-const clientsLive = await isSectionLive('clients');
+const clientsLive = await isSectionLive('proof');
 const heading = t('about.heading', { name: settings.name });
 const pageUrl = new URL('/about', Astro.site).href;
 const h2 = 'reveal col-span-12 mb-5 text-2xl md:col-span-3 md:mb-0';
@@ -63,16 +62,8 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
 >
   {clientsLive && <ClientsMapStyle slot="head" />}
   <main id="main">
-    <section
-      data-spec="spacing grid"
-      class="wrap grid-page pt-8 pb-12 md:pt-14 md:pb-16 lg:grid-rows-[auto_auto_1fr] lg:pt-20 lg:pb-20"
-    >
-      <h1
-        class="col-span-12 text-5xl lg:col-span-7"
-        data-spec="type:text-5xl contrast"
-      >
-        {heading}
-      </h1>
+    <section class="wrap grid-page pt-8 pb-12 md:pt-14 md:pb-16 lg:grid-rows-[auto_auto_1fr] lg:pt-20 lg:pb-20">
+      <h1 class="col-span-12 text-5xl lg:col-span-7">{heading}</h1>
       <p class="col-span-12 mt-5 text-lg text-ink md:mt-7 lg:col-span-7">
         {profile.shortBio}
       </p>
@@ -89,7 +80,6 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
             sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 66vw"
             loading="eager"
             fetchpriority="high"
-            data-spec="image"
             class="aspect-[4/5] h-auto w-full rounded-md object-cover"
           />
         </div>
@@ -210,21 +200,6 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
         </dl>
       </Section>
     )}
-
-    <Section
-      id="colophon"
-      data-pagefind-ignore
-      labelledby="colophon-title"
-      class="js-only border-t border-rule py-12 md:py-16 lg:py-20"
-    >
-      <h2 id="colophon-title" class={h2}>
-        {t('spec.colophon.title')}
-      </h2>
-      <div class={body}>
-        <p class="text-lg">{t('spec.colophon.body')}</p>
-        <SpecHook class="mt-5 text-lg text-ink" />
-      </div>
-    </Section>
 
     <Section
       id="contact"

@@ -83,7 +83,7 @@ export async function renderOg(card: OgCard): Promise<Uint8Array> {
       height: H,
       position: 'relative',
       background: '#ffffff',
-      color: '#0d5eaf',
+      color: '#0b2545',
       fontFamily: 'Geist',
     },
     [
@@ -154,7 +154,7 @@ export async function renderOg(card: OgCard): Promise<Uint8Array> {
                 { fontFamily: 'Geist Mono', fontWeight: 500, fontSize: 26 },
                 card.domain,
               ),
-              el('div', { fontWeight: 400, color: '#1a5d8e' }, card.name),
+              el('div', { fontWeight: 400, color: '#25405e' }, card.name),
             ],
           ),
         ],

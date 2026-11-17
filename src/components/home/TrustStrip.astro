@@ -9,7 +9,7 @@ import { upworkBadgeLabel } from '@/lib/upwork';
 const settings = await getSettings();
 const { upwork } = settings;
 const clientCount = (await getClients()).length;
-const clientsLive = await isSectionLive('clients');
+const clientsLive = await isSectionLive('proof');
 
 const items = [
   { value: upworkBadgeLabel(upwork.badge), label: t('trust.topRatedLabel') },
@@ -26,7 +26,7 @@ const items = [
         {
           value: t('trust.clients', { count: clientCount }),
           label: t('trust.clientsLabel'),
-          href: clientsLive ? '#clients' : undefined,
+          href: clientsLive ? '#proof' : undefined,
         },
       ]
     : []),
@@ -35,31 +35,22 @@ const items = [
 
 <section
   aria-label={t('home.trust.label')}
-  data-spec="spacing"
   class="wrap grid-page border-t border-rule py-10 md:py-14"
 >
   <p class="col-span-12 mb-6 text-sm font-medium text-muted-foreground lg:col-span-3 lg:mb-0">
     {t('home.trust.label')}
   </p>
   <ul class="col-span-12 grid grid-cols-2 gap-x-gutter gap-y-8 lg:col-span-9 lg:grid-cols-4">
-    {items.map((item, i) => (
+    {items.map((item) => (
       <li>
         {item.href ? (
           <a href={item.href} class="link text-ink">
-            <span
-              class="block text-2xl font-semibold"
-              data-spec={i === 0 ? 'type:text-2xl' : undefined}
-            >
-              {item.value}
-            </span>
+            <span class="block text-2xl font-semibold">{item.value}</span>
             <span class="mt-1 block text-sm">{item.label}</span>
           </a>
         ) : (
           <>
-            <span
-              class="block text-2xl font-semibold text-ink"
-              data-spec={i === 0 ? 'type:text-2xl' : undefined}
-            >
+            <span class="block text-2xl font-semibold text-ink">
               {item.value}
             </span>
             <span class="mt-1 block text-sm text-muted-foreground">

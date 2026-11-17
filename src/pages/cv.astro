@@ -38,9 +38,7 @@ const title = Object.fromEntries(sections.map((s) => [s.id, s.title]));
   <main id="main" class="cv-page pt-8 pb-section md:pt-14 lg:pt-20">
     <div class="wrap grid-page pb-10 md:pb-14">
       <div class="col-span-12 lg:col-span-9">
-        <h1 class="text-3xl" data-spec="type:text-3xl contrast">
-          {m.heading}
-        </h1>
+        <h1 class="text-3xl">{m.heading}</h1>
         <ul class="mt-6 space-y-1 text-lg">
           {m.openLine && <li class="text-ink">{m.openLine}</li>}
           <li>{m.locationLine}</li>
@@ -99,10 +97,7 @@ const title = Object.fromEntries(sections.map((s) => [s.id, s.title]));
         >
           {title.summary}
         </h2>
-        <p
-          class="col-span-12 max-w-measure md:col-span-9 lg:col-span-8"
-          data-spec="type contrast"
-        >
+        <p class="col-span-12 max-w-measure md:col-span-9 lg:col-span-8">
           {m.summary}
         </p>
       </Section>

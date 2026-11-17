@@ -1,0 +1,66 @@
+---
+// Home section 4: clients world map and testimonials in one. Each country with a review is a control on the map
+// (radio + :has(), no JS) that shows that review beside it. Reviews not tagged with a client country follow as plain
+// cards, so nothing is lost while the country field is empty. Hidden until there is a client or a review (FR-22).
+import ClientsMap from '@/components/proof/ClientsMap.astro';
+import TestimonialCard from '@/components/proof/TestimonialCard.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { getClients, getSettings } from '@/lib/content';
+import { getProofPlaces } from '@/lib/proof';
+import { isSectionLive } from '@/lib/routes';
+
+const live = await isSectionLive('proof');
+const [clients, proof, settings] = live
+  ? await Promise.all([getClients(), getProofPlaces(), getSettings()])
+  : [];
+const count = clients?.length ?? 0;
+const hasReviews =
+  !!proof && (proof.places.length > 0 || proof.unplaced.length > 0);
+---
+
+{live && proof && settings && (count > 0 || hasReviews) && (
+  <Section id="proof" labelledby="proof-title">
+    <SectionHeading
+      id="proof-title"
+      class="reveal"
+      eyebrow={t('proof.eyebrow')}
+    >
+      {count > 0 ? t('proof.title', { count }) : t('proof.titlePlain')}
+    </SectionHeading>
+    {count > 0 && (
+      <div class="col-span-12">
+        <ClientsMap
+          variant={proof.places.length > 0 ? 'proof' : 'full'}
+          places={proof.places}
+          defaultIso={proof.defaultIso}
+        />
+      </div>
+    )}
+    {proof.unplaced.length > 0 && (
+      <ul class="col-span-12 mt-16 grid gap-x-gutter gap-y-12 md:grid-cols-3">
+        {proof.unplaced.map((item, i) => (
+          <li class:list={['reveal', ['', 'md:[--i:1]', 'md:[--i:2]'][i % 3]]}>
+            <TestimonialCard testimonial={item} variant="card" excerpt />
+          </li>
+        ))}
+      </ul>
+    )}
+    {hasReviews && (
+      <p class="col-span-12 mt-12">
+        <a
+          href={settings.links.upwork}
+          class="link text-ink"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="upwork_click"
+          data-track-location="testimonials-section"
+        >
+          {t('proof.all')}
+          <span class="sr-only"> {t('a11y.newTab')}</span>
+        </a>
+      </p>
+    )}
+  </Section>
+)}

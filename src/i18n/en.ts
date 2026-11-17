@@ -1,7 +1,4 @@
-import { specEn } from './spec';
-
 export const en = {
-  ...specEn,
   // <title>: home uses the full name (recruiters search it); other pages use the brand.
   'seo.homeTitle': '{name} | Full-stack engineer for startups',
   'seo.title': '{page} | {brand}',
@@ -146,7 +143,6 @@ export const en = {
   'footer.site': 'Site',
   'footer.contact': 'Contact',
   'footer.copyright': '© {year} {name}',
-  'footer.spec': 'Inspect this site: press {key}',
   'footer.privacy': 'Privacy',
   'footer.rss': 'RSS',
   'footer.contactPage': 'Contact',
@@ -317,17 +313,17 @@ export const en = {
   'home.work.all': 'All work',
 
   // Testimonials
-  'home.testimonials.title': 'What clients say',
-  'home.testimonials.eyebrow': 'Reviews',
-  'home.testimonials.all': 'All reviews on Upwork',
+  'proof.eyebrow': 'Reviews',
+  'proof.title': 'What clients in {count} countries say',
+  'proof.titlePlain': 'What clients say',
+  'proof.pick': 'Select a country to read its review.',
+  'proof.all': 'All reviews on Upwork',
   'testimonial.verified': 'Verified on Upwork',
   'testimonial.client': 'Upwork client',
   'testimonial.rating': 'Rated {rating} out of 5',
   'testimonial.endorsements': 'Endorsed on Upwork',
   'about.endorsements': 'Endorsed on Upwork',
   // Clients map
-  'clients.eyebrow': 'Reach',
-  'clients.title': 'Clients in {count} countries',
   'clients.label':
     'Clients in {count} countries: {countries}. Based in {city}.',
   'clients.listLabel': 'Countries with past clients',
@@ -384,27 +380,9 @@ export const en = {
   'og.default.title': 'Full-stack engineer for startups',
   'og.chip.topic': 'Topic',
   'about.clients': 'Clients worldwide',
-  'spec.hook': 'This site is a case study. Press {key} to inspect it.',
-  'spec.note.map': 'Build-time SVG, no JavaScript',
-  'spec.note.qr': 'Build-time SVG, no JavaScript',
-  'spec.note.results': 'Figures from the project record',
-  'spec.note.tz': 'Offsets computed at build',
-  'spec.note.form': 'Three fields, no captcha',
-  'spec.colophon.title': 'About this site',
-  'spec.colophon.body':
-    'Spec mode reads this page as your browser rendered it: type, spacing, contrast, tap targets, image weight and response headers. Open it with the button in the corner.',
-  'spec.toggle': 'Spec mode',
-  'spec.hint': 'Press S to toggle Spec mode',
-  'spec.error': 'Spec mode could not load. Try again.',
-  'spec.on': 'Spec mode on',
-  'spec.off': 'Spec mode off',
-  'spec.panel.title': 'Spec mode',
-  'spec.panel.hide': 'Hide details',
-  'spec.panel.show': 'Show details',
-  'spec.shortcuts': 'Single-key shortcuts (/ to search, S for Spec mode)',
   'search.trigger': 'Search',
   'search.hint': 'Press / to search',
-  'search.shortcuts': 'Single-key shortcuts (/ to search, S for Spec mode)',
+  'search.shortcuts': 'Single-key shortcuts (/ to search)',
   'search.title': 'Search this site',
   'search.label': 'Search articles, projects and pages',
   'search.placeholder': 'Search',

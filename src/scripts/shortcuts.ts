@@ -1,10 +1,6 @@
 // Single-key shortcuts (WCAG 2.1.4): one shared on/off switch, persisted in localStorage. Every single-character
-// shortcut on the site (`/` for search, `S` for Spec mode) must go through `shortcutKey`.
+// shortcut on the site (`/` for search) must go through `shortcutKey`.
 const KEY = 'shortcuts';
-
-/** Mirrors the switch on <html> so CSS can hide "press S" invitations when the key does nothing. */
-const reflect = (on: boolean) =>
-  document.documentElement.toggleAttribute('data-shortcuts-off', !on);
 
 export function shortcutsEnabled(): boolean {
   try {
@@ -15,7 +11,6 @@ export function shortcutsEnabled(): boolean {
 }
 
 export function setShortcutsEnabled(on: boolean): void {
-  reflect(on);
   try {
     if (on) localStorage.removeItem(KEY);
     else localStorage.setItem(KEY, 'off');
@@ -36,11 +31,8 @@ export function shortcutKey(e: KeyboardEvent, key: string): boolean {
     !shortcutsEnabled()
   )
     return false;
-  // composedPath()[0] sees through shadow roots (the Spec panel), where `target` is retargeted to the host.
-  const el = (e.composedPath()[0] ?? e.target) as HTMLElement | null;
+  const el = e.target as HTMLElement | null;
   return !el?.closest(
     'input, textarea, select, [contenteditable]:not([contenteditable="false"])',
   );
 }
-
-reflect(shortcutsEnabled());

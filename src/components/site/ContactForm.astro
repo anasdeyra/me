@@ -38,8 +38,6 @@ const error = 'mt-1.5 text-sm text-destructive empty:hidden';
     method="post"
     action="/api/contact"
     data-contact-form
-    data-spec="note"
-    data-spec-note={t('spec.note.form')}
     data-location={location}
     data-err-name-required={t('contact.form.err.nameRequired')}
     data-err-email-invalid={t('contact.form.err.emailInvalid')}
@@ -73,7 +71,6 @@ const error = 'mt-1.5 text-sm text-destructive empty:hidden';
         required
         maxlength={CONTACT_LIMITS.name}
         aria-describedby={id('name-error')}
-        data-spec="target:44"
         class={field}
       />
       <p id={id('name-error')} class={error}></p>
@@ -92,7 +89,6 @@ const error = 'mt-1.5 text-sm text-destructive empty:hidden';
         required
         maxlength={CONTACT_LIMITS.email}
         aria-describedby={id('email-error')}
-        data-spec="target:44"
         class={field}
       />
       <p id={id('email-error')} class={error}></p>
@@ -110,7 +106,6 @@ const error = 'mt-1.5 text-sm text-destructive empty:hidden';
         minlength={CONTACT_LIMITS.messageMin}
         maxlength={CONTACT_LIMITS.messageMax}
         aria-describedby={`${id('message-hint')} ${id('message-error')}`}
-        data-spec="target:44"
         class={cn(field, 'h-auto py-2.5')}
       ></textarea>
       <p id={id('message-hint')} class="mt-1.5 text-sm text-muted-foreground">
@@ -164,7 +159,7 @@ const error = 'mt-1.5 text-sm text-destructive empty:hidden';
     </div>
 
     <div class="flex flex-wrap items-center gap-4">
-      <Button type="submit" size="lg" data-submit data-spec="target:44">
+      <Button type="submit" size="lg" data-submit>
         {t('contact.form.submit')}
       </Button>
       <span

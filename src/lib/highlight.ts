@@ -117,7 +117,6 @@ function codeBlock(
     'pre',
     {
       class: 'code-block',
-      'data-spec': 'type contrast',
       tabindex: '0',
       role: 'region',
       'aria-label': t('blog.code.label'),

@@ -35,20 +35,15 @@ const items =
 {items.length > 0 && (
   <dl
     aria-label={t('work.results')}
-    data-spec="note"
-    data-spec-note={t('spec.note.results')}
     class={cn(
       'grid gap-x-gutter gap-y-6 border-y border-rule py-6 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]',
       className,
     )}
   >
-    {items.map((item, i) => (
+    {items.map((item) => (
       <div class="flex flex-col-reverse gap-1">
         <dt class="text-sm text-muted-foreground">{item.label}</dt>
-        <dd
-          class="text-4xl font-semibold text-ink tabular-nums"
-          data-spec={i === 0 ? 'type:text-4xl' : undefined}
-        >
+        <dd class="text-4xl font-semibold text-ink tabular-nums">
           {item.value}
         </dd>
       </div>

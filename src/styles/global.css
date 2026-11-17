@@ -2,7 +2,7 @@
  * Design system: Swiss editorial in Aegean blue (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions 2026-11-17).
  * Tokens are CSS variables mapped to shadcn's names, so shadcn components restyle themselves.
  * Blue is the brand colour (ink, text, links, primary). Other colours: WhatsApp green (WhatsApp CTAs only),
- * the Dusk grainy gradient (decorative) and the Spec mode magenta (Spec layer only).
+ * and the Dusk grainy gradient (decorative).
  * Fonts come from the Astro Fonts API (astro.config.mjs) as --font-geist / --font-geist-mono.
  */
 @import 'tailwindcss';
@@ -20,6 +20,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
+  --color-link: var(--link);
   --color-rule: var(--rule);
   --color-display: var(--display);
   --color-link-hover: var(--link-hover);
@@ -40,8 +41,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-spec: var(--spec);
-  --color-spec-foreground: var(--spec-on);
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
   --color-whatsapp-foreground: var(--whatsapp-foreground);
@@ -110,18 +109,20 @@
   color-scheme: light;
   --radius: 2px;
 
-  /* Aegean blue palette (owner request 2026-11-17). Contrast on white is noted per token. */
+  /* Two blues (owner review 2026-11-17): deep navy for TEXT (ink, foreground), bright Aegean for INTERACTION and
+     accents (links, rules, focus, buttons, active bars). Contrast on white is noted per token. */
   --background: #ffffff;
-  --foreground: #1a5d8e; /* body text, nav: deep sea blue, 7.0:1 (AAA) */
-  --ink: #0d5eaf; /* headings, wordmark, links, strong rules: Aegean, 6.5:1 */
-  --rule: var(--ink);
+  --foreground: #25405e; /* body text, nav: navy slate, 10.6:1 */
+  --ink: #0b2545; /* headings, wordmark, strong text: deep navy, 15.4:1 */
+  --link: #0d5eaf; /* links, eyebrow squares, glyph accents: Aegean, 6.5:1 */
+  --rule: var(--link); /* strong rules, 6.5:1 */
   --display: #327bc4; /* LARGE display type only (404 numeral, footer wordmark), 4.4:1; never small text */
-  --link-hover: #0b5ed7; /* cobalt, 5.8:1 */
-  --muted: #eef4fa; /* hover surfaces */
-  --muted-foreground: #4a6479; /* secondary text, blue-tinted slate, 6.2:1 */
+  --link-hover: #0a4f96; /* deeper Aegean, 8.2:1 */
+  --muted: #eef3f8; /* hover surfaces */
+  --muted-foreground: #4a6176; /* secondary text, blue-tinted slate, 6.4:1 (5.8 on --muted) */
   --border: #d5e2ef; /* hairlines */
   --input: #6f8ba6; /* form control borders, 3.6:1 */
-  --ring: var(--ink); /* focus outline, 6.5:1 */
+  --ring: var(--link); /* focus outline, 6.5:1 */
 
   --card: var(--background);
   --card-foreground: var(--foreground);
@@ -140,11 +141,6 @@
   --whatsapp: #25d366;
   --whatsapp-hover: #1fbd5a;
   --whatsapp-foreground: #000000;
-
-  /* Spec mode layer (functional, used by nothing else): magenta, far from the blues and from the amber/Dusk warm
-     tones. 6.7:1 on white, on-chip text 6.7:1. */
-  --spec: #b0136b;
-  --spec-on: #ffffff;
 
   /*
    * Dusk grainy gradient (decorative only, see .dusk). Grain: SVG feTurbulence as a data: URI
@@ -174,10 +170,10 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* Phase 5b: colour aliases onto the palette above (never new hexes). Brand = interaction colour. */
-  --brand: var(--ink);
+  --brand: var(--link);
   --brand-hot: var(--link-hover);
   --brand-display: var(--display);
-  --map-from: var(--foreground); /* arcs: deep at the home city ... */
+  --map-from: var(--link); /* arcs: deep at the home city ... */
   --map-to: var(
     --display
   ); /* ... lighter at the destination; both ends >= 4.4:1 on the page */
@@ -201,25 +197,27 @@
 
 .dark {
   color-scheme: dark;
-  /* Lighter blues on pure black (owner request 2026-11-17, was #07111d navy): the owner blues fail on black (Aegean
-     ~3.3:1). Contrast on --background is noted per token; surfaces are blue-tinted near-blacks. */
+  /* Pure black with white text (owner review 2026-11-17); blue is the interaction colour only (links, rules, focus,
+     buttons), in lighter siblings because the light-theme blues fail on black. Neutral greys for surfaces and
+     secondary text. Contrast on --background is noted per token. */
   --background: #000000;
-  --foreground: #c9ddf0; /* body text, 15.1:1 */
-  --ink: #8ec3f5; /* headings, links, rules, 11.3:1 */
-  --display: #5aa0e8; /* large display type only, 7.6:1 */
-  --link-hover: #b3d6f8;
-  --muted: #0b1622; /* hover surfaces; text on it stays >= 6.6:1 */
-  --muted-foreground: #8fa8c0; /* 8.5:1 */
-  --border: #1a2b3d;
-  --input: #6a8199; /* 5.2:1 */
+  --foreground: #ededed; /* body text, 17.9:1 */
+  --ink: #ffffff; /* headings, strong text, 21:1 */
+  --link: #8ec3f5; /* links, eyebrow squares, 11.3:1 */
+  --rule: var(--link); /* strong rules */
+  --ring: var(--link); /* focus outline, 11.3:1 */
+  --display: #5aa0e8; /* large display type only (accent), 7.6:1 */
+  --link-hover: #b3d6f8; /* 13.9:1 */
+  --muted: #111111; /* hover surfaces; text on it stays >= 7.4:1 */
+  --muted-foreground: #a3a3a3; /* 8.3:1 */
+  --border: #262626; /* hairlines */
+  --input: #737373; /* form control borders, 4.4:1 */
   --primary: #6cb0f0; /* black label 9.1:1 */
   --primary-hover: #8ec3f5; /* black label 11.3:1 */
   --primary-foreground: #000000;
   --destructive: #ff6b6b;
-  --spec: #ff7ac6; /* 8.9:1 on black */
-  --spec-on: #000000;
   --brand-hot: var(--primary-hover);
-  --map-from: var(--ink);
+  --map-from: var(--link);
   --glow-rgb: 142 195 245;
   --glow-alpha: 0.2;
   /* Hero key light (see .hero-key): stronger on black, where light reads as light. */
@@ -245,8 +243,6 @@
     @apply bg-background text-foreground font-sans;
     /* Anchors and focused elements land below the sticky header (WCAG 2.4.11). */
     scroll-padding-block-start: calc(var(--spacing-header) + 1rem);
-    /* ...and above the fixed Spec toggle (h-11 + bottom-4 + 1rem gap), so a focused footer link is never covered. */
-    scroll-padding-block-end: 4.75rem;
     -webkit-text-size-adjust: 100%;
   }
   /* The Dusk glow bleeds past its box; clip it so it never adds horizontal scroll. */
@@ -312,7 +308,7 @@
 /* Inline text link: always underlined (not colour-dependent). Hover and keyboard focus add colour, a thicker
    rule and a little more offset, eased over --dur-1 (hover only on devices that hover). */
 @utility link {
-  color: var(--ink);
+  color: var(--link);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
@@ -368,7 +364,7 @@
  * Scroll reveals (D8). Scroll-linked, so they track the finger and finish at a fixed scroll distance after the
  * block's leading edge enters the viewport: nothing arrives late on fast scrolls, and anchor jumps, Find and
  * Pagefind jumps land on blocks that are already past their range (fully visible). Content is never hidden by
- * default: without view() support, with reduced motion, in print and while Spec mode is on it renders normally.
+ * default: without view() support, with reduced motion and in print it renders normally.
  * Put `.reveal` on a wrapper (the animation holds `translate`/`opacity` after it ends, so keep hover lifts on
  * inner elements); `[--i:n]` (0..3) staggers siblings that enter together. Never on the hero or LCP candidates.
  */
@@ -392,9 +388,6 @@
       animation-timeline: view();
       animation-range: entry calc(var(--i, 0) * 36px) entry
         calc(150px + var(--i, 0) * 36px);
-    }
-    :root:has([data-spec-toggle][aria-pressed='true']) .reveal {
-      animation: none;
     }
   }
 }
@@ -520,7 +513,9 @@
     block-size: auto;
     margin-inline: -4%;
     /* Light bleeding round the lit edge (offset toward the light: up and right) and the shadow it casts (down and left). */
-    filter: drop-shadow(0.5rem -0.375rem 1.25rem rgb(var(--key-rgb) / var(--key-rim)))
+    filter: drop-shadow(
+        0.5rem -0.375rem 1.25rem rgb(var(--key-rgb) / var(--key-rim))
+      )
       drop-shadow(
         -1.75rem 1.25rem 2rem
           color-mix(
@@ -588,12 +583,6 @@
     .hero-figure {
       filter: none;
     }
-  }
-
-  /* Spec mode measures boxes: hover lifts and shifts are off while it is on so annotations stay exact. */
-  :root:has([data-spec-toggle][aria-pressed='true'])
-    :is(a, button, .frame-box, .frame-word) {
-    translate: none !important;
   }
 
   /* Chip links: border and text pick up the brand colour. Chips that are plain text do nothing. */
@@ -967,41 +956,5 @@ html.js .no-js-only {
     border-color: #000 !important;
     background-image: none !important;
     text-decoration-color: #000 !important;
-  }
-}
-
-/* Spec mode: the toggle needs JS (the shell has no no-JS state), and nothing of it prints. Unlayered on purpose:
-   utilities (display) would otherwise beat the components-layer .js-only rule. */
-html:not(.js) [data-spec-toggle] {
-  display: none;
-}
-@media print {
-  [data-spec-toggle],
-  [data-spec-root] {
-    display: none !important;
-  }
-}
-
-/* "Press S" invitations: only where a key does something (a keyboard is likely, shortcuts are on). The toggle
-   button itself always works. Unlayered so it beats the display utilities. */
-html[data-shortcuts-off] [data-key-hint] {
-  display: none;
-}
-@media (pointer: coarse) {
-  [data-key-hint] {
-    display: none;
-  }
-}
-
-/* Forced colors: the pressed state cannot rely on a border colour. */
-@media (forced-colors: active) {
-  [data-spec-toggle][aria-pressed='true'] {
-    background: Highlight;
-    color: HighlightText;
-    border-color: HighlightText;
-    forced-color-adjust: none;
-  }
-  [data-spec-toggle][aria-pressed='true'] svg {
-    color: HighlightText;
   }
 }
