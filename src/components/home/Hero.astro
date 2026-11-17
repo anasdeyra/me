@@ -1,0 +1,130 @@
+---
+// Home section 1: the outcome headline, two doors (WhatsApp for clients, CV for recruiters) and the portrait.
+// Blueprint (AGENTS.md decisions log): the hero shows the 12-column grid the site is set on (.hero-grid, tablet and
+// up), and the transparent portrait stands on the trust strip's rule in columns 8-12. Below lg the portrait follows
+// the text, so the H1, subline and primary CTA stay in the first screen on a phone. The portrait is the LCP image
+// (eager, high priority). Without a cutout it falls back to the framed photo. The photo is lit from its upper right, so
+// .hero-key adds that light (a beam from the upper right, a rim on the lit edge, a shadow falling down-left).
+import { Image } from 'astro:assets';
+import Button from '@/components/site/Button.astro';
+import DuskGlow from '@/components/site/DuskGlow.astro';
+import SpecHook from '@/components/site/SpecHook.astro';
+import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
+import { t } from '@/i18n';
+import { whatsappPrefill } from '@/lib/contact';
+import { contentImage, getHome, getProfile, getSettings } from '@/lib/content';
+import { isLive } from '@/lib/routes';
+
+const [home, profile, settings] = await Promise.all([
+  getHome(),
+  getProfile(),
+  getSettings(),
+]);
+const cutout = contentImage('en/profile', profile.cutout);
+const photo = contentImage('en/profile', profile.photo);
+const showCv = await isLive('cv');
+const columns = Array.from({ length: 12 }, (_, i) => i + 1);
+---
+
+<section class="relative isolate">
+  {cutout && (
+    <div class="hero-grid wrap grid-page max-md:hidden" aria-hidden="true">
+      {columns.map((n) => (
+        <span class="hero-col">
+          <span class="hero-col-num">{n}</span>
+        </span>
+      ))}
+    </div>
+  )}
+  <div
+    data-spec="spacing grid"
+    class:list={[
+      'wrap grid-page',
+      cutout ? 'pt-12 md:pt-16 lg:pt-24' : 'pt-8 pb-section md:pt-14 lg:pt-20',
+    ]}
+  >
+    <div
+      class:list={[
+        'col-span-12 lg:row-start-1',
+        cutout ? 'lg:col-span-6 lg:self-start lg:pb-16' : 'lg:col-span-7',
+      ]}
+    >
+      <p class="eyebrow mb-5 text-sm font-medium text-muted-foreground">
+        {t('home.hero.eyebrow', {
+          title: profile.title,
+          city: settings.location.city,
+        })}
+      </p>
+      <h1 class="text-4xl" data-spec="type:text-4xl contrast">
+        {home.hero.headline}
+      </h1>
+      <p
+        class="mt-5 max-w-measure text-lg md:mt-7"
+        data-spec="type:text-lg contrast"
+      >
+        {home.hero.subline}
+      </p>
+
+      <div class="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center md:mt-10">
+        <WhatsAppButton
+          size="lg"
+          text={whatsappPrefill('home_hero')}
+          trackLocation="hero"
+        />
+        {showCv && (
+          <Button
+            href="/cv"
+            variant="outline"
+            size="lg"
+            data-spec="target:44"
+            data-track="cv_view"
+            data-track-source="hero"
+          >
+            {t('cta.viewCv')}
+          </Button>
+        )}
+      </div>
+      <p class="mt-3 text-sm text-muted-foreground">{t('home.hero.reply')}</p>
+      {cutout && <SpecHook class="mt-8 text-sm text-ink" />}
+    </div>
+
+    {cutout ? (
+      <div class="relative isolate col-span-10 col-start-3 mt-16 sm:col-span-8 sm:col-start-5 md:col-span-6 md:col-start-7 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:mt-0 lg:self-end">
+        <span class="hero-key" aria-hidden="true" />
+        <div class="hero-cut">
+          <Image
+            src={cutout}
+            alt={profile.photoAlt}
+            widths={[400, 560, 700]}
+            sizes="(min-width: 1440px) 640px, (min-width: 1024px) 40vw, (min-width: 768px) 52vw, (min-width: 640px) 68vw, 85vw"
+            loading="eager"
+            fetchpriority="high"
+            data-spec="image"
+            class="hero-figure"
+          />
+        </div>
+      </div>
+    ) : (
+      photo && (
+        <div
+          data-glow
+          class="relative isolate col-span-8 mt-14 sm:col-span-6 md:col-span-5 md:col-start-8 lg:col-span-4 lg:col-start-9 lg:row-start-1 lg:mt-0 lg:self-start"
+        >
+          <DuskGlow />
+          <Image
+            src={photo}
+            alt={profile.photoAlt}
+            width={700}
+            height={875}
+            widths={[360, 440, 540, 700]}
+            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 66vw"
+            loading="eager"
+            fetchpriority="high"
+            data-spec="image"
+            class="aspect-[4/5] h-auto w-full rounded-md object-cover"
+          />
+        </div>
+      )
+    )}
+  </div>
+</section>

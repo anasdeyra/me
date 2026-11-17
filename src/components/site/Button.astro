@@ -20,10 +20,9 @@ const classes = cn(buttonVariants({ variant, size }), className);
   </a>
 ) : (
   <button
-    type="button"
     class={classes}
     data-slot="button"
-    {...(rest as HTMLAttributes<'button'>)}
+    {...({ type: 'button', ...rest } as HTMLAttributes<'button'>)}
   >
     <slot />
   </button>

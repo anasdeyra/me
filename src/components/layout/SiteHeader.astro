@@ -1,7 +1,8 @@
 ---
 // Sticky site header (FR-1, FR-2). Desktop (lg+): wordmark on column 1, nav from column 7, then the theme
-// toggle and WhatsApp; the active page is a 3px bar sitting on the full-bleed rule. Below lg: wordmark,
-// WhatsApp and a Menu button opening a full-screen sheet (Popover API, zero JS). The Spec mode toggle
+// toggle, a GitHub icon link and the blue "Let's talk" CTA (to /contact); the active page is a 3px bar sitting on
+// the full-bleed rule. Below lg: wordmark, CTA (always visible), GitHub from sm up and a Menu button opening a
+// full-screen sheet (Popover API, zero JS) that also holds GitHub (below sm), WhatsApp and the theme toggle. The Spec mode toggle
 // floats in the bottom corner (Phase 5) and is not part of the header.
 import { t } from '@/i18n';
 import { getSettings } from '@/lib/content';
@@ -9,6 +10,8 @@ import { isCurrent, mainNav } from '@/lib/routes';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/site/ThemeToggle.astro';
+import Button from '@/components/site/Button.astro';
+import GitHubIcon from '@/components/site/GitHubIcon.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
 
 const settings = await getSettings();
@@ -21,8 +24,9 @@ const atHome = isCurrent('/', pathname);
   <div class="wrap flex h-header items-center lg:grid-page">
     <a
       href="/"
-      class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink decoration-1 underline-offset-[0.2em] hover:underline lg:col-span-6 lg:justify-self-start"
+      class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink decoration-1 underline-offset-[0.2em] transition-colors duration-(--dur-1) hover:text-link-hover hover:underline focus-visible:text-link-hover lg:col-span-6 lg:justify-self-start"
       translate="no"
+      data-spec="type"
       aria-label={t('nav.home', { brand: settings.brand })}
       aria-current={atHome ? 'page' : undefined}
     >
@@ -38,7 +42,7 @@ const atHome = isCurrent('/', pathname);
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="relative flex h-full items-center text-sm text-ink decoration-1 underline-offset-[0.4em] not-aria-[current=page]:hover:underline aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-[3px] aria-[current=page]:after:bg-ink forced-colors:aria-[current=page]:after:bg-[CanvasText]"
+                  class="relative flex h-full items-center text-sm text-foreground transition-colors duration-(--dur-1) hover:text-ink focus-visible:text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:origin-left after:scale-x-0 after:bg-ink after:transition-transform after:duration-(--dur-2) after:ease-(--ease-out) hover:after:scale-x-100 focus-visible:after:scale-x-100 aria-[current=page]:after:h-[3px] aria-[current=page]:after:scale-x-100 aria-[current=page]:after:bg-primary forced-colors:after:bg-[CanvasText] motion-reduce:after:transition-none"
                 >
                   {item.label}
                 </a>
@@ -49,11 +53,36 @@ const atHome = isCurrent('/', pathname);
       )}
 
       <div class="flex items-center gap-2 lg:ms-auto">
-        <ThemeToggle class="hidden lg:inline-flex" />
-        <WhatsAppButton label={t('whatsapp.short')} class="lg:h-10 lg:px-3" />
+        <ThemeToggle class="hidden lg:inline-flex" data-spec="target" />
+        <a
+          href={settings.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={cn(
+            buttonVariants({ variant: 'ghost', size: 'icon-lg' }),
+            'hidden sm:inline-flex',
+          )}
+          data-spec="target"
+          data-track="contact_github"
+          data-track-location="header"
+        >
+          <GitHubIcon class="size-5" />
+          <span class="sr-only">
+            {t('header.github')} {t('a11y.newTab')}
+          </span>
+        </a>
+        <Button
+          href="/contact"
+          data-spec="target:44 contrast"
+          data-track="contact_cta"
+          data-track-location="header"
+        >
+          {t('header.cta')}
+        </Button>
         <button
           type="button"
           popovertarget="site-menu"
+          data-spec="target"
           class={cn(buttonVariants({ variant: 'outline' }), 'lg:hidden')}
         >
           <span class="menu-label-open">{t('menu.open')}</span>
@@ -63,17 +92,21 @@ const atHome = isCurrent('/', pathname);
     </div>
   </div>
 
-  <div id="site-menu" popover class="site-menu bg-background text-foreground">
+  <div
+    id="site-menu"
+    popover
+    class="site-menu bg-background text-foreground"
+  >
     <div class="wrap flex min-h-full flex-col pt-2 pb-6">
       {nav.length > 0 && (
-        <nav aria-label={t('nav.label')}>
+        <nav aria-label={t('nav.menuLabel')}>
           <ul>
             {nav.map((item) => (
               <li>
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-ink forced-colors:aria-[current=page]:after:bg-[CanvasText]"
+                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-primary forced-colors:aria-[current=page]:after:bg-[CanvasText]"
                 >
                   {item.label}
                 </a>
@@ -82,7 +115,22 @@ const atHome = isCurrent('/', pathname);
           </ul>
         </nav>
       )}
-      <div class="mt-auto pt-8">
+      <div class="mt-auto flex flex-col items-start gap-3 pt-8">
+        <WhatsAppButton trackLocation="menu" />
+        <a
+          href={settings.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={cn(buttonVariants({ variant: 'outline' }), 'sm:hidden')}
+          data-track="contact_github"
+          data-track-location="menu"
+        >
+          <GitHubIcon />
+          <span>
+            {t('header.github')}
+            <span class="sr-only"> {t('a11y.newTab')}</span>
+          </span>
+        </a>
         <ThemeToggle withLabel />
       </div>
     </div>
@@ -146,3 +194,37 @@ const atHome = isCurrent('/', pathname);
     display: inline;
   }
 </style>
+
+<script>
+  // The menu is an auto popover (no JS needed to open it), which is not modal: Tab would walk out of the
+  // sheet into the page behind it. While it is open, everything outside the header is inert, and focus
+  // returns to the Menu button when it closes (WCAG 2.4.3, 2.4.11).
+  const menu = document.getElementById('site-menu');
+  const opener = document.querySelector<HTMLElement>(
+    '[popovertarget="site-menu"]',
+  );
+  if (menu && opener) {
+    const siblings = () =>
+      [...document.body.children].filter(
+        (el) => el.tagName !== 'HEADER' && el.tagName !== 'SCRIPT',
+      );
+    menu.addEventListener('toggle', (e) => {
+      const open = (e as ToggleEvent).newState === 'open';
+      for (const el of siblings()) el.toggleAttribute('inert', open);
+      if (
+        !open &&
+        (document.activeElement === document.body ||
+          menu.contains(document.activeElement))
+      )
+        opener.focus();
+    });
+    // Esc closes the popover natively; send focus to the Menu button whichever header control had it.
+    addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.matches(':popover-open')) opener.focus();
+    });
+    // The sheet is display:none from lg up; do not leave the page inert if the viewport grows meanwhile.
+    matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
+      if (e.matches && menu.matches(':popover-open')) menu.hidePopover();
+    });
+  }
+</script>

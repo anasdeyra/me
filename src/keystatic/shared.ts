@@ -98,6 +98,24 @@ export const settings = singleton({
       },
       { label: 'Career (recruiter facts)' },
     ),
+    workingHours: fields.object(
+      {
+        start: fields.text({
+          label: 'Start (Tunis time)',
+          description: 'HH:MM, 24-hour, e.g. 09:00',
+          validation: { pattern: { regex: /^([01]\d|2[0-3]):[0-5]\d$|^$/, message: 'Use HH:MM, e.g. 09:00' } },
+        }),
+        end: fields.text({
+          label: 'End (Tunis time)',
+          description: 'HH:MM, 24-hour, e.g. 17:00',
+          validation: { pattern: { regex: /^([01]\d|2[0-3]):[0-5]\d$|^$/, message: 'Use HH:MM, e.g. 17:00' } },
+        }),
+      },
+      {
+        label: 'Working hours (optional)',
+        description: 'Leave empty until confirmed: the timezone overlap column stays hidden',
+      },
+    ),
   },
 });
 

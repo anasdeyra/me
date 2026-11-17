@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-11-17T16:11:50.204Z",
+  "lighthouse": "12.8.2",
+  "preset": "mobile, simulated throttling, local build",
+  "pages": {
+    "/": {
+      "performance": 99,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "/about": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "/cv": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "/contact": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "/work": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 63
+    },
+    "/blog": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 63
+    }
+  }
+}

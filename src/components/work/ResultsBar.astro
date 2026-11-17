@@ -1,0 +1,57 @@
+---
+// Results strip: up to 3 measured metrics as large numerals (client/side), or status and year (research).
+// Renders nothing when there is nothing real to show: metrics are never synthesised.
+import { t } from '@/i18n';
+import type { ProjectView } from '@/lib/projects';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  project: ProjectView;
+  class?: string;
+}
+
+const { project, class: className } = Astro.props;
+const items =
+  project.type === 'research'
+    ? [
+        ...(project.status
+          ? [
+              {
+                value: t(`work.status.${project.status}`),
+                label: t('work.facts.status'),
+              },
+            ]
+          : []),
+        ...(project.year
+          ? [{ value: String(project.year), label: t('work.facts.year') }]
+          : []),
+      ]
+    : project.metrics.slice(0, 3).map((m) => ({
+        value: m.value,
+        label: m.context ? `${m.label}, ${m.context}` : m.label,
+      }));
+---
+
+{items.length > 0 && (
+  <dl
+    aria-label={t('work.results')}
+    data-spec="note"
+    data-spec-note={t('spec.note.results')}
+    class={cn(
+      'grid gap-x-gutter gap-y-6 border-y border-rule py-6 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]',
+      className,
+    )}
+  >
+    {items.map((item, i) => (
+      <div class="flex flex-col-reverse gap-1">
+        <dt class="text-sm text-muted-foreground">{item.label}</dt>
+        <dd
+          class="text-4xl font-semibold text-ink tabular-nums"
+          data-spec={i === 0 ? 'type:text-4xl' : undefined}
+        >
+          {item.value}
+        </dd>
+      </div>
+    ))}
+  </dl>
+)}

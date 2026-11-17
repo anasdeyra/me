@@ -1,0 +1,63 @@
+---
+// Home section 6: the four engagement types, as a ruled list (heading left, rows right).
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import Section from '@/components/site/Section.astro';
+import { t } from '@/i18n';
+import { getHome } from '@/lib/content';
+
+const home = await getHome();
+---
+
+<Section id="services" labelledby="services-title">
+  <SectionHeading
+    id="services-title"
+    class="reveal lg:sticky lg:top-24 lg:col-span-4 lg:self-start"
+  >
+    {t('home.services.title')}
+  </SectionHeading>
+
+  <div class="col-span-12 lg:col-span-7 lg:col-start-6">
+    <ol class="border-b border-rule">
+      {home.services.map((service, i) => (
+        <li
+          data-spec={i === 0 ? 'spacing' : undefined}
+          class="reveal grid gap-x-gutter gap-y-5 border-t border-rule py-8 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
+        >
+          <div>
+            <p
+              class="mb-2 text-sm font-medium text-muted-foreground tabular-nums"
+              aria-hidden="true"
+            >
+              {String(i + 1).padStart(2, '0')}
+            </p>
+            <h3
+              class="text-xl"
+              data-spec={i === 0 ? 'type:text-xl' : undefined}
+            >
+              {service.title}
+            </h3>
+          </div>
+          <div class="space-y-5">
+            <div>
+              <p class="text-sm font-medium text-muted-foreground">
+                {t('home.services.forWho')}
+              </p>
+              <p class="mt-1">{service.forWho}</p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-muted-foreground">
+                {t('home.services.youGet')}
+              </p>
+              <ul class="mt-1 space-y-1">
+                {service.deliverables.map((d) => (
+                  <li>{d}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
+    {home.designNote && <p class="mt-8 text-lg text-ink">{home.designNote}</p>}
+  </div>
+</Section>

@@ -1,0 +1,64 @@
+---
+// Table of contents from the H2 headings (D2). Rendered twice by the caller: `aside` (sticky, lg+) and `details`
+// (collapsed, below lg); the hidden copy is display:none, so it is out of the accessibility tree. Zero JS.
+import { t } from '@/i18n';
+import type { PostHeading } from '@/lib/markdoc';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  headings: PostHeading[];
+  variant: 'aside' | 'details';
+  class?: string;
+}
+
+const { headings, variant, class: className } = Astro.props;
+const items = headings.filter((h) => h.level === 2);
+const label = t('blog.toc.title');
+---
+
+{items.length > 0 &&
+  (variant === 'aside' ? (
+    <aside
+      data-pagefind-ignore
+      class={cn(
+        'post-toc sticky top-[calc(var(--spacing-header)+2rem)] hidden self-start lg:block',
+        className,
+      )}
+    >
+      <nav aria-label={label}>
+        <p class="font-mono text-xs text-muted-foreground">{label}</p>
+        <ol class="mt-3 flex flex-col gap-2 border-s border-border text-sm">
+          {items.map((h) => (
+            <li>
+              <a
+                href={`#${h.id}`}
+                class="-ms-px block border-s border-transparent ps-3 text-muted-foreground hover:border-rule hover:text-ink"
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </aside>
+  ) : (
+    <details
+      data-pagefind-ignore
+      class={cn('post-toc border-y border-border py-3 lg:hidden', className)}
+    >
+      <summary class="cursor-pointer font-mono text-xs text-muted-foreground">
+        {label}
+      </summary>
+      <nav aria-label={label} class="mt-3">
+        <ol class="flex flex-col gap-2 text-sm">
+          {items.map((h) => (
+            <li>
+              <a href={`#${h.id}`} class="link">
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </details>
+  ))}

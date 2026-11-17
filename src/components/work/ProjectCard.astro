@@ -1,0 +1,84 @@
+---
+// Project card: the whole card is one link (stretched title link, no nested links).
+// Order: visual, type chip, title, headline metric or outcome, stack chips, year. The caller adds `data-type`
+// and the `work-card` class to the <li> wrapper when the chip filter is used.
+import { t } from '@/i18n';
+import type { ProjectView } from '@/lib/projects';
+import ArrowIcon from '@/components/site/ArrowIcon.astro';
+import { cn } from '@/lib/utils';
+import ProjectVisual from './ProjectVisual.astro';
+import TypeChip from './TypeChip.astro';
+
+interface Props {
+  project: ProjectView;
+  headingLevel?: 2 | 3 | 4;
+  /** Eager-load the visual (above the fold only). */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  project,
+  headingLevel = 3,
+  priority = false,
+  class: className,
+} = Astro.props;
+const Heading = `h${headingLevel}` as const;
+const stack = project.stack.slice(0, 4);
+---
+
+<article
+  data-glow
+  class={cn(
+    'group relative flex flex-col gap-4 rounded-sm has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
+    className,
+  )}
+>
+  <ProjectVisual
+    project={project}
+    size="card"
+    loading={priority ? 'eager' : 'lazy'}
+    class="glow-tint isolate transition-[translate,border-color] duration-(--dur-2) ease-(--ease-out) group-hover:-translate-y-0.5 group-hover:border-rule group-has-[a:focus-visible]:-translate-y-0.5 group-has-[a:focus-visible]:border-rule motion-reduce:group-hover:translate-y-0 motion-reduce:group-has-[a:focus-visible]:translate-y-0"
+  />
+  <div class="flex flex-wrap items-center gap-2">
+    <TypeChip type={project.type} />
+    {project.status && (
+      <span class="chip">{t(`work.status.${project.status}`)}</span>
+    )}
+  </div>
+  <Heading class="text-xl">
+    <a
+      href={project.href}
+      data-spec="target"
+      class="decoration-1 underline-offset-4 transition-colors duration-(--dur-1) after:absolute after:inset-0 group-hover:text-link-hover group-hover:underline focus-visible:outline-none"
+    >
+      {project.title}
+      <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 transition-[opacity,translate] duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
+    </a>
+  </Heading>
+  {project.headline ? (
+    <p class="text-muted-foreground">
+      <span class="text-ink font-semibold">{project.headline.value}</span>{' '}
+      {project.headline.label}
+      {project.headline.context && <span>, {project.headline.context}</span>}
+    </p>
+  ) : (
+    <p class="text-muted-foreground">{project.outcome}</p>
+  )}
+  {(stack.length > 0 || project.year) && (
+    <div class="mt-auto flex items-end justify-between gap-4">
+      {stack.length > 0 && (
+        <ul class="flex flex-wrap gap-1.5">
+          {stack.map((s) => (
+            <li class="chip">{s}</li>
+          ))}
+        </ul>
+      )}
+      {project.year && (
+        <span class="font-mono text-xs text-muted-foreground tabular-nums">
+          {project.year}
+        </span>
+      )}
+    </div>
+  )}
+</article>

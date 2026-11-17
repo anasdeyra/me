@@ -1,0 +1,95 @@
+---
+// The one frame for every project visual (docs/ux-study.md 7.2): 16:10, hairline grid, 1px border, 2px radius.
+// With an image the picture fills the frame; without one a typographic fallback shows the project name,
+// type and year (no fake UI screenshots). Aspect ratio is always set, so swapping in a real image never shifts layout.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { t } from '@/i18n';
+import type { ProjectView } from '@/lib/projects';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  project: ProjectView;
+  size: 'card' | 'hero' | 'gallery';
+  /** Override the project's hero (gallery items). */
+  image?: ImageMetadata;
+  alt?: string;
+  loading?: 'lazy' | 'eager';
+  class?: string;
+}
+
+const {
+  project,
+  size,
+  image = project.hero?.image,
+  alt = project.hero?.alt ?? '',
+  loading = size === 'hero' ? 'eager' : 'lazy',
+  class: className,
+} = Astro.props;
+
+const sizes =
+  size === 'hero'
+    ? '(min-width: 1440px) 1280px, 100vw'
+    : '(min-width: 768px) 50vw, 100vw';
+const eager = loading === 'eager';
+const hasImage = !!image;
+// An image without alt text is decorative: hide the frame from assistive tech.
+const decorative = !hasImage || !alt;
+
+// Typographic fallback: first word of the title, without [TBD]/[Draft] markers.
+const word =
+  project.title
+    .replace(/\[[^\]]*\]\s*/g, '')
+    .trim()
+    .split(/\s+/)[0] || project.title;
+const label = t(`work.type.${project.type}`);
+---
+
+<div
+  class={cn(
+    'frame-grid frame-box relative flex aspect-[16/10] flex-col overflow-hidden rounded-sm border border-border',
+    className,
+  )}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  {project.type === 'research' ? (
+    <span class="frame-fold" aria-hidden="true"></span>
+  ) : (
+    <span
+      class="flex h-7 shrink-0 items-center gap-1.5 border-b border-border bg-background ps-3"
+      aria-hidden="true"
+    >
+      <span class="size-2 rounded-full border border-muted-foreground"></span>
+      <span class="size-2 rounded-full border border-muted-foreground"></span>
+      <span class="size-2 rounded-full border border-muted-foreground"></span>
+    </span>
+  )}
+  {hasImage ? (
+    <div class="relative min-h-0 flex-1">
+      <Image
+        src={image}
+        alt={alt}
+        class="absolute inset-0 size-full object-cover object-top"
+        widths={size === 'hero' ? [640, 960, 1280, 1920] : [480, 720, 960]}
+        sizes={sizes}
+        data-spec={size === 'hero' ? 'image' : undefined}
+        loading={loading}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding={eager ? 'sync' : 'async'}
+      />
+    </div>
+  ) : (
+    <div class="flex min-h-0 flex-1 flex-col justify-between overflow-hidden p-3 sm:p-4">
+      <span
+        class="frame-word block overflow-hidden transition-transform duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-1 group-has-[a:focus-visible]:translate-x-1 motion-reduce:translate-x-0"
+        aria-hidden="true"
+      >
+        {word}
+      </span>
+      <span class="flex items-baseline justify-between gap-3 font-mono text-xs text-muted-foreground">
+        <span>{label}</span>
+        {project.year && <span class="tabular-nums">{project.year}</span>}
+      </span>
+    </div>
+  )}
+</div>

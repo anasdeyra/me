@@ -1,0 +1,107 @@
+---
+// /tag/[tag] (US-14): published posts and projects for one topic, newest first. A page exists only for tags with
+// at least one published entry (src/lib/tags.ts), so it is always indexable. Pillar tags show their hub intro.
+import EntryRow from '@/components/blog/EntryRow.astro';
+import Search from '@/components/site/Search.astro';
+import { t } from '@/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getTagIndex } from '@/lib/tags';
+import { getSettings } from '@/lib/content';
+import { personRefNode, breadcrumbNode, tagCollectionNode } from '@/lib/schema';
+
+export async function getStaticPaths() {
+  const index = await getTagIndex();
+  return [...index.values()].map((tag) => ({
+    params: { tag: tag.slug },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+const settings = await getSettings();
+const url = new URL(`/tag/${tag.slug}`, Astro.site).href;
+const home = new URL('/', Astro.site).href;
+const description = tag.description ?? t('tag.description', { tag: tag.label });
+const title = t('tag.title', { tag: tag.label });
+---
+
+<BaseLayout
+  og={`tag/${tag.slug}`}
+  title={title}
+  description={description}
+  schema={[
+    tagCollectionNode({
+      url,
+      name: title,
+      description,
+      items: tag.entries.map((e) => ({
+        url: new URL(e.href, Astro.site).href,
+        name: e.title,
+      })),
+    }),
+    breadcrumbNode([
+      { name: t('work.breadcrumb.home'), url: home },
+      { name: title, url },
+    ]),
+    personRefNode(settings),
+  ]}
+>
+  <main id="main">
+    <section
+      class="wrap grid-page pt-8 pb-section md:pt-14 lg:pt-20"
+      aria-labelledby="tag-title"
+    >
+      <nav
+        data-pagefind-ignore
+        aria-label={t('work.breadcrumb.label')}
+        class="col-span-12 mb-8 text-sm text-muted-foreground md:mb-12"
+      >
+        <ol class="flex flex-wrap items-center gap-x-2">
+          <li>
+            <a href="/" class="link">
+              {t('work.breadcrumb.home')}
+            </a>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" class="text-ink">
+            {title}
+          </li>
+        </ol>
+      </nav>
+      <div class="col-span-12 lg:col-span-7">
+        <p class="mb-3 text-sm font-medium text-muted-foreground">
+          {t('tag.eyebrow')}
+        </p>
+        <h1 id="tag-title" class="text-5xl">
+          {title}
+        </h1>
+      </div>
+      <div class="col-span-12 mt-6 max-w-measure md:col-span-8 lg:col-span-5 lg:col-start-8 lg:mt-0 lg:self-end">
+        {tag.pillar && tag.description && (
+          <p class="text-lg text-ink">{tag.description}</p>
+        )}
+        <p
+          class="font-mono text-xs text-muted-foreground tabular-nums"
+          class:list={[tag.pillar && tag.description && 'mt-4']}
+        >
+          {tag.entries.length === 1
+            ? t('tag.count.one')
+            : t('tag.count', { n: tag.entries.length })}
+        </p>
+      </div>
+
+      <Search class="col-span-12 mt-8" />
+
+      <ul
+        class="col-span-12 mt-12 border-b border-border md:mt-16"
+        data-pagefind-ignore
+      >
+        {tag.entries.map((e) => (
+          <li>
+            <EntryRow entry={e} headingLevel={2} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

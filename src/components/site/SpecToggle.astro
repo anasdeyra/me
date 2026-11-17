@@ -1,0 +1,156 @@
+---
+// Spec mode toggle (FR-12): a quiet fixed control in the bottom-end corner (that corner is reserved for it).
+// Without JS it does not exist (html:not(.js) in global.css). The tiny script below owns the state: click and the
+// `S` key, persistence, the live-region announcement and the analytics event. Everything else (shadow-DOM
+// panel, stylesheet) lives in src/scripts/spec/*, a lazy chunk requested on first toggle or on pointer/focus
+// intent, or after load when the visitor left Spec mode on. Its strings travel as data-* (the chunk has no i18n).
+import { t } from '@/i18n';
+---
+
+<button
+  type="button"
+  data-spec-toggle
+  aria-pressed="false"
+  aria-keyshortcuts="S"
+  data-on={t('spec.on')}
+  data-off={t('spec.off')}
+  data-title={t('spec.panel.title')}
+  data-hide={t('spec.panel.hide')}
+  data-show={t('spec.panel.show')}
+  data-shortcuts={t('spec.shortcuts')}
+  data-error={t('spec.error')}
+  class="group/spec fixed end-4 bottom-4 z-30 inline-flex h-11 items-center gap-2.5 rounded-xs border border-input bg-background ps-3 pe-3.5 text-xs font-medium tracking-normal tabular-nums text-ink select-none hover:bg-muted aria-pressed:border-spec print:hidden"
+>
+  <svg
+    class="size-4 text-muted-foreground group-aria-pressed/spec:text-spec"
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.25"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="8" cy="8" r="3"></circle>
+    <path d="M8 0.75v4M8 11.25v4M0.75 8h4M11.25 8h4"></path>
+  </svg>
+  {t('spec.toggle')}
+  <kbd
+    data-key-hint
+    class="hidden rounded-xs border border-border px-1.5 text-muted-foreground pointer-fine:inline"
+    aria-hidden="true"
+    title={t('spec.hint')}
+  >
+    S
+  </kbd>
+</button>
+<p role="status" data-spec-status class="sr-only"></p>
+
+<script>
+  import { shortcutKey } from '@/scripts/shortcuts';
+
+  type Spec = { enable(): void; disable(): void };
+  type Track = (kind: 'event', e: { name: string; data: object }) => void;
+
+  const btn = document.querySelector<HTMLButtonElement>('[data-spec-toggle]');
+  const status = document.querySelector<HTMLElement>('[data-spec-status]');
+
+  if (btn && status) {
+    const text = btn.dataset;
+    let on = false;
+    let mod: Promise<Spec> | undefined;
+    const announce = (msg: string) => {
+      status.textContent = msg;
+    };
+    // Lazy chunk: first toggle, pointer/focus intent, or restore. Never on page load for first-time visitors.
+    const load = () =>
+      (mod ??= import('@/scripts/spec/index').then((m) =>
+        m.initSpec({
+          announce,
+          text: {
+            title: text.title ?? '',
+            hide: text.hide ?? '',
+            show: text.show ?? '',
+            shortcuts: text.shortcuts ?? '',
+          },
+        }),
+      ));
+    // A failed chunk (offline, blocked) or a throw while starting must not wedge the toggle: forget the
+    // rejected import, switch off, and say so.
+    const fail = () => {
+      mod = undefined;
+      on = false;
+      render();
+      persist();
+      announce(text.error ?? '');
+    };
+    const apply = () =>
+      load()
+        .then((s) => (on ? s.enable() : s.disable()))
+        .catch(fail);
+    // aria-keyshortcuts only while the key works (shortcuts switched off: WCAG 2.1.4).
+    const syncKeys = () => {
+      if (document.documentElement.hasAttribute('data-shortcuts-off'))
+        btn.removeAttribute('aria-keyshortcuts');
+      else btn.setAttribute('aria-keyshortcuts', 'S');
+    };
+    new MutationObserver(syncKeys).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-shortcuts-off'],
+    });
+    const persist = () => {
+      try {
+        if (on) localStorage.setItem('spec', 'on');
+        else localStorage.removeItem('spec');
+      } catch {
+        /* storage unavailable: the choice lasts for this page only */
+      }
+    };
+    const render = () => {
+      btn.setAttribute('aria-pressed', String(on));
+      syncKeys();
+      document.documentElement.toggleAttribute('data-spec-on', on);
+    };
+    const toggle = () => {
+      on = !on;
+      // Focus inside the panel would be lost when it is removed (WCAG 2.4.3): keep it on the toggle.
+      if (!on && document.activeElement?.matches('[data-spec-root]'))
+        btn.focus();
+      render();
+      persist();
+      announce((on ? text.on : text.off) ?? '');
+      (window as unknown as { va?: Track }).va?.('event', {
+        name: 'spec_mode_toggle',
+        data: { state: on ? 'on' : 'off', page: location.pathname },
+      });
+      void apply();
+    };
+
+    btn.addEventListener('click', toggle);
+    for (const type of ['pointerenter', 'focusin', 'touchstart'])
+      btn.addEventListener(type, () => void load(), {
+        once: true,
+        passive: true,
+      });
+    addEventListener('keydown', (e) => {
+      if (!shortcutKey(e, 's')) return;
+      // A modal dialog (search) or the open mobile menu owns the keyboard.
+      if (document.querySelector('dialog[open], :popover-open')) return;
+      e.preventDefault();
+      toggle();
+    });
+
+    syncKeys();
+    try {
+      on = localStorage.getItem('spec') === 'on';
+    } catch {
+      /* no storage: starts off */
+    }
+    if (on) {
+      render();
+      // Silent restore, after the page is done: only visitors who chose Spec mode pay for the chunk.
+      const idle =
+        window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 200));
+      idle(() => void apply());
+    }
+  }
+</script>

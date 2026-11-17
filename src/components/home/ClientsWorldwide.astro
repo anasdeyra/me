@@ -1,0 +1,27 @@
+---
+// Home section 5: clients world map + country list + time-zone caption. Hidden until a client exists (FR-22).
+import ClientsMap from '@/components/proof/ClientsMap.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { getClients } from '@/lib/content';
+import { isSectionLive } from '@/lib/routes';
+
+const live = await isSectionLive('clients');
+const count = live ? (await getClients()).length : 0;
+---
+
+{live && count > 0 && (
+  <Section id="clients" labelledby="clients-title">
+    <SectionHeading
+      id="clients-title"
+      class="reveal"
+      eyebrow={t('clients.eyebrow')}
+    >
+      {t('clients.title', { count })}
+    </SectionHeading>
+    <div class="col-span-12">
+      <ClientsMap />
+    </div>
+  </Section>
+)}

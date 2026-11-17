@@ -1,0 +1,58 @@
+---
+// "Part 2 of 3: <series>": the published parts as an ordered list plus previous and next links (D4).
+import { t } from '@/i18n';
+import type { SeriesInfo } from '@/lib/posts';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  series: SeriesInfo;
+  class?: string;
+}
+
+const { series, class: className } = Astro.props;
+const title = t('blog.series.title', { name: series.name });
+---
+
+<nav
+  data-pagefind-ignore
+  aria-label={title}
+  class={cn('max-w-measure border-y border-rule py-5', className)}
+>
+  <p class="font-mono text-xs text-muted-foreground">
+    {t('blog.series.part', { n: series.part, total: series.total })}
+  </p>
+  <p class="mt-1 text-lg text-ink font-semibold">{series.name}</p>
+  <ol class="mt-3 flex list-decimal flex-col gap-1.5 ps-5 text-sm">
+    {series.parts.map((p) => (
+      <li>
+        {p.current ? (
+          <span aria-current="page" class="font-semibold text-ink">
+            {p.title}
+          </span>
+        ) : (
+          <a href={p.href} class="link">
+            {p.title}
+          </a>
+        )}
+      </li>
+    ))}
+  </ol>
+  {(series.prev || series.next) && (
+    <div class="mt-4 flex flex-wrap justify-between gap-x-6 gap-y-2 text-sm">
+      {series.prev ? (
+        <a href={series.prev.href} rel="prev" class="link">
+          <span class="text-muted-foreground">{t('blog.series.prev')}:</span>{' '}
+          {series.prev.title}
+        </a>
+      ) : (
+        <span />
+      )}
+      {series.next && (
+        <a href={series.next.href} rel="next" class="link">
+          <span class="text-muted-foreground">{t('blog.series.next')}:</span>{' '}
+          {series.next.title}
+        </a>
+      )}
+    </div>
+  )}
+</nav>

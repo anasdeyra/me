@@ -1,0 +1,51 @@
+---
+// Reading progress: a 3px bar on top of the viewport that fills as the page scrolls. Pure CSS, scroll-linked
+// (animation-timeline: scroll(root)), so it is user-controlled; browsers without support, reduced motion and
+// print show nothing. Decorative (aria-hidden).
+---
+
+<div class="post-progress" aria-hidden="true"></div>
+
+<style>
+  .post-progress {
+    display: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .post-progress {
+        display: block;
+        position: fixed;
+        inset-block-start: 0;
+        inset-inline: 0;
+        z-index: 50;
+        block-size: 3px;
+        pointer-events: none;
+        background: linear-gradient(to right, var(--brand), var(--brand-hot));
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+        animation: post-progress linear both;
+        animation-timeline: scroll(root);
+      }
+    }
+  }
+  /* RTL: fill from the right (gradient direction and transform origin are physical). */
+  .post-progress:dir(rtl) {
+    background: linear-gradient(to left, var(--brand), var(--brand-hot));
+    transform-origin: 100% 50%;
+  }
+  @keyframes post-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @media (forced-colors: active) {
+    .post-progress {
+      background: Highlight;
+    }
+  }
+  @media print {
+    .post-progress {
+      display: none !important;
+    }
+  }
+</style>

@@ -10,21 +10,23 @@ interface Props {
   /** Show the "Dark theme" text next to the glyph (mobile menu). */
   withLabel?: boolean;
   class?: string;
+  'data-spec'?: string;
 }
 
-const { withLabel = false, class: className } = Astro.props;
+const { withLabel = false, class: className, 'data-spec': spec } = Astro.props;
 ---
 
 <button
   type="button"
   data-theme-toggle
+  data-spec={spec}
   aria-pressed="false"
   class={cn(
     buttonVariants({
       variant: withLabel ? 'outline' : 'ghost',
       size: withLabel ? 'default' : 'icon',
     }),
-    'group/theme',
+    'js-only group/theme',
     className,
   )}
 >
@@ -48,10 +50,10 @@ const { withLabel = false, class: className } = Astro.props;
 </button>
 
 <script>
+  import { THEME_COLOR } from '@/lib/theme';
   const root = document.documentElement;
   const media = matchMedia('(prefers-color-scheme: dark)');
-  // Keep in sync with --background in src/styles/global.css and the inline script in BaseLayout.
-  const chrome = { light: '#ffffff', dark: '#000000' };
+  const chrome = THEME_COLOR;
 
   const stored = () => {
     try {

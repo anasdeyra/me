@@ -1,0 +1,73 @@
+---
+// End-of-post call to action (D5). `variant` is already resolved (see resolveCta). `project` shows the related
+// project card plus WhatsApp, and degrades to WhatsApp alone when no project shares a tag.
+import ProjectCard from '@/components/work/ProjectCard.astro';
+import Button from '@/components/site/Button.astro';
+import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
+import { t } from '@/i18n';
+import { whatsappPostPrefill } from '@/lib/contact';
+import type { CtaVariant, PostView } from '@/lib/posts';
+import type { ProjectView } from '@/lib/projects';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  post: PostView;
+  variant: CtaVariant;
+  relatedProject?: ProjectView;
+  class?: string;
+}
+
+const { post, variant, relatedProject, class: className } = Astro.props;
+const project = variant === 'project' ? relatedProject : undefined;
+---
+
+{variant !== 'none' && (
+  <section
+    data-pagefind-ignore
+    aria-labelledby="post-cta"
+    class={cn(
+      'no-print max-w-measure border-t border-rule pt-8',
+      project && 'max-w-none',
+      className,
+    )}
+  >
+    <div class={cn(project && 'grid gap-x-gutter gap-y-8 md:grid-cols-2')}>
+      <div>
+        <h2 id="post-cta" class="text-2xl">
+          {t('blog.cta.title')}
+        </h2>
+        <p class="mt-3 text-muted-foreground">{t('blog.cta.body')}</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          {variant === 'cv' ? (
+            <Button
+              href="/cv"
+              variant="outline"
+              size="lg"
+              data-track="cv_view"
+              data-track-source="post"
+              data-track-slug={post.slug}
+            >
+              {t('blog.cta.cv')}
+            </Button>
+          ) : (
+            <WhatsAppButton
+              size="lg"
+              label={t('blog.cta.whatsapp')}
+              text={whatsappPostPrefill(post.title)}
+              trackLocation="post"
+              trackSlug={post.slug}
+            />
+          )}
+        </div>
+      </div>
+      {project && (
+        <div>
+          <p class="mb-3 font-mono text-xs text-muted-foreground">
+            {t('blog.cta.project')}
+          </p>
+          <ProjectCard project={project} headingLevel={3} />
+        </div>
+      )}
+    </div>
+  </section>
+)}

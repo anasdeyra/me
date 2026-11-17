@@ -3,7 +3,7 @@
 // In `astro dev` every link renders, so the whole shell can be reviewed before the pages exist.
 // When a page ships, set `built: true` here.
 import { t, type Key } from '@/i18n';
-import { getPosts, getProjects } from './content';
+import { getClients, getPosts, getProjects, getTestimonials } from './content';
 
 /** FR-22 thresholds: a section with fewer published entries looks abandoned, so it stays hidden. */
 export const MIN_PROJECTS = 2;
@@ -29,22 +29,24 @@ export const routes = {
   work: {
     href: '/work',
     label: 'nav.work',
-    built: false,
+    built: true,
     gate: enoughProjects,
   },
   writing: {
     href: '/blog',
     label: 'nav.writing',
-    built: false,
+    built: true,
     gate: enoughPosts,
   },
-  about: { href: '/about', label: 'nav.about', built: false },
-  cv: { href: '/cv', label: 'nav.cv', built: false },
-  privacy: { href: '/privacy', label: 'footer.privacy', built: false },
+  about: { href: '/about', label: 'nav.about', built: true },
+  cv: { href: '/cv', label: 'nav.cv', built: true },
+  // Not in mainNav: reached from the footer Site column (footerNav), the footer CTA and the 404.
+  contact: { href: '/contact', label: 'nav.contact', built: true },
+  privacy: { href: '/privacy', label: 'footer.privacy', built: true },
   rss: {
     href: '/rss.xml',
     label: 'footer.rss',
-    built: false,
+    built: true,
     gate: enoughPosts,
   },
 } satisfies Record<string, Route>;
@@ -95,3 +97,43 @@ export async function links(
 /** Main navigation (FR-1): Work · Writing · About · CV. */
 export const mainNav = (pathname: string) =>
   links(['work', 'writing', 'about', 'cv'], pathname);
+
+/** Footer "Site" column: the main links plus Contact (which is not in the header nav). */
+export async function footerNav(pathname: string) {
+  return links(['work', 'writing', 'about', 'cv', 'contact'], pathname);
+}
+
+// Home sections gated like routes (FR-22). Each section has a `built` flag and a content gate.
+let testimonialCount: Promise<number> | undefined;
+let clientCount: Promise<number> | undefined;
+
+export const sections = {
+  selectedWork: { built: true, gate: enoughProjects },
+  testimonials: {
+    built: true,
+    gate: async () =>
+      (await (testimonialCount ??= getTestimonials().then((t) => t.length))) >=
+      1,
+  },
+  clients: {
+    built: true,
+    gate: async () =>
+      (await (clientCount ??= getClients().then((c) => c.length))) >= 1,
+  },
+  writing: { built: true, gate: enoughPosts },
+} satisfies Record<string, { built: boolean; gate?: () => Promise<boolean> }>;
+
+export type SectionKey = keyof typeof sections;
+
+/**
+ * Whether a home section renders in this build. Unlike `isLive`, dev does NOT bypass `built: false`: the
+ * section components do not exist yet, so there is nothing to show. Once `built: true`, dev shows the
+ * section regardless of the content gate (to design it with sparse content); production also needs the gate.
+ */
+export async function isSectionLive(key: SectionKey): Promise<boolean> {
+  const section: { built: boolean; gate?: () => Promise<boolean> } =
+    sections[key];
+  if (!section.built) return false;
+  if (import.meta.env.DEV) return true;
+  return section.gate ? await section.gate() : true;
+}

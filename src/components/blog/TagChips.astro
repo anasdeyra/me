@@ -1,0 +1,27 @@
+---
+// Topic chips: a link when the tag page exists (tagLinks sets `href`), plain text otherwise.
+import { cn } from '@/lib/utils';
+
+interface Props {
+  tags: { slug: string; label: string; href?: string }[];
+  class?: string;
+}
+
+const { tags, class: className } = Astro.props;
+---
+
+{tags.length > 0 && (
+  <ul class={cn('flex flex-wrap gap-1.5', className)}>
+    {tags.map((tag) => (
+      <li>
+        {tag.href ? (
+          <a href={tag.href} class="chip">
+            {tag.label}
+          </a>
+        ) : (
+          <span class="chip">{tag.label}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+)}

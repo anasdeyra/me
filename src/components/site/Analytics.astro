@@ -1,0 +1,29 @@
+---
+// Vercel Web Analytics (cookieless), production only: the script 404s outside Vercel and dev traffic would
+// pollute the numbers. Not the adapter's `webAnalytics` option: its inline snippet cannot be hashed for CSP.
+// 1) stub queue for window.va, 2) the same-origin insights script (covered by script-src 'self'),
+// 3) one delegated listener turning [data-track="event"] clicks/submits into custom events; extra
+//    attributes become props: data-track-location="hero" -> { location: "hero" }.
+// Both inline scripts are hashed like ThemeScript (they must stay byte-identical to what is hashed).
+import { createHash } from 'node:crypto';
+
+const stub = `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}`;
+const listener = `(()=>{const f=e=>{const el=e.target instanceof Element&&e.target.closest('[data-track]');if(!el)return;const d={};for(const k in el.dataset)if(k!=='track'&&k.startsWith('track'))d[k[5].toLowerCase()+k.slice(6)]=el.dataset[k];window.va?.('event',{name:el.dataset.track,data:d})};addEventListener('click',f);addEventListener('submit',f)})()`;
+
+const prod = import.meta.env.PROD;
+if (prod) {
+  for (const code of [stub, listener]) {
+    Astro.csp?.insertScriptHash(
+      `sha256-${createHash('sha256').update(code).digest('base64')}`,
+    );
+  }
+}
+---
+
+{prod && (
+  <>
+    <script is:inline set:html={stub} />
+    <script is:inline defer src="/_vercel/insights/script.js" />
+    <script is:inline set:html={listener} />
+  </>
+)}

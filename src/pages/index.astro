@@ -1,12 +1,54 @@
 ---
+// Home (study 6.1). Sections 3, 4, 5 (Phase 3) and 10 (Phase 4) are gated by isSectionLive and added later.
+import AboutTeaser from '@/components/home/AboutTeaser.astro';
+import Faq from '@/components/home/Faq.astro';
+import LatestWriting from '@/components/home/LatestWriting.astro';
+import Hero from '@/components/home/Hero.astro';
+import Process from '@/components/home/Process.astro';
+import ClientsMapStyle from '@/components/proof/ClientsMapStyle.astro';
+import ClientsWorldwide from '@/components/home/ClientsWorldwide.astro';
+import Testimonials from '@/components/home/Testimonials.astro';
+import SelectedWork from '@/components/home/SelectedWork.astro';
+import Services from '@/components/home/Services.astro';
+import TrustStrip from '@/components/home/TrustStrip.astro';
+import ContactBlock from '@/components/site/ContactBlock.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getSettings } from '@/lib/content';
-import { websiteNode } from '@/lib/schema';
+import { getImage } from 'astro:assets';
+import { contentImage, getProfile, getSettings } from '@/lib/content';
+import { isSectionLive } from '@/lib/routes';
+import { personNode, websiteNode } from '@/lib/schema';
 
-const settings = await getSettings();
-// Person node joins the graph with the hero in Phase 2 (schema must match visible content).
+const [settings, profile] = await Promise.all([getSettings(), getProfile()]);
+// The portrait shown in the hero (same options as Hero.astro, so the file is shared).
+const photo = contentImage('en/profile', profile.photo);
+const portrait = photo
+  ? new URL(
+      (await getImage({ src: photo, width: 700, height: 875 })).src,
+      Astro.site,
+    ).href
+  : undefined;
+const clientsLive = await isSectionLive('clients');
 ---
 
-<BaseLayout schema={[websiteNode(settings)]} footerCta={false}>
-  <main id="main"></main>
+<BaseLayout
+  schema={[
+    websiteNode(settings, { withPublisher: true }),
+    personNode(settings, profile, { image: portrait }),
+  ]}
+  footerCta={false}
+>
+  {clientsLive && <ClientsMapStyle slot="head" />}
+  <main id="main">
+    <Hero />
+    <TrustStrip />
+    <SelectedWork />
+    <Testimonials />
+    <ClientsWorldwide />
+    <Services />
+    <Process />
+    <AboutTeaser />
+    <Faq />
+    <LatestWriting />
+    <ContactBlock location="final" headingId="final-cta-title" />
+  </main>
 </BaseLayout>

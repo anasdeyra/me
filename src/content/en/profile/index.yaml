@@ -4,4 +4,9 @@ shortBio: >-
   founders. Also a research master's student in Information Systems.
 cvSummary: '[TBD] Three-line CV summary with role keywords.'
 photo: photo.jpg
+cutout: cutout.png
 photoAlt: Portrait of Anas Deyra
+researchSummary: '[TBD] Two sentences on the research focus.'
+facts:
+  - label: '[TBD] Label'
+    value: '[TBD] Value'

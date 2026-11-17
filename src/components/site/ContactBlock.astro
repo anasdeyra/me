@@ -1,0 +1,82 @@
+---
+// The 4-way contact group (WhatsApp, email with copy, the 3-field form, LinkedIn) as a page section.
+// Used by the home page's closing section; /contact composes the same pieces in a larger layout.
+import { cn } from '@/lib/utils';
+import DuskGlow from './DuskGlow.astro';
+import { t } from '@/i18n';
+import { whatsappPrefill } from '@/lib/contact';
+import { getSettings } from '@/lib/content';
+import ContactForm from './ContactForm.astro';
+import CopyEmail from './CopyEmail.astro';
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
+
+interface Props {
+  /** Analytics location and form location. */
+  location: 'final' | 'contact';
+  /** Section heading; defaults to the closing-CTA line. */
+  heading?: string;
+  /** Id for the heading (names the section landmark). Must be unique on the page. */
+  headingId: string;
+  class?: string;
+}
+
+const {
+  location,
+  heading = t('contact.heading'),
+  headingId,
+  class: className,
+} = Astro.props;
+const settings = await getSettings();
+---
+
+<Section labelledby={headingId} class={cn('relative isolate', className)}>
+  {/* Warm backdrop in the empty space under the heading column (lg+ only), never behind copy or the form. */}
+  <DuskGlow class="hidden size-[22rem] inset-auto start-0 bottom-[6%] [--dusk-opacity:0.85] lg:block" />
+  <SectionHeading id={headingId} class="md:col-span-12 lg:col-span-5">
+    {heading}
+  </SectionHeading>
+
+  <div class="col-span-12 md:col-span-8 lg:col-span-5 lg:col-start-7">
+    <WhatsAppButton
+      size="lg"
+      text={whatsappPrefill(location === 'final' ? 'final' : 'contact')}
+      trackLocation={location}
+    />
+    <p class="mt-3 text-sm text-muted-foreground">
+      {t('contact.reply.whatsapp')}
+    </p>
+
+    <div class="mt-10">
+      <p class="mb-2 text-sm font-medium text-ink">
+        {t('contact.email.title')}
+      </p>
+      <CopyEmail email={settings.email} location={location} />
+      <p class="mt-2 text-sm text-muted-foreground">
+        {t('contact.reply.email')}
+      </p>
+    </div>
+
+    <p class="mt-10 flex flex-wrap gap-x-6 gap-y-2">
+      <a
+        href={settings.links.linkedin}
+        class="link text-ink"
+        rel="me noopener noreferrer"
+        target="_blank"
+        data-track="contact_linkedin"
+        data-track-location={location}
+      >
+        {t('contact.linkedin')}
+        <span class="sr-only"> {t('a11y.newTab')}</span>
+      </a>
+    </p>
+  </div>
+
+  <div class="col-span-12 mt-12 md:col-span-6 md:col-start-7">
+    <h3 class="mb-6 text-2xl font-semibold text-ink">
+      {t('contact.block.cta')}
+    </h3>
+    <ContactForm location={location} idPrefix={`${location}-block-form`} />
+  </div>
+</Section>

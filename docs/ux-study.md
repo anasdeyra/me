@@ -90,29 +90,29 @@ ATS note: recruiters often parse the CV with HR tools. CV and About must be mach
 
 ## 4. Functional requirements
 
-| ID    | Requirement                                                                                                                             | Priority |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| FR-1  | Global header: name/logo, nav (Work, Writing, About, CV), theme toggle, WhatsApp button; Spec mode toggle floats in a corner (7.3)      | Must     |
-| FR-2  | Mobile nav: disclosure menu, WhatsApp button stays visible outside the menu                                                             | Must     |
-| FR-3  | Home page sections in order of section 6.1                                                                                              | Must     |
-| FR-4  | Projects (`/work`): one index + one detail template for all types (client, side, research); CSS-only type chips filter the index        | Must     |
-| FR-5  | Writing (`/blog`): one index + one detail template for articles and notes; type chips; series nav, related, reading time, ToC, one RSS  | Must     |
-| FR-6  | Tags (`/tag/[tag]`): lists projects + posts sharing a tag; pillar tags show an intro (topic hub)                                        | Must     |
-| FR-7  | /cv HTML + `/cv.pdf` (text-based) generated from the same data                                                                          | Must     |
-| FR-8  | /about with photo, story, how I work, languages, research summary + link, human details                                                 | Must     |
-| FR-9  | /contact: WhatsApp (+ desktop QR), email copy/mailto, 3-field form (+ honeypot), LinkedIn, Upwork                                       | Must     |
-| FR-10 | Contact form: Astro Action (`prerender = false`) -> Resend; inline validation; success + error states; error state shows email fallback | Must     |
-| FR-11 | WhatsApp links carry context-aware prefilled text (`home_hero`, `project:<slug>`, `post:<slug>`, `contact`)                             | Should   |
-| FR-12 | Spec mode overlay (section 7.3)                                                                                                         | Must     |
-| FR-13 | Client world map (section 7.4)                                                                                                          | Should   |
-| FR-14 | Pagefind search (lazy, `/` shortcut, dialog)                                                                                            | Should   |
-| FR-15 | Build-time OG images per page/entry (name, title, type chip)                                                                            | Must     |
-| FR-16 | Theme: system default + toggle, persisted, inline head script (no flash)                                                                | Must     |
-| FR-17 | 404 page with search + links to Work/Writing/Contact                                                                                    | Must     |
-| FR-18 | /privacy: form data, analytics, retention (GDPR applies to EU visitors; Tunisian law 2004-63). No /legal page (not a French business)   | Must     |
-| FR-22 | Content-gated sections: a home section or nav item renders only with enough published entries (Work >= 2, Writing >= 3)                 | Must     |
-| FR-19 | Copy-to-clipboard for email with live-region confirmation                                                                               | Should   |
-| FR-20 | Drafts and scheduled `publishedAt` excluded from production build                                                                       | Must     |
+| ID    | Requirement                                                                                                                                                                                                                     | Priority |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| FR-1  | Global header: name/logo, nav (Work, Writing, About, CV), theme toggle, GitHub icon link, "Let's talk" CTA to /contact (2026-11-17; WhatsApp stays in hero, final CTA, footer, menu); Spec mode toggle floats in a corner (7.3) | Must     |
+| FR-2  | Mobile nav: disclosure menu, "Let's talk" CTA stays visible outside the menu; GitHub and WhatsApp live in the menu sheet (below sm)                                                                                             | Must     |
+| FR-3  | Home page sections in order of section 6.1                                                                                                                                                                                      | Must     |
+| FR-4  | Projects (`/work`): one index + one detail template for all types (client, side, research); CSS-only type chips filter the index (built as radio inputs + `:has()` on `.work-scope`, hidden when `:has()` is unsupported)       | Must     |
+| FR-5  | Writing (`/blog`): one index + one detail template for articles and notes; type chips; series nav, related, reading time, ToC, one RSS                                                                                          | Must     |
+| FR-6  | Tags (`/tag/[tag]`): lists projects + posts sharing a tag; pillar tags show an intro (topic hub)                                                                                                                                | Must     |
+| FR-7  | /cv HTML + `/cv.pdf` (text-based) generated from the same data                                                                                                                                                                  | Must     |
+| FR-8  | /about with photo, story, how I work, languages, research summary + link, human details                                                                                                                                         | Must     |
+| FR-9  | /contact: WhatsApp (+ desktop QR), email copy/mailto, 3-field form (+ honeypot), LinkedIn, Upwork                                                                                                                               | Must     |
+| FR-10 | Contact form: Astro Action (`prerender = false`) -> Resend; inline validation; success + error states; error state shows email fallback (built as a plain `POST /api/contact` endpoint, see AGENTS.md decisions log)            | Must     |
+| FR-11 | WhatsApp links carry context-aware prefilled text (`home_hero`, `project:<slug>`, `post:<slug>`, `contact`)                                                                                                                     | Should   |
+| FR-12 | Spec mode overlay (section 7.3)                                                                                                                                                                                                 | Must     |
+| FR-13 | Client world map (section 7.4)                                                                                                                                                                                                  | Should   |
+| FR-14 | Pagefind search (lazy, `/` shortcut with off switch, dialog). Status: done (Phase 4)                                                                                                                                            | Should   |
+| FR-15 | Build-time OG images per page/entry (name, title, type chip). Status: done (Phase 4)                                                                                                                                            | Must     |
+| FR-16 | Theme: system default + toggle, persisted, inline head script (no flash)                                                                                                                                                        | Must     |
+| FR-17 | 404 page with search + links to Work/Writing/Contact                                                                                                                                                                            | Must     |
+| FR-18 | /privacy: form data, analytics, retention (GDPR applies to EU visitors; Tunisian law 2004-63). No /legal page (not a French business)                                                                                           | Must     |
+| FR-22 | Content-gated sections: a home section or nav item renders only with enough published entries (Work >= 2, Writing >= 3)                                                                                                         | Must     |
+| FR-19 | Copy-to-clipboard for email with live-region confirmation                                                                                                                                                                       | Should   |
+| FR-20 | Drafts and scheduled `publishedAt` excluded from production build                                                                                                                                                               | Must     |
 
 Out of scope (v1): comments, newsletter, public prices, availability badge, research as a post topic (research is a project type), FR/AR locales.
 
@@ -213,7 +213,7 @@ sections are hidden in production (FR-22) and shown in dev.
 
 | #   | Section           | Content                                                                                                                                                                                                                               | Serves                  |
 | --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| 1   | Hero              | H1 outcome headline, subline, **[Message me on WhatsApp]** (primary) + **[Hiring? View my CV]** (secondary), headshot                                                                                                           | All (two doors)         |
+| 1   | Hero              | H1 outcome headline, subline, **[Message me on WhatsApp]** (primary) + **[Hiring? View my CV]** (secondary), headshot                                                                                                                 | All (two doors)         |
 | 2   | Trust strip       | Upwork Top Rated · 100% Job Success · 5.0 ★ (N reviews) · "Clients in 7 countries" -> links to map                                                                                                                                    | P1, P5                  |
 | 3   | Selected work     | 3-4 featured project cards (any type): image, type chip, headline metric (or status for research), stack chips -> /work/[slug]. At launch: side + research projects until client case studies exist                                   | P1, P3                  |
 | 4   | Testimonials      | 3 Upwork review quotes, name/role/country, "Verified on Upwork" link                                                                                                                                                                  | P1                      |
@@ -282,7 +282,7 @@ WhatsApp card (button + QR on >= 768px, number +216 93 028 674 shown as text too
 - Whitespace: generous, and growing with the viewport. On large screens margins and section spacing widen; the text measure stays fixed instead of stretching.
 - Hero: Anas's headshot, in color, 4:5, in the right columns (9-12) with the text on the left (1-7). A human face before any claim builds trust with founders and recruiters.
 - Type: Geist (headings, body, UI) + Geist Mono (code and Spec mode only), self-hosted via the Astro Fonts API. Fluid type scale (`clamp`), ratio 1.333 on desktop; radius 2px.
-- Color: black and white (light: black on white; dark: white on black, body text #EDEDED), pure neutral grays for secondary text and rules. No accent color: primary CTAs are solid black (inverted in dark), except **WhatsApp CTAs, which use WhatsApp green `#25D366` with a black label** (recognition; white on that green fails AA). Otherwise color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
+- **Amended 2026-11-17: Aegean blue palette** (Phase 5b builds motion and interaction on it: blue is the interaction colour, Dusk narrowed to a warm accent, see 7.1b) (ink #0D5EAF, body #1A5D8E, primary #1565C0; dark = lighter blues on navy #07111D; Spec = magenta; print stays black). See AGENTS.md decisions log. Original text: black and white (light: black on white; dark: white on black, body text #EDEDED), pure neutral grays for secondary text and rules. No accent color: primary CTAs are solid black (inverted in dark), except **WhatsApp CTAs, which use WhatsApp green `#25D366` with a black label** (recognition; white on that green fails AA). Otherwise color appears only as grainy gradients (7.1b). Spec mode lines use a functional cyan so annotations stay distinct.
 - Motion: subtle, purposeful (map pulses, focus transitions); off under reduced motion.
 - Components: shadcn (button, dialog for search, tooltip for Spec mode), restyled with tokens. Mobile nav uses the Popover API.
 
@@ -296,7 +296,8 @@ The only color on the site: soft gradients with a film-grain noise layer, used a
 - **Motion:** static by default; if a gradient drifts, it animates `transform`/`opacity` only and stops under `prefers-reduced-motion`.
 - **`forced-colors: active`:** gradients are removed.
 - **Palette: Dusk** (`#FFB238` amber -> `#FF4F81` pink -> `#7A3CFF` violet), as stacked radial gradients with grain.
-- **Placement:** a soft glow behind the hero portrait, and a small glow beside the 404 numeral. Considered and not chosen yet: the final contact block, project image backdrops and social cards.
+- **Placement:** a soft glow behind the hero portrait, a small glow beside the 404 numeral, and (5b) the contact block / closing CTA backdrop and the map sparks. Considered and not chosen: project image backdrops and social cards.
+- **Amended 2026-11-17 (Phase 5b):** the palette is blue now (7.1) and Dusk is **amber-weighted (amber -> pink; violet unused)**, a decorative warm counterpoint; blue is the interaction colour. Never behind text.
 
 ### 7.2 Screenshot treatment (assets "don't look that good")
 
@@ -309,13 +310,14 @@ Uniform frame makes average screenshots look deliberate:
 
 ### 7.3 Signature: Spec mode
 
-A toggle (a floating button in a bottom corner, independent of the header, + `S` key) that overlays a blueprint layer explaining the craft of the current page. Keep that corner free of other floating UI.
+A toggle (a floating button in a bottom corner, independent of the header, + `S` key) that overlays a blueprint layer explaining the craft of the current page. Keep that corner free of other floating UI. The `S` key must use the shared single-key module `src/scripts/shortcuts.ts` (`shortcutKey`, with the user-facing off switch) to satisfy WCAG 2.1.4.
 
 - **Shows:** spacing between key blocks, type size/line-height/weight, contrast ratios of text vs background (computed live), tap-target sizes, landmark/heading outline, image format + size, and a page panel: HTML/CSS/JS bytes (injected at build), Lighthouse scores (from CI), security header grade.
 - **Authoring:** elements opt in with `data-spec="..."` attributes in Astro markup; measurement computed client-side on toggle.
 - **Implementation:** React island loaded via dynamic `import()` on first toggle (0 KB until used). Overlay is `aria-hidden`; a visually hidden live region announces "Spec mode on" and a text summary panel is keyboard reachable.
 - **States:** off by default; remembered in `localStorage`; on mobile, simplified to the page panel + outline.
 - **Copy hook:** "This site is a case study. Press S to inspect it."
+- **Build deviations (2026-11-17):** vanilla TS lazy module in a shadow root instead of a React island (smaller first-toggle cost; overlay CSS is a linked same-origin file for the CSP); page weight comes from Resource Timing, not build-time injection; security headers are a present/missing list, not a grade; Lighthouse scores are committed JSON from `scripts/lighthouse.mjs` (lab, dated), not CI; "press S" copy is hidden for touch pointers and when shortcuts are off.
 
 ### 7.4 Client world map
 
@@ -326,7 +328,9 @@ A toggle (a floating button in a bottom corner, independent of the header, + `S`
 - **Timezone layer (answers the objection):** caption under the map: "Based in Tunis (UTC+1, no DST): full overlap with Europe, mornings with India and Singapore, afternoons with the US East Coast."
 - **Interaction:** hover/focus on a marker shows country + number of projects (optional field); markers are focusable buttons with labels; no JS beyond tooltip (CSS `:hover`/`:focus-within` is enough).
 - **Accessibility:** `role="img"` + `aria-label="Clients in 7 countries: ..."` and a visible inline list of countries below the map (also good for SEO).
+- **Build note (2026-11-17):** markers are not focusable; the visible country list carries the information and hover pairs list item and marker via CSS `:has()`. Pulses are capped at 2 iterations (WCAG 2.2.2).
 - **Reduced motion:** static dots, no arcs animation.
+- **Animation (5b, 2026-11-17):** entry is CSS scroll-linked (arcs draw, markers appear as the map crosses the viewport; no JS); blue arcs with amber sparks travelling Tunis -> client on hover (bounded, 2 passes); a pointer flashlight lights the dots under the cursor on fine pointers (label kept legible with a halo layer above it).
 - **Data:** Keystatic `clients` list (country, ISO code, lat/lon, projects count, show flag).
 - **Placement:** home section 5; trust strip links to it; small version on /about.
 
@@ -380,19 +384,24 @@ These projects (NFT marketplace, ArtBeat, QuickSeat) are candidates for the laun
 
 ## 9. Analytics events (Vercel Web Analytics)
 
-| Event                                         | Props                                                    |
-| --------------------------------------------- | -------------------------------------------------------- |
-| `contact_whatsapp`                            | `location` (header, hero, project, post, contact, final) |
-| `contact_email_copy`                          | `location`                                               |
-| `contact_email_click`                         | `location`                                               |
-| `contact_form_success` / `contact_form_error` | —                                                        |
-| `contact_linkedin`                            | `location`                                               |
-| `upwork_click`                                | `location`                                               |
-| `cv_view` / `cv_pdf_download`                 | `source`                                                 |
-| `project_link`                                | `slug`, `type` (live/code/paper/slides)                  |
-| `filter_chip`                                 | `page` (work/blog), `type`                               |
-| `spec_mode_toggle`                            | `state`, `page`                                          |
-| `search_open`                                 | `trigger` (key/button)                                   |
+| Event                                         | Props                                                                                              |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `contact_whatsapp`                            | `location` (menu, hero, project, post, contact, final, footer, footer_cta, and page-specific ones) |
+| `contact_cta`                                 | `location` (header)                                                                                |
+| `contact_click`                               | `location` (project), `slug` (project page contact link)                                           |
+| `contact_github`                              | `location` (header, menu)                                                                          |
+| `contact_email_copy`                          | `location`                                                                                         |
+| `contact_email_click`                         | `location` (incl. footer, footer_cta)                                                              |
+| `contact_form_success` / `contact_form_error` | —                                                                                                  |
+| `contact_linkedin`                            | `location`                                                                                         |
+| `upwork_click`                                | `location`                                                                                         |
+| `cv_view` / `cv_pdf_download`                 | `source`                                                                                           |
+| `cv_print`                                    | — (print button on /cv)                                                                            |
+| `project_link`                                | `slug`, `type` (live/code/paper/slides)                                                            |
+| `filter_chip`                                 | `page` (work/blog), `type`                                                                         |
+| `spec_mode_toggle`                            | `state`, `page`                                                                                    |
+| `search_open`                                 | `trigger` (key/button)                                                                             |
+| `share_click`                                 | `network` (linkedin), `slug`                                                                       |
 
 Delegated listener on `[data-track]` attributes: one tiny inline script, no per-component JS.
 
@@ -453,9 +462,11 @@ All assets (photo, screenshots, research projects) arrive later: build with clea
 
 ## 12. Build phases
 
-1. **Foundation:** tokens, layout, header/footer, theme, security headers, analytics, Keystatic schemas.
-2. **Conversion core:** home (sections 1-11), /contact + form action, /cv + PDF, /about.
-3. **Proof:** testimonials, world map, projects collection + /work (side and research first, client case studies when ready).
-4. **Content engine:** posts collection + /blog, tags + /tag, series, RSS, OG images, Pagefind.
-5. **Signature:** Spec mode.
-6. **Audit:** accessibility, SEO, performance, web-quality-audit skills; Lighthouse 100 gate.
+1. **Foundation:** tokens, layout, header/footer, theme, security headers, analytics, Keystatic schemas. **Done.**
+2. **Conversion core:** home (sections 1-11), /contact + form action, /cv + PDF, /about. **Done.**
+3. **Proof:** testimonials, world map, projects collection + /work (side and research first, client case studies when ready). **Done.**
+4. **Content engine:** posts collection + /blog, tags + /tag, series, RSS, OG images, Pagefind. **Done.**
+5. **Signature:** Spec mode. **Done.**
+   5b. **Motion, color and interaction** (added 2026-11-17 at Anas's request: give the portfolio more life): animated world
+   map, more color, mouse interactions. CSS-first, compositor-only, reduced-motion safe, CSP-safe, within the JS budget. **Done 2026-11-17.**
+6. **Audit:** accessibility, SEO, performance, web-quality-audit skills; Lighthouse 100 gate. **Done 2026-11-17** (see the decisions log in AGENTS.md; remaining owner work: `docs/launch-checklist.md`).

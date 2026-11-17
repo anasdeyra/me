@@ -1,0 +1,86 @@
+---
+// One row for a post or a project (D3): type chip, date or year, title as the stretched link, description.
+// Renders an <article>; the caller wraps it in <li> (add `work-card` + `data-type` there for the chip filter).
+import TypeChip from '@/components/work/TypeChip.astro';
+import { t } from '@/i18n';
+import { getTags } from '@/lib/content';
+import { formatDate, type Entry } from '@/lib/entries';
+import ArrowIcon from '@/components/site/ArrowIcon.astro';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  entry: Entry;
+  headingLevel?: 2 | 3 | 4;
+  /** Show the topic labels (plain text: the row itself is the link). */
+  showTags?: boolean;
+  /** Meta above the text (narrow columns such as the home grid) instead of beside it. */
+  stacked?: boolean;
+  class?: string;
+}
+
+const {
+  entry,
+  headingLevel = 3,
+  showTags = false,
+  stacked = false,
+  class: className,
+} = Astro.props;
+const Heading = `h${headingLevel}` as const;
+const labels = showTags
+  ? new Map((await getTags()).map((tag) => [tag.slug, tag.entry.label]))
+  : undefined;
+const tags = entry.tags.map((slug) => labels?.get(slug) ?? slug);
+---
+
+<article
+  data-glow
+  class={cn(
+    'glow-tint group isolate relative grid gap-x-gutter gap-y-2 border-t border-border py-6 transition-colors duration-(--dur-1) [--glow-bleed:0_-0.75rem] hover:border-rule has-[a:focus-visible]:border-rule has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
+    !stacked && 'md:grid-cols-[10rem_1fr]',
+    className,
+  )}
+>
+  <div
+    data-pagefind-ignore
+    class={cn(
+      'flex flex-wrap items-center gap-2',
+      !stacked && 'md:flex-col md:items-start',
+    )}
+  >
+    <TypeChip type={entry.type} />
+    {entry.draft && <span class="chip">{t('blog.draftBadge')}</span>}
+    {entry.date ? (
+      <time
+        datetime={entry.date}
+        class="font-mono text-xs text-muted-foreground tabular-nums"
+      >
+        {formatDate(entry.date)}
+      </time>
+    ) : (
+      entry.year && (
+        <span class="font-mono text-xs text-muted-foreground tabular-nums">
+          {entry.year}
+        </span>
+      )
+    )}
+  </div>
+  <div class="max-w-measure">
+    <Heading class="text-xl">
+      <a
+        href={entry.href}
+        class="decoration-1 underline-offset-4 transition-colors duration-(--dur-1) after:absolute after:inset-0 group-hover:text-link-hover group-hover:underline focus-visible:outline-none"
+      >
+        {entry.title}
+        <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 transition-[opacity,translate] duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
+      </a>
+    </Heading>
+    <p class="mt-2 text-muted-foreground">{entry.description}</p>
+    {showTags && tags.length > 0 && (
+      <ul class="mt-3 flex flex-wrap gap-1.5" data-pagefind-ignore>
+        {tags.map((label) => (
+          <li class="chip">{label}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+</article>

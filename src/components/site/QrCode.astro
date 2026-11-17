@@ -1,0 +1,28 @@
+---
+// Build-time QR code as inline SVG (theme-aware: dark modules use currentColor). Callers hide it below md
+// (`hidden md:block`) since phones tap the WhatsApp button instead of scanning.
+import { qrSvg } from '@/lib/qr';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  value: string;
+  /** Accessible name, e.g. "QR code to open a WhatsApp chat". */
+  label: string;
+  class?: string;
+  [attr: `data-${string}`]: string | undefined;
+}
+
+const { value, label, class: className, ...rest } = Astro.props;
+const { viewBox, path } = qrSvg(value);
+---
+
+<svg
+  viewBox={viewBox}
+  role="img"
+  aria-label={label}
+  {...rest}
+  class={cn('size-full bg-background text-ink', className)}
+  shape-rendering="crispEdges"
+>
+  <path d={path} fill="currentColor"></path>
+</svg>

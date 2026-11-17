@@ -1,0 +1,25 @@
+---
+// Page section on the 12-column grid. Pass `labelledby` (the heading's id) so it is a named landmark.
+import { cn } from '@/lib/utils';
+
+interface Props {
+  id?: string;
+  labelledby?: string;
+  class?: string;
+  [attr: `data-${string}`]: string | boolean | undefined;
+}
+
+const { id, labelledby, class: className, ...rest } = Astro.props;
+// twMerge does not know the custom `py-section` utility, so a caller's py-*/pt-*/pb-* replaces it here.
+const ownsPadding = /(^|\s)(?:[a-z]+:)*p[ytb]-/.test(className ?? '');
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledby}
+  data-spec="spacing:py-section"
+  {...rest}
+  class={cn('wrap grid-page', !ownsPadding && 'py-section', className)}
+>
+  <slot />
+</section>

@@ -47,8 +47,28 @@ export const profile = (locale: string) =>
         multiline: true,
       }),
       photo: fields.image({ label: 'Photo' }),
+      cutout: fields.image({
+        label: 'Hero cutout (optional)',
+        description:
+          'The same portrait as a transparent PNG (background removed, shoulders reaching the bottom and side edges). Shown in the home hero; without it the hero shows the photo.',
+      }),
       photoAlt: fields.text({ label: 'Photo alt text' }),
       longBio: fields.markdoc({ label: 'Long bio (About page)' }),
+      howIWork: fields.markdoc({ label: 'How I work (About page, optional)' }),
+      researchSummary: fields.text({
+        label: 'Research summary (About page, optional)',
+        multiline: true,
+      }),
+      facts: fields.array(
+        fields.object({
+          label: fields.text({ label: 'Label', validation: { isRequired: true } }),
+          value: fields.text({ label: 'Value', validation: { isRequired: true } }),
+        }),
+        {
+          label: 'Human details (About page, optional)',
+          itemLabel: (p) => p.fields.label.value || 'Untitled',
+        },
+      ),
     },
   });
 

@@ -1,0 +1,49 @@
+---
+// Home section 4: three featured Upwork reviews, verbatim (home excerpt where the entry has one).
+// Hidden until at least one testimonial exists (FR-22).
+import TestimonialCard from '@/components/proof/TestimonialCard.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { getSettings } from '@/lib/content';
+import { getFeaturedTestimonials } from '@/lib/proof';
+import { isSectionLive } from '@/lib/routes';
+
+const live = await isSectionLive('testimonials');
+const items = live ? await getFeaturedTestimonials(3) : [];
+const settings = live ? await getSettings() : undefined;
+---
+
+{live && items.length > 0 && (
+  <Section id="testimonials" labelledby="testimonials-title">
+    <SectionHeading
+      id="testimonials-title"
+      class="reveal"
+      eyebrow={t('home.testimonials.eyebrow')}
+    >
+      {t('home.testimonials.title')}
+    </SectionHeading>
+    <ul class="col-span-12 grid gap-x-gutter gap-y-12 md:grid-cols-3">
+      {items.map((item, i) => (
+        <li class:list={['reveal', ['', 'md:[--i:1]', 'md:[--i:2]'][i]]}>
+          <TestimonialCard testimonial={item} variant="card" excerpt />
+        </li>
+      ))}
+    </ul>
+    {settings && (
+      <p class="col-span-12 mt-12">
+        <a
+          href={settings.links.upwork}
+          class="link text-ink"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="upwork_click"
+          data-track-location="testimonials-section"
+        >
+          {t('home.testimonials.all')}
+          <span class="sr-only"> {t('a11y.newTab')}</span>
+        </a>
+      </p>
+    )}
+  </Section>
+)}

@@ -13,14 +13,23 @@ interface Props {
   label?: string;
   /** Prefilled message; defaults to the generic template. */
   text?: string;
+  /** Analytics location (hero, header, final, ...): adds data-track="contact_whatsapp" data-track-location. */
+  trackLocation?: string;
+  /** Optional analytics slug (project pages): adds data-track-slug. */
+  trackSlug?: string;
   class?: string;
+  /** Spec mode annotation; defaults to a 44px target plus contrast. */
+  'data-spec'?: string;
 }
 
 const {
   size = 'default',
   label = t('whatsapp.cta'),
   text,
+  trackLocation,
+  trackSlug,
   class: className,
+  'data-spec': spec = 'target:44 contrast',
 } = Astro.props;
 const settings = await getSettings();
 ---
@@ -32,6 +41,10 @@ const settings = await getSettings();
   class={className}
   target="_blank"
   rel="noopener noreferrer"
+  data-spec={spec}
+  data-track={trackLocation ? 'contact_whatsapp' : undefined}
+  data-track-location={trackLocation}
+  data-track-slug={trackLocation ? trackSlug : undefined}
 >
   <WhatsAppIcon />
   <span>

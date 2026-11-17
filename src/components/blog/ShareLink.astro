@@ -1,0 +1,31 @@
+---
+// Plain LinkedIn share link (D5): no script, no widget. `url` is the canonical post URL.
+import { t } from '@/i18n';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  url: string;
+  slug: string;
+  class?: string;
+}
+
+const { url, slug, class: className } = Astro.props;
+const href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+---
+
+<a
+  href={href}
+  data-pagefind-ignore
+  target="_blank"
+  rel="noopener noreferrer"
+  class={cn(
+    'link no-print inline-flex min-h-6 items-center text-sm',
+    className,
+  )}
+  data-track="share_click"
+  data-track-network="linkedin"
+  data-track-slug={slug}
+>
+  {t('blog.share.linkedin')}
+  <span class="sr-only"> {t('a11y.newTab')}</span>
+</a>

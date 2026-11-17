@@ -1,0 +1,41 @@
+---
+// Home section 3: up to four projects (featured first). Hidden until at least MIN_PROJECTS are published (FR-22).
+import ProjectCard from '@/components/work/ProjectCard.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { getFeaturedProjects } from '@/lib/projects';
+import { isSectionLive } from '@/lib/routes';
+
+const live = await isSectionLive('selectedWork');
+const projects = live ? await getFeaturedProjects(4) : [];
+---
+
+{live && projects.length > 0 && (
+  <Section id="work" labelledby="work-title">
+    <SectionHeading
+      id="work-title"
+      class="reveal"
+      eyebrow={t('home.work.eyebrow')}
+    >
+      {t('home.work.title')}
+    </SectionHeading>
+    <ul
+      class:list={[
+        'col-span-12 grid gap-x-gutter gap-y-14 sm:grid-cols-2',
+        projects.length === 3 && 'lg:grid-cols-3',
+      ]}
+    >
+      {projects.map((p, i) => (
+        <li class:list={['reveal', i % 2 === 1 && 'sm:[--i:1]']}>
+          <ProjectCard project={p} headingLevel={3} class="h-full" />
+        </li>
+      ))}
+    </ul>
+    <p class="col-span-12 mt-12">
+      <a href="/work" class="link text-ink">
+        {t('home.work.all')}
+      </a>
+    </p>
+  </Section>
+)}

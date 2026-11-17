@@ -1,0 +1,31 @@
+---
+// Per-client rules for ClientsMap, generated from the data and keyed by class `m-<ISO>`. Emitted as one inline <style>
+// in the page head (pass `slot="head"` to BaseLayout), hashed for the CSP (config/security-headers.mjs adds the hash
+// to style-src for prerendered pages). Valid placement: <style> is not allowed inside body content.
+import { createHash } from 'node:crypto';
+import { getClients } from '@/lib/content';
+import { countryName } from '@/lib/place';
+
+const clients = (await getClients())
+  .map((c) => ({ iso: c.entry.isoCode, name: countryName(c.entry.isoCode) }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+// The sequence slot `--a` (scroll-linked entry order), the stagger `--k`, and the list item <-> marker pairing
+// (hover on either lights the arc, label, spark and ripple of that client).
+const rules = clients
+  .map((c, i) => {
+    const k = `.m-${c.iso}`;
+    const on = `.cmap:is(:has(li${k}:hover),:has(.cl${k}:hover))`;
+    return [
+      `${k}{--a:${Math.min(2 + i * 2, 20)};--k:${Math.min(i, 8)}}`,
+      `@media (hover:hover){${on} .cl${k} .arc{stroke-opacity:1!important}${on} .cl${k} .core{scale:1.5;opacity:1!important}${on} .tip${k}{opacity:1}}`,
+      `@media (hover:hover) and (prefers-reduced-motion:no-preference){${on} .cl${k} .spark{animation:travel 1.8s var(--ease-in-out) 2 both;animation-timeline:auto;animation-delay:0s}${on} .cl${k} .ripple{animation:ripple 1.8s var(--ease-out) 2 both;animation-timeline:auto;animation-delay:0s}}`,
+    ].join('');
+  })
+  .join('');
+const css = rules;
+Astro.csp?.insertStyleHash(
+  `sha256-${createHash('sha256').update(css).digest('base64')}`,
+);
+---
+
+<style is:inline set:html={css} />

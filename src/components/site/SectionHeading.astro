@@ -1,0 +1,25 @@
+---
+// Section title on the grid: optional eyebrow above an h2 (h3 with level={3}). The slot is the heading text.
+import { cn } from '@/lib/utils';
+
+interface Props {
+  id: string;
+  eyebrow?: string;
+  level?: 2 | 3;
+  class?: string;
+}
+
+const { id, eyebrow, level = 2, class: className } = Astro.props;
+const Tag = `h${level}` as const;
+---
+
+<div class={cn('col-span-12 mb-10 md:col-span-6 lg:col-span-5', className)}>
+  {eyebrow && (
+    <p class="eyebrow mb-3 text-sm font-medium text-muted-foreground">
+      {eyebrow}
+    </p>
+  )}
+  <Tag id={id} class="text-4xl" data-spec="type:text-4xl contrast">
+    <slot />
+  </Tag>
+</div>

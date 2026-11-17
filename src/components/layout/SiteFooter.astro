@@ -2,22 +2,24 @@
 // Site footer (study 6, FR-17 links): closing CTA (every page except home, which has its own final CTA),
 // base and timezone, site links on column 7 (like the header nav), contact on column 10, an edge-to-edge
 // wordmark, and small print. Links to unbuilt or under-filled sections are gated (src/lib/routes.ts).
-import { t } from '@/i18n';
+import { t, tParts } from '@/i18n';
 import { mailtoHref, whatsappHref } from '@/lib/contact';
 import { getSettings } from '@/lib/content';
 import { countryName, languageList, utcOffset } from '@/lib/place';
-import { links, mainNav } from '@/lib/routes';
+import { footerNav, links } from '@/lib/routes';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
 
 interface Props {
   /** Show the closing CTA block. Off on the home page. */
   cta?: boolean;
+  /** The Spec mode toggle exists on this page (the key invitation is only shown then). */
+  spec?: boolean;
 }
 
-const { cta = true } = Astro.props;
+const { cta = true, spec = true } = Astro.props;
 const settings = await getSettings();
 const { pathname } = Astro.url;
-const site = await mainNav(pathname);
+const site = await footerNav(pathname);
 const legal = await links(['privacy', 'rss'], pathname);
 const { city, countryCode, timezone } = settings.location;
 
@@ -26,17 +28,30 @@ const contact = [
     label: t('whatsapp.short'),
     href: whatsappHref(settings.whatsappNumber),
     newTab: true,
+    track: 'contact_whatsapp',
   },
   {
     label: settings.email,
     href: mailtoHref(settings.email),
     noTranslate: true,
+    track: 'contact_email_click',
   },
-  { label: t('contact.linkedin'), href: settings.links.linkedin, rel: 'me' },
-  { label: t('contact.upwork'), href: settings.links.upwork, rel: 'me' },
+  {
+    label: t('contact.linkedin'),
+    href: settings.links.linkedin,
+    rel: 'me',
+    track: 'contact_linkedin',
+  },
+  {
+    label: t('contact.upwork'),
+    href: settings.links.upwork,
+    rel: 'me',
+    track: 'upwork_click',
+  },
   { label: t('contact.github'), href: settings.links.github, rel: 'me' },
 ];
-const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
+const listLink =
+  'decoration-1 underline-offset-[0.2em] transition-colors duration-(--dur-1) hover:text-link-hover hover:underline focus-visible:text-link-hover';
 ---
 
 <footer>
@@ -48,6 +63,7 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
       <h2
         id="footer-cta-title"
         class="col-span-12 text-4xl md:col-span-9 lg:col-span-8"
+        data-spec="type:text-4xl"
       >
         {t('footer.cta.title')}
       </h2>
@@ -55,11 +71,13 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
         {t('footer.cta.body')}
       </p>
       <div class="col-span-12 mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
-        <WhatsAppButton size="lg" />
+        <WhatsAppButton size="lg" trackLocation="footer_cta" />
         <a
           href={mailtoHref(settings.email)}
           class="link text-lg text-ink"
           translate="no"
+          data-track="contact_email_click"
+          data-track-location="footer_cta"
         >
           {settings.email}
         </a>
@@ -68,7 +86,7 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
   )}
 
   <div class="border-t border-rule">
-    <div class="wrap grid-page gap-y-10 pt-10 pb-14">
+    <div class="wrap grid-page relative z-10 gap-y-10 pt-10 pb-14">
       <div class="col-span-12 max-w-measure md:col-span-5">
         <p>
           {t('footer.base', {
@@ -124,6 +142,8 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
                 rel={c.newTab ? 'noopener noreferrer' : c.rel}
                 translate={c.noTranslate ? 'no' : undefined}
                 target={c.newTab ? '_blank' : undefined}
+                data-track={c.track}
+                data-track-location="footer"
               >
                 {c.label}
                 {c.newTab && <span class="sr-only"> {t('a11y.newTab')}</span>}
@@ -141,7 +161,9 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
       <div class="@container">
         <p
           translate="no"
-          class="-ms-[0.08em] pb-[0.16em] text-[length:40.2cqi] leading-[0.75] font-semibold tracking-[-0.05em] text-ink select-none"
+          data-glow
+          data-spec="type"
+          class="wordmark-light -ms-[0.08em] pb-[0.16em] text-[length:40.2cqi] leading-[0.75] font-semibold tracking-[-0.05em] text-display select-none"
         >
           {settings.brand}
         </p>
@@ -149,13 +171,27 @@ const listLink = 'decoration-1 underline-offset-[0.2em] hover:underline';
     </div>
 
     <div class="wrap">
-      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border py-6 text-xs text-muted-foreground">
+      {/* Bottom padding and end padding keep the fixed Spec mode toggle (bottom-end) off the small print. */}
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border pt-6 pb-20 text-xs text-muted-foreground md:pb-6 md:pe-40">
         <p>
           {t('footer.copyright', {
             year: new Date().getFullYear(),
             name: settings.name,
           })}
         </p>
+        {spec && (
+          <p class="js-only" data-key-hint>
+            {tParts('footer.spec').map((part) =>
+              'slot' in part ? (
+                <kbd class="rounded-xs border border-border px-1.5 font-mono text-ink">
+                  S
+                </kbd>
+              ) : (
+                part.text
+              ),
+            )}
+          </p>
+        )}
         {legal.length > 0 && (
           <ul class="flex gap-6">
             {legal.map((item) => (

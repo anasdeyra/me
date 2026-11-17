@@ -1,0 +1,66 @@
+---
+// Quick facts list for the project page sidebar: role, timeline, team, client, lab, stack and links.
+// Rows with no data are skipped.
+import { t } from '@/i18n';
+import type { ProjectView } from '@/lib/projects';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  project: ProjectView;
+  class?: string;
+}
+
+const { project, class: className } = Astro.props;
+const empty =
+  project.facts.length === 0 &&
+  project.stack.length === 0 &&
+  project.links.length === 0;
+---
+
+{!empty && (
+  <dl class={cn('grid gap-y-5 border-t border-rule pt-5 text-sm', className)}>
+    {project.facts.map((f) => (
+      <div>
+        <dt class="text-muted-foreground">{f.label}</dt>
+        <dd class="mt-1 text-ink">{f.value}</dd>
+      </div>
+    ))}
+    {project.stack.length > 0 && (
+      <div>
+        <dt class="text-muted-foreground">{t('work.facts.stack')}</dt>
+        <dd class="mt-2">
+          <ul class="flex flex-wrap gap-1.5">
+            {project.stack.map((s) => (
+              <li class="chip">{s}</li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    )}
+    {project.links.length > 0 && (
+      <div>
+        <dt class="text-muted-foreground">{t('work.facts.links')}</dt>
+        <dd class="mt-1">
+          <ul class="grid gap-1">
+            {project.links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  class="link text-ink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track="project_link"
+                  data-track-slug={project.slug}
+                  data-track-type={l.kind}
+                >
+                  {t(`work.link.${l.kind}`)}
+                  <span class="sr-only"> {t('a11y.newTab')}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    )}
+  </dl>
+)}

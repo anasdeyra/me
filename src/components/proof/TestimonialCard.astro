@@ -1,0 +1,79 @@
+---
+// A testimonial as <figure><blockquote>. Quote text is verbatim from the content (docs/ux-study.md 8b):
+// `excerpt` swaps in the verbatim `excerpt` field only when the entry has one. Quote marks are CSS only.
+import { t } from '@/i18n';
+import type { Testimonial } from '@/lib/proof';
+import { cn } from '@/lib/utils';
+import Stars from './Stars.astro';
+
+interface Props {
+  testimonial: Testimonial;
+  variant?: 'card' | 'pull';
+  excerpt?: boolean;
+  class?: string;
+}
+
+const {
+  testimonial,
+  variant = 'card',
+  excerpt = false,
+  class: className,
+} = Astro.props;
+const { entry } = testimonial;
+const quote = excerpt && entry.excerpt ? entry.excerpt : entry.quote;
+const author = [
+  entry.author || t('testimonial.client'),
+  entry.role,
+  entry.company,
+]
+  .filter(Boolean)
+  .join(', ');
+const rating = entry.rating ?? undefined;
+const verifyUrl = entry.source === 'upwork' ? entry.sourceUrl : null;
+const pull = variant === 'pull';
+---
+
+<figure
+  data-glow
+  class={cn(
+    'glow-tint relative isolate flex h-full flex-col gap-6 border-t border-rule pt-6 [--glow-bleed:0_-0.75rem]',
+    className,
+  )}
+>
+  <blockquote class="flex-1">
+    <p class={cn('quote text-ink', pull ? 'text-2xl font-medium' : 'text-lg')}>
+      {quote}
+    </p>
+  </blockquote>
+  <figcaption class="grid gap-2 text-sm">
+    <span class="text-ink">{entry.project}</span>
+    <span class="text-muted-foreground">{author}</span>
+    <span class="flex flex-wrap items-center gap-x-3 gap-y-2">
+      {rating !== undefined && (
+        <span class="inline-flex items-center gap-2 text-ink">
+          <Stars rating={rating} />
+          <span aria-hidden="true" class="tabular-nums">
+            {rating.toFixed(1)}
+          </span>
+          <span class="sr-only">
+            {t('testimonial.rating', { rating: rating.toFixed(1) })}
+          </span>
+        </span>
+      )}
+      {entry.endorsement && <span class="chip">{entry.endorsement}</span>}
+    </span>
+    {verifyUrl && (
+      <a
+        href={verifyUrl}
+        class="link w-fit text-ink"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-track="upwork_click"
+        data-track-location="testimonial"
+      >
+        {t('testimonial.verified')}
+        <span class="sr-only"> {t('a11y.newTab')}</span>
+      </a>
+    )}
+  </figcaption>
+</figure>

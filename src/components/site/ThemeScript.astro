@@ -1,10 +1,11 @@
 ---
 // Sets the theme before first paint (no flash): stored choice, else the OS setting; also marks JS as
 // available (html.js). It must stay inline and synchronous, so Astro does not process it; its SHA-256 is
-// added to the CSP here, computed from the exact bytes rendered. Colors match --background (global.css).
+// added to the CSP here, computed from the exact bytes rendered. Colors come from src/lib/theme.ts.
 import { createHash } from 'node:crypto';
+import { THEME_COLOR } from '@/lib/theme';
 
-const code = `(()=>{const d=document.documentElement;let t=null;try{t=localStorage.getItem('theme')}catch{}const k=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;d.classList.add('js');d.classList.toggle('dark',k);for(const m of document.querySelectorAll('meta[name="theme-color"]'))m.content=k?'#000000':'#ffffff'})()`;
+const code = `(()=>{const d=document.documentElement;let t=null;try{t=localStorage.getItem('theme')}catch{}const k=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;d.classList.add('js');d.classList.toggle('dark',k);for(const m of document.querySelectorAll('meta[name="theme-color"]'))m.content=k?${JSON.stringify(THEME_COLOR.dark)}:${JSON.stringify(THEME_COLOR.light)}})()`;
 
 Astro.csp?.insertScriptHash(
   `sha256-${createHash('sha256').update(code).digest('base64')}`,

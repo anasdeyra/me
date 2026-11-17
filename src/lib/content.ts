@@ -5,7 +5,11 @@ import type { Locale } from '@/i18n';
 import { reader } from './reader';
 
 /** Drafts and future-dated posts are visible in dev, hidden in production builds. */
-const showDrafts = !import.meta.env.PROD;
+const showDrafts =
+  !import.meta.env.PROD ||
+  // Verification only: `SHOW_DRAFTS=1 pnpm build` renders the draft content in a production build.
+  // Never set it on Vercel. Read from process.env (Vite does not reliably expose non-PUBLIC vars).
+  process.env.SHOW_DRAFTS === '1';
 
 const byLocale = {
   en: {
@@ -32,10 +36,14 @@ const published = <T extends { entry: { draft?: boolean } }>(items: T[]) =>
 
 // Singletons
 
-export const getSettings = () => required(reader.singletons.settings.read(), 'settings');
+export const getSettings = () =>
+  required(reader.singletons.settings.read(), 'settings');
 
 export const getProfile = (locale: Locale = 'en') =>
-  required(byLocale[locale].profile.read({ resolveLinkedFiles: true }), `profile_${locale}`);
+  required(
+    byLocale[locale].profile.read({ resolveLinkedFiles: true }),
+    `profile_${locale}`,
+  );
 
 export const getHome = (locale: Locale = 'en') =>
   required(byLocale[locale].home.read(), `home_${locale}`);
@@ -71,19 +79,36 @@ export async function getTestimonials(locale: Locale = 'en') {
 export async function getExperience(locale: Locale = 'en') {
   const all = published(await byLocale[locale].experience.all());
   // Most recent first; entries without a start date sink to the end.
-  return all.sort((a, b) => (b.entry.start ?? '').localeCompare(a.entry.start ?? ''));
+  return all.sort((a, b) =>
+    (b.entry.start ?? '').localeCompare(a.entry.start ?? ''),
+  );
 }
 
 export async function getEducation(locale: Locale = 'en') {
   const all = published(await byLocale[locale].education.all());
-  return all.sort((a, b) => (b.entry.start ?? '').localeCompare(a.entry.start ?? ''));
+  return all.sort((a, b) =>
+    (b.entry.start ?? '').localeCompare(a.entry.start ?? ''),
+  );
 }
 
 export const getTags = (locale: Locale = 'en') => byLocale[locale].tags.all();
 
+/** Display names for tag slugs (unknown slugs fall back to the slug). */
+export async function tagNames(
+  slugs: readonly (string | null)[],
+  locale: Locale = 'en',
+) {
+  const map = new Map(
+    (await getTags(locale)).map((tag) => [tag.slug, tag.entry.label]),
+  );
+  return slugs.filter((s): s is string => !!s).map((s) => map.get(s) ?? s);
+}
+
 export async function getClients() {
   const all = await reader.collections.clients.all();
-  return all.filter((c) => c.entry.visible).sort((a, b) => a.entry.name.localeCompare(b.entry.name));
+  return all
+    .filter((c) => c.entry.visible)
+    .sort((a, b) => a.entry.name.localeCompare(b.entry.name));
 }
 
 // Images (stored next to their entry, e.g. src/content/en/projects/<slug>/heroImage.png)
@@ -97,7 +122,10 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
  * Resolve a Keystatic image value to astro:assets metadata.
  * `dir` is the entry folder relative to src/content, e.g. `en/projects/artbeat`.
  */
-export function contentImage(dir: string, file: string | null | undefined): ImageMetadata | undefined {
+export function contentImage(
+  dir: string,
+  file: string | null | undefined,
+): ImageMetadata | undefined {
   if (!file) return undefined;
   const key = `/src/content/${dir}/${file}`;
   const img = images[key]?.default;

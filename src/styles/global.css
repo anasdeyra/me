@@ -1,7 +1,8 @@
 /*
- * Design system: Swiss editorial, black and white (docs/ux-study.md 7.1, 7.1b).
+ * Design system: Swiss editorial in Aegean blue (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions 2026-11-17).
  * Tokens are CSS variables mapped to shadcn's names, so shadcn components restyle themselves.
- * The only colors are WhatsApp green (WhatsApp CTAs only) and the Dusk grainy gradient (decorative).
+ * Blue is the brand colour (ink, text, links, primary). Other colours: WhatsApp green (WhatsApp CTAs only),
+ * the Dusk grainy gradient (decorative) and the Spec mode magenta (Spec layer only).
  * Fonts come from the Astro Fonts API (astro.config.mjs) as --font-geist / --font-geist-mono.
  */
 @import 'tailwindcss';
@@ -20,6 +21,9 @@
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
   --color-rule: var(--rule);
+  --color-display: var(--display);
+  --color-link-hover: var(--link-hover);
+  --color-primary-hover: var(--primary-hover);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -36,6 +40,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-spec: var(--spec);
+  --color-spec-foreground: var(--spec-on);
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
   --color-whatsapp-foreground: var(--whatsapp-foreground);
@@ -104,22 +110,26 @@
   color-scheme: light;
   --radius: 2px;
 
+  /* Aegean blue palette (owner request 2026-11-17). Contrast on white is noted per token. */
   --background: #ffffff;
-  --foreground: #000000; /* body text */
-  --ink: #000000; /* headings, strong rules, primary CTA */
+  --foreground: #1a5d8e; /* body text, nav: deep sea blue, 7.0:1 (AAA) */
+  --ink: #0d5eaf; /* headings, wordmark, links, strong rules: Aegean, 6.5:1 */
   --rule: var(--ink);
-  --muted: #f2f2f2; /* hover surfaces */
-  --muted-foreground: #595959; /* secondary text, 7.0:1 (AAA) */
-  --border: #e5e5e5; /* hairlines */
-  --input: #8a8a8a; /* form control borders, 3.4:1 */
-  --ring: var(--ink); /* focus outline */
+  --display: #327bc4; /* LARGE display type only (404 numeral, footer wordmark), 4.4:1; never small text */
+  --link-hover: #0b5ed7; /* cobalt, 5.8:1 */
+  --muted: #eef4fa; /* hover surfaces */
+  --muted-foreground: #4a6479; /* secondary text, blue-tinted slate, 6.2:1 */
+  --border: #d5e2ef; /* hairlines */
+  --input: #6f8ba6; /* form control borders, 3.6:1 */
+  --ring: var(--ink); /* focus outline, 6.5:1 */
 
   --card: var(--background);
   --card-foreground: var(--foreground);
   --popover: var(--background);
   --popover-foreground: var(--foreground);
-  --primary: var(--ink);
-  --primary-foreground: var(--background);
+  --primary: #1565c0; /* primary buttons, active states: royal blue, white label 5.8:1 */
+  --primary-hover: #0b5ed7; /* cobalt, white label 5.8:1 */
+  --primary-foreground: #ffffff;
   --secondary: var(--muted);
   --secondary-foreground: var(--ink);
   --accent: var(--muted);
@@ -131,6 +141,11 @@
   --whatsapp-hover: #1fbd5a;
   --whatsapp-foreground: #000000;
 
+  /* Spec mode layer (functional, used by nothing else): magenta, far from the blues and from the amber/Dusk warm
+     tones. 6.7:1 on white, on-chip text 6.7:1. */
+  --spec: #b0136b;
+  --spec-on: #ffffff;
+
   /*
    * Dusk grainy gradient (decorative only, see .dusk). Grain: SVG feTurbulence as a data: URI
    * (CSP img-src allows data:), contrast-boosted and blended with overlay.
@@ -138,25 +153,80 @@
   --dusk-amber: #ffb238;
   --dusk-pink: #ff4f81;
   --dusk-violet: #7a3cff;
+  /* Amber-weighted (Phase 5b spike, 2026-11-17): violet is 1.2:1 from Aegean and looked muddy beside it, so it is
+     retired from the stack (token kept, unused); pink is a quiet second light. */
   --dusk-gradient:
-    radial-gradient(closest-side at 26% 70%, var(--dusk-amber), transparent),
-    radial-gradient(closest-side at 70% 48%, var(--dusk-pink), transparent),
-    radial-gradient(closest-side at 50% 22%, var(--dusk-violet), transparent);
+    radial-gradient(closest-side at 40% 60%, var(--dusk-amber), transparent),
+    radial-gradient(
+      closest-side at 62% 40%,
+      color-mix(in srgb, var(--dusk-pink) 55%, transparent),
+      transparent
+    );
   --dusk-opacity: 1;
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='3' intercept='-1'/%3E%3CfeFuncG type='linear' slope='3' intercept='-1'/%3E%3CfeFuncB type='linear' slope='3' intercept='-1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --grain-opacity: 0.55;
+
+  /* Phase 5b: motion tokens (compositor-only properties; reduced motion switches the effects off). */
+  --dur-1: 120ms; /* colour, underline */
+  --dur-2: 220ms; /* lift, glow, hover scale */
+  --dur-3: 600ms; /* reveals */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Phase 5b: colour aliases onto the palette above (never new hexes). Brand = interaction colour. */
+  --brand: var(--ink);
+  --brand-hot: var(--link-hover);
+  --brand-display: var(--display);
+  --map-from: var(--foreground); /* arcs: deep at the home city ... */
+  --map-to: var(
+    --display
+  ); /* ... lighter at the destination; both ends >= 4.4:1 on the page */
+  --spark: var(
+    --dusk-amber
+  ); /* decorative warm counterpoint (map lights, home glow); never text */
+  --glow-rgb: 11 94 215; /* cobalt, pointer spotlight and button glow */
+  --glow-alpha: 0.12;
+
+  /*
+   * Hero key light. The portrait is lit from the upper right (photo's right: that cheek and forehead are ~2x brighter),
+   * so the hero adds light from that side and shadow falling down-left. Warm white, a touch of the Dusk amber.
+   * Light theme: a faint wash and a soft cast shadow; dark theme: a visible beam and a rim on the lit edge.
+   */
+  --key-rgb: 255 226 186;
+  --key-alpha: 0.12;
+  --key-rim: 0;
+  --key-grain: 0; /* grain reads as dirt on white */
+  --key-shadow: 0.16;
 }
 
 .dark {
   color-scheme: dark;
+  /* Lighter blues on pure black (owner request 2026-11-17, was #07111d navy): the owner blues fail on black (Aegean
+     ~3.3:1). Contrast on --background is noted per token; surfaces are blue-tinted near-blacks. */
   --background: #000000;
-  --foreground: #ededed; /* body text softened against halation, 17.9:1 */
-  --ink: #ffffff;
-  --muted: #141414;
-  --muted-foreground: #a3a3a3; /* 8.3:1 (AAA) */
-  --border: #262626;
-  --input: #757575;
+  --foreground: #c9ddf0; /* body text, 15.1:1 */
+  --ink: #8ec3f5; /* headings, links, rules, 11.3:1 */
+  --display: #5aa0e8; /* large display type only, 7.6:1 */
+  --link-hover: #b3d6f8;
+  --muted: #0b1622; /* hover surfaces; text on it stays >= 6.6:1 */
+  --muted-foreground: #8fa8c0; /* 8.5:1 */
+  --border: #1a2b3d;
+  --input: #6a8199; /* 5.2:1 */
+  --primary: #6cb0f0; /* black label 9.1:1 */
+  --primary-hover: #8ec3f5; /* black label 11.3:1 */
+  --primary-foreground: #000000;
   --destructive: #ff6b6b;
+  --spec: #ff7ac6; /* 8.9:1 on black */
+  --spec-on: #000000;
+  --brand-hot: var(--primary-hover);
+  --map-from: var(--ink);
+  --glow-rgb: 142 195 245;
+  --glow-alpha: 0.2;
+  /* Hero key light (see .hero-key): stronger on black, where light reads as light. */
+  --key-alpha: 0.24;
+  --key-rim: 0.3;
+  --key-grain: 0.25;
+  --key-shadow: 0;
 }
 
 /* Desktop header (nav visible) from lg = 1024px; the mobile menu is used below. */
@@ -171,10 +241,17 @@
     @apply border-border outline-ring;
   }
   html {
+    scrollbar-gutter: stable;
     @apply bg-background text-foreground font-sans;
     /* Anchors and focused elements land below the sticky header (WCAG 2.4.11). */
     scroll-padding-block-start: calc(var(--spacing-header) + 1rem);
+    /* ...and above the fixed Spec toggle (h-11 + bottom-4 + 1rem gap), so a focused footer link is never covered. */
+    scroll-padding-block-end: 4.75rem;
     -webkit-text-size-adjust: 100%;
+  }
+  /* The Dusk glow bleeds past its box; clip it so it never adds horizontal scroll. */
+  main {
+    overflow-x: clip;
   }
   body {
     @apply bg-background text-foreground text-base antialiased;
@@ -232,13 +309,28 @@
   column-gap: var(--spacing-gutter);
 }
 
-/* Inline text link: always underlined (not color-dependent), thicker on hover. */
+/* Inline text link: always underlined (not colour-dependent). Hover and keyboard focus add colour, a thicker
+   rule and a little more offset, eased over --dur-1 (hover only on devices that hover). */
 @utility link {
+  color: var(--ink);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
-  &:hover {
+  transition:
+    color var(--dur-1) var(--ease-out),
+    text-decoration-thickness var(--dur-1) var(--ease-out),
+    text-underline-offset var(--dur-1) var(--ease-out);
+  &:focus-visible {
+    color: var(--link-hover);
     text-decoration-thickness: 2px;
+    text-underline-offset: 0.28em;
+  }
+  @media (hover: hover) {
+    &:hover {
+      color: var(--link-hover);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.28em;
+    }
   }
 }
 
@@ -269,5 +361,647 @@
     .dusk {
       display: none;
     }
+  }
+}
+
+/*
+ * Scroll reveals (D8). Scroll-linked, so they track the finger and finish at a fixed scroll distance after the
+ * block's leading edge enters the viewport: nothing arrives late on fast scrolls, and anchor jumps, Find and
+ * Pagefind jumps land on blocks that are already past their range (fully visible). Content is never hidden by
+ * default: without view() support, with reduced motion, in print and while Spec mode is on it renders normally.
+ * Put `.reveal` on a wrapper (the animation holds `translate`/`opacity` after it ends, so keep hover lifts on
+ * inner elements); `[--i:n]` (0..3) staggers siblings that enter together. Never on the hero or LCP candidates.
+ */
+@keyframes reveal {
+  from {
+    /* Floor above 0 so text never rests below AA contrast while it is mid-entry near the viewport bottom. */
+    opacity: 0.92;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation-name: reveal;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 36px) entry
+        calc(150px + var(--i, 0) * 36px);
+    }
+    :root:has([data-spec-toggle][aria-pressed='true']) .reveal {
+      animation: none;
+    }
+  }
+}
+@media print {
+  .reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+  }
+}
+
+/*
+ * Phase 5b pointer effects. [data-glow] hosts get --mx/--my (px) and --nx/--ny (-1..1) from src/scripts/pointer.ts
+ * (fine pointers only). Everything here is decoration under content, off for reduced motion / forced colors.
+ */
+@layer components {
+  /* Eyebrow: a small brand square before the label. */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .eyebrow::before {
+    content: '';
+    flex: none;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--brand);
+  }
+  @media (forced-colors: active) {
+    .eyebrow::before {
+      background: CanvasText;
+    }
+  }
+
+  /* Soft cobalt spotlight under a surface's content (frames, rows). Needs `isolate` + `relative` on the surface. */
+  .glow-tint::before {
+    content: '';
+    position: absolute;
+    inset: var(--glow-bleed, 0);
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      circle 14rem at var(--mx, 50%) var(--my, 50%),
+      rgb(var(--glow-rgb) / var(--glow-alpha)),
+      transparent 70%
+    );
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    [data-glow]:hover .glow-tint::before,
+    .glow-tint:hover::before {
+      opacity: 1;
+    }
+  }
+  [data-glow]:has(a:focus-visible) .glow-tint::before {
+    opacity: 1;
+  }
+  @media (forced-colors: active) {
+    .glow-tint::before {
+      display: none;
+    }
+  }
+
+  /* Warm glow follows the pointer a few px (hero portrait, 404 numeral). */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    [data-glow] > .dusk {
+      translate: calc(var(--nx, 0) * 14px) calc(var(--ny, 0) * 14px);
+      transition: translate 400ms var(--ease-out);
+    }
+  }
+
+  /* Footer wordmark: a blue light under the pointer shows inside the letters (decorative, aria-hidden). */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    .wordmark-light:hover {
+      -webkit-text-fill-color: transparent; /* not `color`: the text-display utility outranks this layer */
+      background-image: radial-gradient(
+        circle 16rem at var(--mx, 50%) var(--my, 50%),
+        var(--brand-hot),
+        var(--brand-display) 70%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+  }
+
+  /*
+   * Home hero (Hero.astro, cutout variant): Blueprint. .hero-grid draws the page's 12 columns behind the hero on the
+   * same .wrap/.grid-page as the content (column edges and numbers), quiet behind the copy and full strength around
+   * the portrait. The cutout stands on the trust strip's rule; the figure is a little wider than its column and
+   * clipped at the sides, so the cutout's straight shoulder edges never show. Decorative (aria-hidden), tablet and up.
+   */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.3) 40%, #000 58%);
+  }
+  .hero-col {
+    position: relative;
+    border-inline: 1px solid var(--border);
+  }
+  .hero-col-num {
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1;
+    color: var(--muted-foreground);
+  }
+  .hero-cut {
+    /* Both axes: the cast shadow below stays inside the box (no shadow under the trust strip's rule). */
+    overflow: clip;
+  }
+  .hero-figure {
+    display: block;
+    inline-size: 108%;
+    max-inline-size: none;
+    block-size: auto;
+    margin-inline: -4%;
+    /* Light bleeding round the lit edge (offset toward the light: up and right) and the shadow it casts (down and left). */
+    filter: drop-shadow(0.5rem -0.375rem 1.25rem rgb(var(--key-rgb) / var(--key-rim)))
+      drop-shadow(
+        -1.75rem 1.25rem 2rem
+          color-mix(
+            in srgb,
+            var(--ink) calc(var(--key-shadow) * 100%),
+            transparent
+          )
+      );
+  }
+
+  /*
+   * Key light: a soft beam from beyond the portrait's upper right, aimed down-left at the face, with Dusk grain.
+   * Physical sides on purpose: the photo is not mirrored in RTL, so its light always comes from its right.
+   * It lights the grid lines under it and fades out before the copy column.
+   */
+  .hero-key {
+    position: absolute;
+    inset: 0 -20% 0 -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      conic-gradient(
+        from 196deg at 100% 0%,
+        transparent 0deg,
+        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.5)) 12deg,
+        rgb(var(--key-rgb) / var(--key-alpha)) 26deg,
+        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.5)) 40deg,
+        transparent 56deg
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 62% 30%,
+        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.6)),
+        transparent
+      );
+    /* Falls off with distance from the source and fades in from the top edge, so no box edge ever shows. */
+    mask-image:
+      radial-gradient(
+        circle farthest-side at 100% 0%,
+        #000,
+        rgb(0 0 0 / 0.6) 50%,
+        transparent 80%
+      ),
+      linear-gradient(to bottom, transparent, #000 22%);
+    mask-composite: intersect;
+  }
+  .hero-key::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--grain);
+    background-size: 240px;
+    opacity: var(--key-grain);
+    mix-blend-mode: overlay;
+  }
+  @media (width >= 64rem) {
+    .hero-key {
+      inset-block-start: -20%;
+    }
+  }
+  @media (forced-colors: active) {
+    .hero-grid,
+    .hero-key {
+      display: none;
+    }
+    .hero-figure {
+      filter: none;
+    }
+  }
+
+  /* Spec mode measures boxes: hover lifts and shifts are off while it is on so annotations stay exact. */
+  :root:has([data-spec-toggle][aria-pressed='true'])
+    :is(a, button, .frame-box, .frame-word) {
+    translate: none !important;
+  }
+
+  /* Chip links: border and text pick up the brand colour. Chips that are plain text do nothing. */
+  a.chip {
+    transition:
+      color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out);
+  }
+  a.chip:focus-visible {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  @media (hover: hover) {
+    a.chip:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+  }
+}
+
+/* Helpers keyed on `html.js` (set by ThemeScript before paint). */
+/* Unlayered on purpose: layered utilities (inline-flex on buttons) would otherwise beat these display rules. */
+html:not(.js) .js-only {
+  display: none;
+}
+html.js .no-js-only {
+  display: none;
+}
+@layer components {
+  /* Honeypot: off-screen, not display:none (some bots skip those); keep out of the tab order in markup. */
+  .honeypot {
+    position: absolute;
+    inset-inline-start: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Rendered markdoc (src/lib/markdoc.ts). Descendant selectors only, tokens only. */
+  .prose-site {
+    max-width: var(--container-measure, 68ch);
+  }
+  .prose-site > * + * {
+    margin-block-start: 1.25em;
+  }
+  .prose-site :is(h2, h3, h4) {
+    margin-block-start: 2em;
+    /* Anchors from the ToC land below the sticky header. */
+    scroll-margin-block-start: calc(var(--spacing-header) + 1rem);
+  }
+  .prose-site h2 {
+    font-size: var(--text-2xl);
+  }
+  .prose-site h3 {
+    font-size: var(--text-xl);
+  }
+  .prose-site :is(ul, ol) {
+    padding-inline-start: 1.5em;
+  }
+  .prose-site ul {
+    list-style: disc;
+  }
+  .prose-site ol {
+    list-style: decimal;
+  }
+  .prose-site li + li {
+    margin-block-start: 0.4em;
+  }
+  .prose-site blockquote {
+    border-inline-start: 2px solid var(--rule);
+    padding-inline-start: 1em;
+    color: var(--muted-foreground);
+  }
+  .prose-site code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  .prose-site pre {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1em;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    tab-size: 2;
+  }
+  .prose-site pre code {
+    font-size: inherit;
+  }
+  /* Code tokens (src/lib/highlight.ts): tone, weight and italics only, so it works in both themes,
+     forced-colors and print. */
+  .tk-kw {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .tk-fn,
+  .tk-num {
+    color: var(--ink);
+  }
+  .tk-str {
+    color: var(--foreground);
+    text-decoration: underline dotted var(--border);
+    text-underline-offset: 0.25em;
+  }
+  .tk-com {
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+  .tk-pun {
+    color: var(--muted-foreground);
+  }
+  .prose-site hr {
+    border-color: var(--border);
+  }
+
+  /* Home FAQ: native <details>, +/- marker in CSS. */
+  .faq details {
+    border-block-end: 1px solid var(--border);
+  }
+  .faq summary {
+    display: flex;
+    min-height: 2.75rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+    color: var(--ink);
+    font-weight: 600;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary::after {
+    content: '+';
+    flex: none;
+    font-weight: 400;
+  }
+  .faq details[open] > summary::after {
+    content: '\2212';
+  }
+  .faq details > :not(summary) {
+    padding-block-end: 1.25rem;
+    max-width: var(--container-measure, 68ch);
+  }
+}
+
+/* Proof: project frame, chips, work filter, quotes. Tokens only. */
+@layer components {
+  /* Hairline grid behind a project visual (frame fallback and image letterbox). */
+  .frame-grid {
+    background-color: var(--muted);
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+    background-position: -1px -1px;
+  }
+  /* Typographic fallback: sized from the frame width so any title fits without overflow. */
+  .frame-box {
+    container-type: inline-size;
+  }
+  .frame-word {
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.85;
+    font-size: 16cqi;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  /* Research frames: a folded top corner instead of the browser chrome. */
+  .frame-fold {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    background: linear-gradient(
+      to bottom left,
+      var(--background) 50%,
+      var(--border) 50%,
+      var(--border) calc(50% + 1px),
+      var(--muted) calc(50% + 1px)
+    );
+  }
+
+  .chip {
+    display: inline-flex;
+    min-block-size: 1.5rem;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding-inline: 0.5rem;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+
+  /*
+   * Work filter (FR-4), zero JS: put the radios (#f-all, #f-client, #f-side, #f-research, each BEFORE its
+   * label) in a .work-filter fieldset and the cards (.work-card[data-type]) anywhere inside the same
+   * .work-scope. The fieldset is hidden unless :has() works, so there are never dead controls.
+   */
+  .work-filter {
+    display: none;
+  }
+  @supports selector(:has(*)) {
+    .work-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .work-scope:has(#f-client:checked) .work-card:not([data-type='client']),
+    .work-scope:has(#f-side:checked) .work-card:not([data-type='side']),
+    .work-scope:has(#f-research:checked) .work-card:not([data-type='research']),
+    .work-scope:has(#f-article:checked) .work-card:not([data-type='article']),
+    .work-scope:has(#f-note:checked) .work-card:not([data-type='note']) {
+      display: none;
+    }
+  }
+  .work-filter input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .work-filter label {
+    display: inline-flex;
+    min-block-size: 2.5rem;
+    cursor: pointer;
+    align-items: center;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding-inline: 1rem;
+    font-size: var(--text-sm);
+    color: var(--ink);
+  }
+  .work-filter label:hover {
+    background-color: var(--muted);
+  }
+  .work-filter input:checked + label {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+  @media (forced-colors: active) {
+    .work-filter input:checked + label {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      color: HighlightText;
+      border-color: Highlight;
+    }
+  }
+  .work-filter input:focus-visible + label {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Testimonial quotes: marks are generated content (decorative, empty alt text), DOM text stays verbatim. */
+  .quote {
+    quotes: '\201C' '\201D';
+  }
+  .quote::before {
+    content: open-quote / '';
+  }
+  .quote::after {
+    content: close-quote / '';
+  }
+}
+
+/* CV print: chrome off, black on white, external link URLs shown. Scoped to the .cv-page main element. */
+@media print {
+  @page {
+    margin: 18mm;
+  }
+  body:has(.cv-page) {
+    display: block;
+    background: #fff;
+    color: #000;
+  }
+  body:has(.cv-page) :is(header, footer, [data-slot='button'], .no-print) {
+    display: none !important;
+  }
+  .cv-page {
+    padding: 0 !important;
+    color: #000;
+    font-size: 10.5pt;
+  }
+  .cv-page :is(h1, h2, h3, p, li, dt, dd, a) {
+    color: #000 !important;
+  }
+  .cv-page a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+  }
+  .cv-page :is(section, li) {
+    break-inside: avoid;
+  }
+  .cv-page :is(.wrap, .grid-page) {
+    display: block;
+    padding-inline: 0;
+  }
+  .cv-page .cv-section {
+    padding-block: 3mm;
+  }
+  .cv-page .cv-section > h2 {
+    font-size: 11pt;
+    margin-block-end: 1mm;
+    text-transform: uppercase;
+  }
+  .cv-page h1 {
+    font-size: 20pt;
+  }
+  .cv-page h3 {
+    font-size: 10.5pt;
+  }
+  .cv-page :is(.text-lg, .text-sm) {
+    font-size: 10pt;
+  }
+}
+
+/* Post print (NFR-C2): chrome, ToC, CTA, related and share off; black on white; code wraps; link URLs shown. */
+@media print {
+  body:has(.post-page) {
+    display: block;
+    background: #fff;
+    color: #000;
+  }
+  body:has(.post-page)
+    :is(header, footer, [data-slot='button'], .no-print, .post-toc) {
+    display: none !important;
+  }
+  .post-page {
+    padding: 0 !important;
+    color: #000;
+    font-size: 11pt;
+  }
+  .post-page :is(h1, h2, h3, p, li, a, blockquote, time) {
+    color: #000 !important;
+  }
+  .post-page :is(.wrap, .grid-page) {
+    display: block;
+    padding-inline: 0;
+  }
+  .post-page a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+  }
+  .post-page pre {
+    white-space: pre-wrap;
+    overflow: visible;
+    break-inside: avoid;
+    border-color: #000;
+  }
+  .post-page :is(.tk-kw, .tk-fn, .tk-num, .tk-str, .tk-com, .tk-pun) {
+    color: #000;
+  }
+  .post-page img {
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+}
+
+/* Print stays black on white: the blue palette (text, rules, links, quote marks) is screen-only. */
+@media print {
+  :is(.cv-page, .post-page) :is(*, *::before, *::after) {
+    color: #000 !important;
+    border-color: #000 !important;
+    background-image: none !important;
+    text-decoration-color: #000 !important;
+  }
+}
+
+/* Spec mode: the toggle needs JS (the shell has no no-JS state), and nothing of it prints. Unlayered on purpose:
+   utilities (display) would otherwise beat the components-layer .js-only rule. */
+html:not(.js) [data-spec-toggle] {
+  display: none;
+}
+@media print {
+  [data-spec-toggle],
+  [data-spec-root] {
+    display: none !important;
+  }
+}
+
+/* "Press S" invitations: only where a key does something (a keyboard is likely, shortcuts are on). The toggle
+   button itself always works. Unlayered so it beats the display utilities. */
+html[data-shortcuts-off] [data-key-hint] {
+  display: none;
+}
+@media (pointer: coarse) {
+  [data-key-hint] {
+    display: none;
+  }
+}
+
+/* Forced colors: the pressed state cannot rely on a border colour. */
+@media (forced-colors: active) {
+  [data-spec-toggle][aria-pressed='true'] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: HighlightText;
+    forced-color-adjust: none;
+  }
+  [data-spec-toggle][aria-pressed='true'] svg {
+    color: HighlightText;
   }
 }

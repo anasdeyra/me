@@ -1,0 +1,26 @@
+---
+// Home section 9: objections as native <details> (no JS, all closed). No FAQPage JSON-LD (rich results retired).
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { getHome } from '@/lib/content';
+
+const home = await getHome();
+---
+
+<Section id="faq" labelledby="faq-title">
+  <SectionHeading
+    id="faq-title"
+    class="lg:sticky lg:top-24 lg:col-span-4 lg:self-start"
+  >
+    {t('home.faq.title')}
+  </SectionHeading>
+  <div class="faq col-span-12 border-t border-rule lg:col-span-7 lg:col-start-6">
+    {home.faq.map((item) => (
+      <details>
+        <summary>{item.question}</summary>
+        <p>{item.answer}</p>
+      </details>
+    ))}
+  </div>
+</Section>

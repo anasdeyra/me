@@ -6,7 +6,12 @@ import keystatic from '@keystatic/astro';
 import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import { searchIndex } from './config/search-index.mjs';
 import { securityHeaders } from './config/security-headers.mjs';
+import { isBlogGated, isWorkGated } from './config/content-gate.mjs';
+
+const workGated = isWorkGated();
+const blogGated = isBlogGated();
 
 // Keystatic admin (/keystatic) is a local-only tool: load it in `astro dev` only,
 // so its routes and API are never part of the production build.
@@ -29,8 +34,16 @@ export default defineConfig({
   adapter: vercel({ staticHeaders: true }),
   integrations: [
     react(),
-    sitemap(),
+    // Result pages of the contact form are noindex, so keep them out of the sitemap too.
+    sitemap({
+      filter: (page) =>
+        !/\/contact\/(sent|error)\/?$/.test(page) &&
+        !(workGated && /\/work\/?$/.test(page)) &&
+        !(blogGated && /\/blog\/?$/.test(page)),
+    }),
     ...(isDev ? [markdoc(), keystatic()] : []),
+    // After the adapter has copied the static output; before securityHeaders (which reads the HTML).
+    searchIndex(),
     // Last, so it runs after the adapter has written .vercel/output/config.json.
     securityHeaders(),
   ],
@@ -102,6 +115,9 @@ export default defineConfig({
     syntaxHighlight: false,
   },
   vite: {
+    // Astro's `auto` inlining: page-specific sheets up to 8 KB (e.g. the below-the-fold ClientsMap) become
+    // hashed inline <style>, not render-blocking requests. The shared layout sheet stays external (cacheable).
+    build: { assetsInlineLimit: 8192 },
     plugins: [tailwindcss()],
   },
 });

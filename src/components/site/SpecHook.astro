@@ -1,0 +1,22 @@
+---
+// The Spec mode invitation sentence with the S key set as <kbd>. Needs JS (the toggle is JS-only), so it is js-only too.
+import { tParts } from '@/i18n';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<p data-key-hint class:list={['js-only', className]}>
+  {tParts('spec.hook').map((part) =>
+    'slot' in part ? (
+      <kbd class="rounded-xs border border-border px-1.5 font-mono text-ink">
+        S
+      </kbd>
+    ) : (
+      part.text
+    ),
+  )}
+</p>

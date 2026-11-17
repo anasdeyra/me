@@ -1,0 +1,42 @@
+---
+// Home section 10: the three latest posts. Hidden until at least MIN_POSTS are published (FR-22).
+import EntryRow from '@/components/blog/EntryRow.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { postEntry } from '@/lib/entries';
+import { getPostViews } from '@/lib/posts';
+import { isSectionLive } from '@/lib/routes';
+
+const live = await isSectionLive('writing');
+const posts = live ? (await getPostViews()).slice(0, 3) : [];
+---
+
+{live && posts.length > 0 && (
+  <Section id="writing" labelledby="writing-title" data-pagefind-ignore>
+    <SectionHeading
+      id="writing-title"
+      class="reveal"
+      eyebrow={t('home.writing.eyebrow')}
+    >
+      {t('home.writing.title')}
+    </SectionHeading>
+    <ul class="col-span-12 grid gap-x-gutter md:grid-cols-3">
+      {posts.map((p, i) => (
+        <li class:list={['reveal', ['', 'md:[--i:1]', 'md:[--i:2]'][i]]}>
+          <EntryRow
+            entry={postEntry(p)}
+            headingLevel={3}
+            stacked
+            class="h-full content-start"
+          />
+        </li>
+      ))}
+    </ul>
+    <p class="col-span-12 mt-12">
+      <a href="/blog" class="link text-ink">
+        {t('home.writing.all')}
+      </a>
+    </p>
+  </Section>
+)}

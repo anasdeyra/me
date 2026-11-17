@@ -1,0 +1,298 @@
+---
+// /work/[slug] (study 6.2): an editorial case study. Problem -> Approach -> Result (research: Question ->
+// Approach -> Findings), facts beside the text, a client quote when one exists, and a type-aware CTA.
+import { getImage } from 'astro:assets';
+import TagChips from '@/components/blog/TagChips.astro';
+import Button from '@/components/site/Button.astro';
+import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
+import TestimonialCard from '@/components/proof/TestimonialCard.astro';
+import ProjectCard from '@/components/work/ProjectCard.astro';
+import ProjectVisual from '@/components/work/ProjectVisual.astro';
+import QuickFacts from '@/components/work/QuickFacts.astro';
+import ResultsBar from '@/components/work/ResultsBar.astro';
+import TypeChip from '@/components/work/TypeChip.astro';
+import { t } from '@/i18n';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { whatsappProjectPrefill } from '@/lib/contact';
+import { getProjects, getSettings } from '@/lib/content';
+import { renderMarkdoc } from '@/lib/markdoc';
+import { getProjectViews, getRelated } from '@/lib/projects';
+import { getTestimonialFor } from '@/lib/proof';
+import { breadcrumbNode, creativeWorkNode, personRefNode } from '@/lib/schema';
+import { tagLinks } from '@/lib/tags';
+
+export async function getStaticPaths() {
+  const [views, items] = await Promise.all([getProjectViews(), getProjects()]);
+  const entries = new Map(items.map((i) => [i.slug, i.entry]));
+  return views.map((project) => ({
+    params: { slug: project.slug },
+    props: { project, entry: entries.get(project.slug)! },
+  }));
+}
+
+const { project, entry } = Astro.props;
+const research = project.type === 'research';
+const [settings, related, testimonial, ...bodies] = await Promise.all([
+  getSettings(),
+  getRelated(project.slug),
+  getTestimonialFor(project.slug),
+  renderMarkdoc(entry.problem),
+  renderMarkdoc(entry.approach),
+  renderMarkdoc(entry.result),
+]);
+const sections = [
+  {
+    id: 'problem',
+    title: t(research ? 'work.section.question' : 'work.section.problem'),
+    html: bodies[0],
+  },
+  { id: 'approach', title: t('work.section.approach'), html: bodies[1] },
+  {
+    id: 'result',
+    title: t(research ? 'work.section.findings' : 'work.section.result'),
+    html: bodies[2],
+  },
+].filter((s) => s.html.trim());
+
+const url = new URL(project.href, Astro.site).href;
+const hero = project.hero?.alt ? project.hero : undefined;
+const image = hero
+  ? new URL((await getImage({ src: hero.image, width: 1200 })).src, Astro.site)
+      .href
+  : new URL(`/og/work/${project.slug}.png`, Astro.site).href;
+const crumbs = [
+  { name: t('work.breadcrumb.home'), url: new URL('/', Astro.site).href },
+  { name: t('work.title'), url: new URL('/work', Astro.site).href },
+  { name: project.title, url },
+];
+const h2 = 'mb-5 text-2xl';
+const tagChips = await tagLinks(project.tagRefs);
+---
+
+<BaseLayout
+  og={`work/${project.slug}`}
+  title={project.title}
+  description={project.outcome}
+  schema={[
+    creativeWorkNode(project, { url, image }),
+    breadcrumbNode(crumbs),
+    personRefNode(settings),
+  ]}
+>
+  <main id="main">
+    <article
+      data-spec="spacing grid"
+      class="wrap grid-page pt-8 md:pt-14 lg:pt-20"
+    >
+      <nav
+        aria-label={t('work.breadcrumb.label')}
+        class="col-span-12 mb-8 text-sm text-muted-foreground md:mb-12"
+      >
+        <ol class="flex flex-wrap items-center gap-x-2">
+          <li>
+            <a href="/" class="link">
+              {crumbs[0].name}
+            </a>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li>
+            <a href="/work" class="link">
+              {crumbs[1].name}
+            </a>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" class="text-ink">
+            {project.title}
+          </li>
+        </ol>
+      </nav>
+
+      <header class="col-span-12 grid grid-cols-subgrid gap-y-6">
+        <div class="col-span-12 flex flex-wrap items-center gap-2 lg:col-span-8">
+          <TypeChip type={project.type} />
+          {project.year && (
+            <span class="font-mono text-xs text-muted-foreground tabular-nums">
+              {project.year}
+            </span>
+          )}
+        </div>
+        <h1
+          class="col-span-12 text-5xl lg:col-span-8"
+          data-spec="type:text-5xl contrast"
+        >
+          {project.title}
+        </h1>
+        <p class="col-span-12 max-w-measure text-lg text-ink md:col-span-9 lg:col-span-7">
+          {project.outcome}
+        </p>
+        <TagChips tags={tagChips} class="col-span-12" />
+      </header>
+
+      <ResultsBar project={project} class="col-span-12 mt-12" />
+
+      <ProjectVisual
+        project={project}
+        size="hero"
+        loading="eager"
+        class="col-span-12 mt-12"
+      />
+
+      <div class="col-span-12 mt-16 grid grid-cols-subgrid gap-y-12 lg:mt-24">
+        <aside
+          aria-labelledby="facts-title"
+          class="col-span-12 lg:sticky lg:top-24 lg:col-span-3 lg:self-start"
+        >
+          <h2 id="facts-title" class="sr-only">
+            {t('work.facts.title')}
+          </h2>
+          <QuickFacts project={project} />
+        </aside>
+
+        <div class="col-span-12 space-y-14 lg:col-span-7 lg:col-start-5 lg:space-y-20">
+          {sections.map((s, i) => (
+            <section aria-labelledby={`${s.id}-title`} class="grid gap-y-3">
+              <p
+                class="font-mono text-xs text-muted-foreground tabular-nums"
+                aria-hidden="true"
+              >
+                {String(i + 1).padStart(2, '0')}
+              </p>
+              <h2 id={`${s.id}-title`} class={h2}>
+                {s.title}
+              </h2>
+              <div
+                class="prose-site text-lg"
+                data-spec={i === 0 ? 'type:prose' : undefined}
+                set:html={s.html}
+              />
+            </section>
+          ))}
+
+          {project.gallery.length > 0 && (
+            <section aria-labelledby="gallery-title">
+              <h2 id="gallery-title" class={h2}>
+                {t('work.gallery')}
+              </h2>
+              <ul class="grid gap-8">
+                {project.gallery.map((g) => (
+                  <li>
+                    <figure>
+                      <ProjectVisual
+                        project={project}
+                        size="gallery"
+                        image={g.image}
+                        alt={g.alt}
+                      />
+                      {g.caption && (
+                        <figcaption class="mt-2 text-sm text-muted-foreground">
+                          {g.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {testimonial && (
+            <section aria-labelledby="quote-title">
+              <h2 id="quote-title" class="sr-only">
+                {t('work.clientQuote')}
+              </h2>
+              <TestimonialCard testimonial={testimonial} variant="pull" />
+            </section>
+          )}
+        </div>
+      </div>
+    </article>
+
+    <section
+      aria-labelledby="cta-title"
+      data-spec="spacing:pt-section"
+      class="wrap grid-page pt-section"
+    >
+      <div class="col-span-12 grid grid-cols-subgrid gap-y-6 border-t border-rule pt-8">
+        <h2 id="cta-title" class="col-span-12 text-3xl lg:col-span-5">
+          {t(research ? 'work.cta.research.title' : 'work.cta.title')}
+        </h2>
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+          <p class="max-w-measure text-lg">
+            {t(research ? 'work.cta.research.body' : 'work.cta.body')}
+          </p>
+          <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
+            {research ? (
+              <>
+                <Button
+                  href="/cv"
+                  size="lg"
+                  data-track="cv_view"
+                  data-track-source="project"
+                  data-track-slug={project.slug}
+                >
+                  {t('work.cta.cv')}
+                </Button>
+                <a
+                  href="/contact"
+                  class="link text-ink"
+                  data-track="contact_click"
+                  data-track-location="project"
+                  data-track-slug={project.slug}
+                >
+                  {t('work.cta.contact')}
+                </a>
+              </>
+            ) : (
+              <>
+                <WhatsAppButton
+                  size="lg"
+                  label={t('work.cta.whatsapp')}
+                  text={whatsappProjectPrefill(project.title)}
+                  trackLocation="project"
+                  trackSlug={project.slug}
+                />
+                <a
+                  href={`mailto:${settings.email}`}
+                  class="link text-ink"
+                  data-track="contact_email_click"
+                  data-track-location="project"
+                  data-track-slug={project.slug}
+                >
+                  {t('work.cta.email')}
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {related && (
+      <section
+        aria-labelledby="next-title"
+        class="wrap grid-page pt-section pb-section"
+      >
+        <div class="col-span-12 mb-8 lg:col-span-4 lg:mb-0">
+          <h2 id="next-title" class="text-2xl">
+            {t('work.next')}
+          </h2>
+          <p class="mt-4">
+            <a href="/work" class="link text-ink">
+              {t('work.back')}
+            </a>
+          </p>
+        </div>
+        <div class="col-span-12 md:col-span-8 lg:col-span-6 lg:col-start-7">
+          <ProjectCard project={related} />
+        </div>
+      </section>
+    )}
+    {!related && (
+      <p class="wrap pt-section pb-section">
+        <a href="/work" class="link text-ink">
+          {t('work.back')}
+        </a>
+      </p>
+    )}
+  </main>
+</BaseLayout>

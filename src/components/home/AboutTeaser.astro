@@ -1,0 +1,87 @@
+---
+// Home section 8: short bio with a small portrait, then the recruiter strip (the second door).
+import { Image } from 'astro:assets';
+import Button from '@/components/site/Button.astro';
+import Section from '@/components/site/Section.astro';
+import SectionHeading from '@/components/site/SectionHeading.astro';
+import { t } from '@/i18n';
+import { contentImage, getProfile, getSettings } from '@/lib/content';
+import { getResearchHref } from '@/lib/projects';
+import { isLive } from '@/lib/routes';
+
+const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
+const photo = contentImage('en/profile', profile.photo);
+const { career } = settings;
+const aboutLive = await isLive('about');
+const cvLive = await isLive('cv');
+const workLive = await isLive('work');
+const researchHref = workLive ? await getResearchHref() : undefined;
+
+const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
+  career.workModes.map((m) => t(`workMode.${m}` as const)),
+);
+---
+
+<Section id="about" labelledby="about-title">
+  <SectionHeading id="about-title" class="reveal lg:col-span-4">
+    {t('home.about.title')}
+  </SectionHeading>
+
+  {photo && (
+    <div class="col-span-5 sm:col-span-3 lg:col-span-2 lg:col-start-6">
+      <Image
+        src={photo}
+        alt={profile.photoAlt}
+        width={240}
+        height={300}
+        widths={[240, 360]}
+        sizes="(min-width: 1024px) 14vw, 30vw"
+        loading="lazy"
+        class="aspect-[4/5] h-auto w-full rounded-md object-cover grayscale"
+      />
+    </div>
+  )}
+  <div class="reveal col-span-12 mt-8 lg:col-span-5 lg:col-start-8 [--i:1] lg:mt-0">
+    <p class="text-lg text-ink">{profile.shortBio}</p>
+    {(aboutLive || researchHref) && (
+      <p class="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+        {aboutLive && (
+          <a href="/about" class="link text-ink">
+            {t('home.about.more')}
+          </a>
+        )}
+        {researchHref && (
+          <a href={researchHref} class="link text-ink">
+            {t('home.about.research')}
+          </a>
+        )}
+      </p>
+    )}
+  </div>
+
+  {career.openToRoles && (
+    <aside
+      aria-labelledby="recruiter-title"
+      class="reveal col-span-12 mt-16 grid items-center gap-x-gutter gap-y-5 border-y border-rule py-8 md:grid-cols-[auto_1fr_auto] lg:mt-24"
+    >
+      <h3 id="recruiter-title" class="text-xl">
+        {t('home.recruiter.title')}
+      </h3>
+      <p class="max-w-measure">
+        {t('home.recruiter.body', { modes })}
+        {career.openToRelocation && t('home.recruiter.relocate')}
+      </p>
+      {cvLive && (
+        <Button
+          href="/cv"
+          variant="outline"
+          size="lg"
+          data-track="cv_view"
+          data-track-source="home_recruiter"
+        >
+          {t('cta.viewCv')}
+        </Button>
+      )}
+    </aside>
+  )}
+</Section>
