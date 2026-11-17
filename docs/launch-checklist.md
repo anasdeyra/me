@@ -6,8 +6,13 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 
 ## 1. Content (blocks launch: placeholders are visible on production pages)
 
-- [ ] **Home hero**: final headline, subline (`src/content/en/home/index.yaml` `hero`) and `shortBio`
+- [ ] **Home hero**: replace the `[Draft]` headline and subline (`src/content/en/home/index.yaml` `hero`) and set `shortBio`
       (`src/content/en/profile/index.yaml`). Feeds the meta description, OG, Person JSON-LD, `/llms.txt`, About teaser.
+- [ ] **Hero statement**: review the new centred statement copy under the hero (`src/i18n/en.ts`, `home.statement.body`).
+- [ ] **Testimonial countries**: set `country` on every testimonial in Keystatic (Testimonials -> Country; none is tagged yet, the
+      real client country is not in the repo, so it is an owner fact). The home proof map
+      picks a review by country; untagged reviews fall back to plain cards below the map. Countries available: France, Germany,
+      India, Singapore, Spain, United States, Tunisia.
 - [ ] **Services**: who it is for / what you get for the 4 offers (`home/index.yaml`, Keystatic: Home).
 - [ ] **Process**: 4 step descriptions and "How quotes work" (`home/index.yaml`).
 - [ ] **FAQ**: answers on code ownership, after launch, NDA, Upwork vs direct; drop `[Draft]` on the other answers.
@@ -49,8 +54,8 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 - [ ] **Unknown URL**: `curl -I https://<preview>/nope` returns 404 with a `content-security-policy` header.
 - [ ] **Trailing slash**: `curl -I https://<preview>/about/` returns 308 to `/about`.
 - [ ] **Headers scan**: securityheaders.com and Mozilla Observatory on the production URL (expected A/A+).
-- [ ] **Lighthouse**: `pnpm build && node scripts/lighthouse.mjs` (writes `src/data/lighthouse.json`, shown in Spec mode),
-      then commit it and rebuild.
+- [ ] **Lighthouse**: once content is final, re-run `pnpm build && node scripts/lighthouse.mjs` (writes `src/data/lighthouse.json`;
+      scores are no longer shown on the site since Spec mode was removed, so this is an audit record only), commit it and rebuild.
 - [ ] **Contact form end to end**: submit on `/contact` with JS on and off; the mail arrives with the visitor as
       reply-to; then break the key once and check the Vercel function logs show `contact: resend failed, status ...`.
 - [ ] **Analytics**: click WhatsApp, CV, email in production; events appear in the Vercel dashboard (events: `docs/ux-study.md` section 9).
@@ -61,8 +66,10 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 
 - [ ] Recolour `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` to the blue palette (still the black "D" tile).
 - [ ] CI: a workflow running `pnpm build`, `pnpm check` and `pnpm run audit` on every PR (deliberately not added).
-- [ ] Replace the AI-generated portrait (`src/content/en/profile/photo.jpg`, same file name or via Keystatic), and its
-      transparent hero cutout (`cutout.png`: background removed, shoulders reaching the bottom and side edges).
+- [ ] Replace the AI-generated portrait (`src/content/en/profile/photo.jpg`, same file name or via Keystatic); the hero now uses the
+      photo card.
+- [ ] Clean-up: `src/content/en/profile/cutout.png` (and the optional `cutout` field in `keystatic/locale.ts` / `profile/index.yaml`) and the
+      `home.hero.eyebrow` key in `src/i18n/en.ts` are unused since the 2026-11-17 hero redesign: delete them or keep for a future hero.
 - [ ] Drop `@astrojs/react` (and `react`, `react-dom`) if no island is planned: `/_astro` ships a 220 KB React client
       runtime that no page loads. Keep it if a shadcn island is coming.
 - [ ] Contact copy: consider adding an availability line once you want one (decision log: no badge for now).

@@ -69,7 +69,7 @@
 
 **How we do it differently:** Quality budgets (performance, a11y, security) are agreed upfront and measured; regular async updates.
 **Why that's better:** Less rework, faster load times, a product users trust from day one.
-**Why customers choose us:** The proof (Upwork record + case study metrics) plus the portfolio itself as a demonstration (Spec mode).
+**Why customers choose us:** The proof (Upwork record + case study metrics) plus the portfolio itself as a demonstration (its own speed and polish; Spec mode, the inspection overlay, was removed 2026-11-17 and is to return).
 
 ## Objections
 
@@ -106,7 +106,7 @@
 
 | Term      | Meaning                                                             |
 | --------- | ------------------------------------------------------------------- |
-| Spec mode | Site feature: blueprint overlay showing the craft behind each page  |
+| Spec mode | Planned site feature (removed 2026-11-17, to be reimplemented): blueprint overlay showing the craft behind each page |
 | Grainy gradient | Brand color touch: a soft gradient with film grain on a black-and-white page; the only decorative color on the site |
 
 ## Brand Voice
@@ -126,7 +126,7 @@
 - Recruiter pages: factual, scannable, keyword-rich (ATS).
 - Social (LinkedIn): practical, first person.
 
-**Terms we own:** "polished", "Spec mode".
+**Terms we own:** "polished" ("Spec mode" is on hold until the feature returns; do not use it in live copy).
 **Never use (and why):** buzzwords above (they signal the opposite of precision).
 
 ## Proof Points
@@ -142,7 +142,7 @@
 | ---------------- | --------------------------------------------------- |
 | Reliability      | Upwork Top Rated, 100% Job Success, 5.0 stars, 10+ jobs |
 | Detail / quality | Client endorsements: Committed to Quality x3, Detail Oriented x1 |
-| Polish / quality | Case-study metrics, the site itself (Spec mode)     |
+| Polish / quality | Case-study metrics, the site itself (its Lighthouse record)     |
 | International    | Client world map, 3 working languages               |
 
 ## Goals
