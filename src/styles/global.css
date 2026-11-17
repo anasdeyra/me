@@ -381,6 +381,19 @@
     opacity: 1 !important;
     translate: none !important;
   }
+  /* The home hero is `.dark` (white text) in both themes; browsers drop backgrounds when printing, so the name and
+     headline would print white on white. Give the hero's scope black-on-white tokens. */
+  .hero.dark {
+    --background: #fff;
+    --ink: #000;
+    --foreground: #000;
+    --muted-foreground: #333;
+    --link: #000;
+    --border: #999;
+  }
+  .hero::before {
+    display: none;
+  }
 }
 
 /*
