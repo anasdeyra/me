@@ -89,7 +89,14 @@ export const en = {
   'contact.form.success.body':
     'Thanks. I’ll reply to the email you gave within a day. Need an answer sooner? WhatsApp usually gets a reply within an hour.',
   'contact.elsewhere.title': 'Elsewhere',
-  'contact.block.cta': 'Or send a message',
+  'cta.support':
+    'A few lines on the product, the deadline and what a good result looks like are enough to start.',
+  'cta.form.title': 'Project inquiry',
+  'cta.form.hint': 'Three fields. I reply within a day.',
+  'cta.whatsapp.hint': 'Fastest. Usually replies within an hour.',
+  'cta.elsewhere': 'Elsewhere',
+  'cta.timezone':
+    'Based in {city} ({offset}), with full overlap with European working hours. Remote, worldwide.',
   'contact.sent.title': 'Message sent',
   'contact.sent.description': 'Your message reached Anas Deyra.',
   'contact.sent.heading': 'Message sent.',
@@ -134,9 +141,6 @@ export const en = {
     'For any request about your data, email {email}. I reply within a day.',
 
   // Footer
-  'footer.cta.title': 'Tell me what you’re building.',
-  'footer.cta.body':
-    'Message me on WhatsApp: I usually reply within an hour. Prefer email? I reply within a day.',
   'footer.base':
     'Based in {city}, {country} ({offset}): full overlap with European working hours.',
   'footer.languages': 'I work in {languages}.',
@@ -162,6 +166,12 @@ export const en = {
   'cta.viewCv': 'Hiring? View my CV',
   'home.hero.eyebrow': '{title}, {city}',
   'home.hero.reply': 'Usually replies within an hour.',
+  'home.hero.place': '{city}, {country}',
+  'home.hero.time': '{city} time, {offset}',
+  'home.hero.scroll': 'Scroll',
+  'home.statement.label': 'Introduction',
+  'home.statement.body':
+    'I turn a founder’s idea into a product people can use. One engineer from first call to launch, with weekly updates along the way.',
   'home.trust.label': 'Track record on Upwork',
   'trust.topRated': 'Top Rated',
   'upwork.badge.risingTalent': 'Rising Talent',

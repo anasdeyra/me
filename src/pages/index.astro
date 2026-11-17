@@ -9,6 +9,7 @@ import ClientsMapStyle from '@/components/proof/ClientsMapStyle.astro';
 import Proof from '@/components/home/Proof.astro';
 import SelectedWork from '@/components/home/SelectedWork.astro';
 import Services from '@/components/home/Services.astro';
+import Statement from '@/components/home/Statement.astro';
 import TrustStrip from '@/components/home/TrustStrip.astro';
 import ContactBlock from '@/components/site/ContactBlock.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -39,6 +40,7 @@ const proofLive = await isSectionLive('proof');
   {proofLive && <ClientsMapStyle slot="head" />}
   <main id="main">
     <Hero />
+    <Statement />
     <TrustStrip />
     <SelectedWork />
     <Proof />
@@ -47,6 +49,6 @@ const proofLive = await isSectionLive('proof');
     <AboutTeaser />
     <Faq />
     <LatestWriting />
-    <ContactBlock location="final" headingId="final-cta-title" />
+    <ContactBlock location="final" headingId="final-cta-title" form />
   </main>
 </BaseLayout>

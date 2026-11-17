@@ -4,7 +4,6 @@
 import { t } from '@/i18n';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactForm from '@/components/site/ContactForm.astro';
-import DuskGlow from '@/components/site/DuskGlow.astro';
 import CopyEmail from '@/components/site/CopyEmail.astro';
 import QrCode from '@/components/site/QrCode.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
@@ -28,10 +27,8 @@ const rowTitle = 'col-span-12 text-xl font-semibold text-ink md:col-span-4';
 >
   <main
     id="main"
-    class="wrap grid-page relative isolate content-start pt-section pb-section"
+    class="wrap grid-page content-start pt-section pb-section"
   >
-    {/* Warm backdrop in the empty top-end corner beside the heading (lg+ only), never behind text. */}
-    <DuskGlow class="hidden size-[22rem] inset-auto end-[3%] top-[-1rem] [--dusk-opacity:0.85] lg:block" />
     <h1 class="col-span-12 text-5xl md:col-span-9 lg:col-span-8">
       {t('contact.heading')}
     </h1>

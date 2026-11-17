@@ -1,82 +1,162 @@
 ---
-// The 4-way contact group (WhatsApp, email with copy, the 3-field form, LinkedIn) as a page section.
-// Used by the home page's closing section; /contact composes the same pieces in a larger layout.
+// Closing CTA ("Tell me what you're building."): flat colour only, on the 12-column grid.
+// Statement + supporting line on the left (cols 1-7, sticky on lg), a stacked list of contact paths on the
+// right (cols 8-12): WhatsApp (primary, green), email (copy + mailto), project inquiry (inline 3-field form
+// when `form` is set, otherwise a link to /contact), then quieter profile links and the reply/time-zone note.
+// Used by the home page (`final`, with the form) and by the footer on every other page (`footer_cta`).
 import { cn } from '@/lib/utils';
-import DuskGlow from './DuskGlow.astro';
 import { t } from '@/i18n';
-import { whatsappPrefill } from '@/lib/contact';
+import { whatsappHref, whatsappPrefill } from '@/lib/contact';
 import { getSettings } from '@/lib/content';
+import { utcOffset } from '@/lib/place';
+import ArrowIcon from './ArrowIcon.astro';
+import Button from './Button.astro';
 import ContactForm from './ContactForm.astro';
 import CopyEmail from './CopyEmail.astro';
 import Section from './Section.astro';
-import SectionHeading from './SectionHeading.astro';
-import WhatsAppButton from './WhatsAppButton.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
 
 interface Props {
-  /** Analytics location and form location. */
-  location: 'final' | 'contact';
-  /** Section heading; defaults to the closing-CTA line. */
-  heading?: string;
+  /** Analytics location (and form location when `form` is set). */
+  location: 'final' | 'footer_cta';
   /** Id for the heading (names the section landmark). Must be unique on the page. */
   headingId: string;
+  /** Show the 3-field form inline instead of the "Project inquiry" link. Only one per page. */
+  form?: boolean;
   class?: string;
 }
 
-const {
-  location,
-  heading = t('contact.heading'),
-  headingId,
-  class: className,
-} = Astro.props;
+const { location, headingId, form = false, class: className } = Astro.props;
 const settings = await getSettings();
+const { city, timezone } = settings.location;
+
+// Row anatomy: hairline-free stack separated by strong rules; the label is the link's name.
+const row =
+  'group/row relative grid grid-cols-[1fr_auto] items-center gap-x-4 border-t border-rule py-5 no-underline';
+const rowLabel = 'text-xl font-semibold text-ink';
+const rowHint = 'mt-1 text-sm text-muted-foreground';
+const rowArrow =
+  'size-5 shrink-0 text-ink transition-transform duration-(--dur-2) ease-(--ease-out) motion-reduce:transition-none';
+// Arrow nudges on hover/focus where hover exists; the whole row is the target (>= 44px).
+const rowLink = cn(
+  row,
+  'min-h-20 text-foreground',
+  '[&:is(:hover,:focus-visible)_svg]:translate-x-0.5 [&:is(:hover,:focus-visible)_svg]:-translate-y-0.5',
+  '[&:is(:hover,:focus-visible)_[data-row-label]]:text-link-hover',
+);
+const profiles = [
+  {
+    label: t('contact.linkedin'),
+    href: settings.links.linkedin,
+    track: 'contact_linkedin',
+  },
+  {
+    label: t('contact.upwork'),
+    href: settings.links.upwork,
+    track: 'upwork_click',
+  },
+  { label: t('contact.github'), href: settings.links.github, track: undefined },
+];
 ---
 
-<Section labelledby={headingId} class={cn('relative isolate', className)}>
-  {/* Warm backdrop in the empty space under the heading column (lg+ only), never behind copy or the form. */}
-  <DuskGlow class="hidden size-[22rem] inset-auto start-0 bottom-[6%] [--dusk-opacity:0.85] lg:block" />
-  <SectionHeading id={headingId} class="md:col-span-12 lg:col-span-5">
-    {heading}
-  </SectionHeading>
-
-  <div class="col-span-12 md:col-span-8 lg:col-span-5 lg:col-start-7">
-    <WhatsAppButton
-      size="lg"
-      text={whatsappPrefill(location === 'final' ? 'final' : 'contact')}
-      trackLocation={location}
-    />
-    <p class="mt-3 text-sm text-muted-foreground">
-      {t('contact.reply.whatsapp')}
-    </p>
-
-    <div class="mt-10">
-      <p class="mb-2 text-sm font-medium text-ink">
-        {t('contact.email.title')}
-      </p>
-      <CopyEmail email={settings.email} location={location} />
-      <p class="mt-2 text-sm text-muted-foreground">
-        {t('contact.reply.email')}
-      </p>
-    </div>
-
-    <p class="mt-10 flex flex-wrap gap-x-6 gap-y-2">
-      <a
-        href={settings.links.linkedin}
-        class="link text-ink"
-        rel="me noopener noreferrer"
-        target="_blank"
-        data-track="contact_linkedin"
-        data-track-location={location}
-      >
-        {t('contact.linkedin')}
-        <span class="sr-only"> {t('a11y.newTab')}</span>
-      </a>
+<Section labelledby={headingId} class={cn('gap-y-14', className)}>
+  <div class="col-span-12 lg:col-span-7 lg:self-start lg:sticky lg:top-28">
+    <h2 id={headingId} class="text-5xl text-balance">
+      {t('contact.heading')}
+    </h2>
+    <p class="mt-6 max-w-measure text-lg text-muted-foreground md:max-w-[34ch]">
+      {t('cta.support')}
     </p>
   </div>
 
-  <div class="col-span-12 mt-12 md:col-span-6 md:col-start-7">
-    <h3 class="mb-6 text-2xl font-semibold text-ink">
-      {t('contact.block.cta')}
-    </h3>
-    <ContactForm location={location} idPrefix={`${location}-block-form`} />
+  <div class="col-span-12 lg:col-span-5 lg:col-start-8">
+    <ul class="border-t border-b border-rule">
+      <li>
+        {/* Primary path: the only green on the page (variant="whatsapp"), same link as WhatsAppButton. */}
+        <Button
+          href={whatsappHref(settings.whatsappNumber, whatsappPrefill('final'))}
+          variant="whatsapp"
+          size="lg"
+          class="!h-auto min-h-24 w-full justify-between gap-4 rounded-sm px-5 py-5 text-start whitespace-normal"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="contact_whatsapp"
+          data-track-location={location}
+        >
+          <span class="flex items-center gap-4">
+            <WhatsAppIcon class="size-7 shrink-0" />
+            <span class="grid gap-1">
+              <span class="text-lg font-semibold">
+                {t('whatsapp.cta')}
+                <span class="sr-only"> {t('a11y.newTab')}</span>
+              </span>
+              <span class="text-sm font-normal">
+                {t('cta.whatsapp.hint')}
+              </span>
+            </span>
+          </span>
+          <ArrowIcon class="size-5" />
+        </Button>
+      </li>
+
+      <li class={cn(row, 'mt-0 grid-cols-1 gap-y-3')}>
+        <div>
+          <p class={rowLabel}>{t('contact.email.title')}</p>
+          <p class={rowHint}>{t('contact.reply.email')}</p>
+        </div>
+        <CopyEmail email={settings.email} location={location} />
+      </li>
+
+      {form ? (
+        <li class={cn(row, 'grid-cols-1 gap-y-6 pt-6 pb-8')}>
+          <div>
+            <h3 class={rowLabel}>{t('cta.form.title')}</h3>
+            <p class={rowHint}>{t('cta.form.hint')}</p>
+          </div>
+          <ContactForm location="final" idPrefix="final-block-form" />
+        </li>
+      ) : (
+        <li>
+          <a
+            href="/contact"
+            class={rowLink}
+            data-track="contact_form_link"
+            data-track-location={location}
+          >
+            <span>
+              <span class={rowLabel} data-row-label>{t('cta.form.title')}</span>
+              <span class={cn(rowHint, 'block')}>{t('cta.form.hint')}</span>
+            </span>
+            <ArrowIcon class={rowArrow} />
+          </a>
+        </li>
+      )}
+
+      <li class="border-t border-border">
+        <p class="sr-only">{t('cta.elsewhere')}</p>
+        <ul class="grid grid-cols-3">
+          {profiles.map((p) => (
+            <li class="border-s border-border first:border-s-0 first:*:ps-0">
+              <a
+                href={p.href}
+                rel="me noopener noreferrer"
+                target="_blank"
+                class="group/profile flex min-h-12 items-center justify-between gap-2 px-4 text-base text-ink no-underline hover:text-link-hover focus-visible:text-link-hover"
+                data-track={p.track}
+                data-track-location={p.track ? location : undefined}
+              >
+                <span class="link">{p.label}</span>
+                <ArrowIcon class="size-4 shrink-0" />
+                <span class="sr-only">{t('a11y.newTab')}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </li>
+    </ul>
+
+    <p class="mt-6 max-w-measure text-sm text-muted-foreground">
+      {t('cta.timezone', { city, offset: utcOffset(timezone) })}
+    </p>
   </div>
 </Section>

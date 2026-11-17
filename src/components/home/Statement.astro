@@ -1,0 +1,81 @@
+---
+// Home section 2 (owner review 2026-11-17): the hand-off from the dark hero. A centred uppercase statement and a
+// "More about me" pill with a circular arrow, with faint tick rings at the edges. Follows the theme (light by default).
+// The rings are decorative (aria-hidden); they sit behind the text at low opacity and turn a little with the scroll
+// only when motion is allowed. The pill is shown only when /about is live (FR-22).
+import ArrowIcon from '@/components/site/ArrowIcon.astro';
+import Button from '@/components/site/Button.astro';
+import { t } from '@/i18n';
+import { isLive } from '@/lib/routes';
+
+const aboutLive = await isLive('about');
+---
+
+<section
+  id="statement"
+  aria-label={t('home.statement.label')}
+  class="statement relative isolate overflow-clip border-t border-border pt-section pb-14 text-center md:pb-20"
+>
+  <span class="tick-ring statement-ring statement-ring-s" aria-hidden="true"></span>
+  <span class="tick-ring statement-ring statement-ring-e" aria-hidden="true"></span>
+
+  <div class="wrap">
+    <p class="mx-auto max-w-[32ch] text-2xl font-semibold tracking-[-0.03em] text-ink uppercase">
+      {t('home.statement.body')}
+    </p>
+    {aboutLive && (
+      <p class="mt-10 md:mt-14">
+        <Button
+          href="/about"
+          class="rounded-full bg-muted ps-6 pe-2 text-ink hover:bg-border"
+          size="lg"
+        >
+          {t('home.about.more')}
+          <span class="statement-go bg-ink text-background" aria-hidden="true">
+            <ArrowIcon class="size-4" />
+          </span>
+        </Button>
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .statement-ring {
+    --tick-len: 1.25rem;
+    --tick-w: 0.22deg;
+    position: absolute;
+    inset-block-start: 50%;
+    inline-size: min(110vw, 52rem);
+    color: var(--muted-foreground);
+    opacity: 0.35;
+    z-index: -1;
+    translate: 0 -50%;
+  }
+  .statement-ring-s {
+    inset-inline-start: calc(min(110vw, 52rem) * -0.88);
+  }
+  .statement-ring-e {
+    inset-inline-end: calc(min(110vw, 52rem) * -0.88);
+  }
+  .statement-go {
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border-radius: 50%;
+    margin-inline-start: 0.25rem;
+    flex-shrink: 0;
+    transition: translate var(--dur-2) var(--ease-out);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    :global([data-slot='button']:hover) .statement-go {
+      translate: 0.125rem -0.125rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-slot='button']:focus-visible) .statement-go {
+      translate: 0.125rem -0.125rem;
+    }
+  }
+</style>

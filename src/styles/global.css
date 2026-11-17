@@ -182,17 +182,6 @@
   ); /* decorative warm counterpoint (map lights, home glow); never text */
   --glow-rgb: 11 94 215; /* cobalt, pointer spotlight and button glow */
   --glow-alpha: 0.12;
-
-  /*
-   * Hero key light. The portrait is lit from the upper right (photo's right: that cheek and forehead are ~2x brighter),
-   * so the hero adds light from that side and shadow falling down-left. Warm white, a touch of the Dusk amber.
-   * Light theme: a faint wash and a soft cast shadow; dark theme: a visible beam and a rim on the lit edge.
-   */
-  --key-rgb: 255 226 186;
-  --key-alpha: 0.12;
-  --key-rim: 0;
-  --key-grain: 0; /* grain reads as dirt on white */
-  --key-shadow: 0.16;
 }
 
 .dark {
@@ -220,11 +209,6 @@
   --map-from: var(--link);
   --glow-rgb: 142 195 245;
   --glow-alpha: 0.2;
-  /* Hero key light (see .hero-key): stronger on black, where light reads as light. */
-  --key-alpha: 0.24;
-  --key-rim: 0.3;
-  --key-grain: 0.25;
-  --key-shadow: 0;
 }
 
 /* Desktop header (nav visible) from lg = 1024px; the mobile menu is used below. */
@@ -477,111 +461,49 @@
   }
 
   /*
-   * Home hero (Hero.astro, cutout variant): Blueprint. .hero-grid draws the page's 12 columns behind the hero on the
-   * same .wrap/.grid-page as the content (column edges and numbers), quiet behind the copy and full strength around
-   * the portrait. The cutout stands on the trust strip's rule; the figure is a little wider than its column and
-   * clipped at the sides, so the cutout's straight shoulder edges never show. Decorative (aria-hidden), tablet and up.
+   * Tick ring (home hero and statement ornaments): a thin ring of radial tick marks, pure CSS (a conic stripe pattern
+   * cut to a band by a radial mask), no markup beyond one empty element. Decorative: aria-hidden at the use site.
+   * Size it with inline-size, tint it with color; --tick-len is the tick length. The slow scroll-linked turn exists
+   * only with motion allowed (user controlled, never an infinite animation, WCAG 2.2.2). Hidden in forced colors/print.
    */
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
+  .tick-ring {
+    --tick-len: 0.875rem;
+    --tick-w: 0.4deg;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from -0.2deg,
+      currentColor 0 var(--tick-w),
+      transparent var(--tick-w) 3deg
+    );
+    mask-image: radial-gradient(
+      farthest-side,
+      transparent calc(100% - var(--tick-len)),
+      #000 calc(100% - var(--tick-len) + 1px)
+    );
     pointer-events: none;
-    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.3) 40%, #000 58%);
   }
-  .hero-col {
-    position: relative;
-    border-inline: 1px solid var(--border);
-  }
-  .hero-col-num {
-    position: absolute;
-    inset-block-start: 0.5rem;
-    inset-inline-start: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    line-height: 1;
-    color: var(--muted-foreground);
-  }
-  .hero-cut {
-    /* Both axes: the cast shadow below stays inside the box (no shadow under the trust strip's rule). */
-    overflow: clip;
-  }
-  .hero-figure {
-    display: block;
-    inline-size: 108%;
-    max-inline-size: none;
-    block-size: auto;
-    margin-inline: -4%;
-    /* Light bleeding round the lit edge (offset toward the light: up and right) and the shadow it casts (down and left). */
-    filter: drop-shadow(
-        0.5rem -0.375rem 1.25rem rgb(var(--key-rgb) / var(--key-rim))
-      )
-      drop-shadow(
-        -1.75rem 1.25rem 2rem
-          color-mix(
-            in srgb,
-            var(--ink) calc(var(--key-shadow) * 100%),
-            transparent
-          )
-      );
-  }
-
-  /*
-   * Key light: a soft beam from beyond the portrait's upper right, aimed down-left at the face, with Dusk grain.
-   * Physical sides on purpose: the photo is not mirrored in RTL, so its light always comes from its right.
-   * It lights the grid lines under it and fades out before the copy column.
-   */
-  .hero-key {
-    position: absolute;
-    inset: 0 -20% 0 -15%;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      conic-gradient(
-        from 196deg at 100% 0%,
-        transparent 0deg,
-        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.5)) 12deg,
-        rgb(var(--key-rgb) / var(--key-alpha)) 26deg,
-        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.5)) 40deg,
-        transparent 56deg
-      ),
-      radial-gradient(
-        ellipse 55% 45% at 62% 30%,
-        rgb(var(--key-rgb) / calc(var(--key-alpha) * 0.6)),
-        transparent
-      );
-    /* Falls off with distance from the source and fades in from the top edge, so no box edge ever shows. */
-    mask-image:
-      radial-gradient(
-        circle farthest-side at 100% 0%,
-        #000,
-        rgb(0 0 0 / 0.6) 50%,
-        transparent 80%
-      ),
-      linear-gradient(to bottom, transparent, #000 22%);
-    mask-composite: intersect;
-  }
-  .hero-key::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: var(--grain);
-    background-size: 240px;
-    opacity: var(--key-grain);
-    mix-blend-mode: overlay;
-  }
-  @media (width >= 64rem) {
-    .hero-key {
-      inset-block-start: -20%;
+  @keyframes tick-turn {
+    to {
+      rotate: 45deg;
     }
   }
-  @media (forced-colors: active) {
-    .hero-grid,
-    .hero-key {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .tick-ring {
+        animation-name: tick-turn;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-duration: 1ms;
+        animation-timeline: scroll(root block);
+        animation-range-start: 0;
+        animation-range-end: 150vh;
+      }
+    }
+  }
+  @media (forced-colors: active), print {
+    .tick-ring {
       display: none;
-    }
-    .hero-figure {
-      filter: none;
     }
   }
 
