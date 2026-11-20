@@ -33,9 +33,8 @@ const tags = entry.tags.map((slug) => labels?.get(slug) ?? slug);
 ---
 
 <article
-  data-glow
   class={cn(
-    'glow-tint group isolate relative grid gap-x-gutter gap-y-2 border-t border-border py-6 [--glow-bleed:0_-0.75rem] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
+    'group relative grid gap-x-gutter gap-y-2 border-t border-border py-6 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
     !stacked && 'md:grid-cols-[10rem_1fr]',
     className,
   )}

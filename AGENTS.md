@@ -47,7 +47,7 @@ docs/launch-checklist.md  Owner to-do before/after launch: content placeholders,
 src/
   components/ui/        shadcn components (button: `buttonVariants` is shared with the Astro components)
   components/site/      static primitives: Button (cva variants, zero JS), WhatsAppButton, ThemeToggle, ThemeScript,
-                        DuskGlow, WhatsAppIcon, GitHubIcon, ArrowIcon (inline SVG, currentColor), Section / SectionHeading (grid sections), ContactBlock (flat two-column closing CTA; props `location`, `headingId`, `form`),
+                        WhatsAppIcon, GitHubIcon, ArrowIcon (inline SVG, currentColor), Section / SectionHeading (grid sections), ContactBlock (flat two-column closing CTA; props `location`, `headingId`, `form`),
                         ContactForm (3 fields + honeypot, one inline script), CopyEmail, QrCode (build-time SVG), Analytics,
                         Search (trigger + native dialog; lazy Pagefind chunk),
                         MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
@@ -79,12 +79,12 @@ src/
                         posts.ts (post views, series, related, CTA), tags.ts (tag index), entries.ts (unified post/project Entry),
                         highlight.ts (code to class tokens), og.ts + og-entries.ts (OG card renderer and entry list), xml.ts (escape, RFC-822)
   scripts/              client modules: shortcuts.ts (the `/` search shortcut + off switch), search-dialog.ts (lazy Pagefind chunk),
-                        pointer.ts (--mx/--my/--nx/--ny on `[data-glow]` hosts, fine pointers only, rAF, CSSOM; ~0.45 KB gz),
+                        pointer.ts (--mx/--my on `[data-pointer]` hosts (the map stage), fine pointers only, rAF, CSSOM; ~0.45 KB gz),
                         review-scroll.ts (scroll-mode review stepper: at most one review per 0.9 s, never moves the scroll; 0.75 KB gz)
   pages/                index (home: hero (incl. Upwork proof line), statement, work, proof, services, process, about, FAQ, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
                         blog/index + blog/[slug], tag/[tag], og/[...key].png.ts, rss.xml.ts, llms.txt.ts
                         (static 303 targets), privacy, 404, robots.txt.ts, api/contact.ts (the only on-demand route)
-  styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link), .dusk
+  styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link)
 public/                 favicon.svg, favicon.ico, apple-touch-icon.png (Geist Bold "D" monogram)
 .claude/skills/         project-local agent skills (see skills-lock.json)
 .env.example            secrets only (contact form); everything else is Keystatic settings
@@ -148,8 +148,8 @@ Verify with `pnpm build && pnpm check` before finishing any change.
   - `.reveal` (scroll-linked `view()`, finishes within 150px of entering, stagger with `[--i:0..3]`, `md:[--i:1]`): wrapper
     elements only, not on elements that also move on hover; never on the hero, LCP candidates or forms. Off for reduced motion
     and print; content is never hidden without support.
-  - `[data-glow]` hosts get a pointer spotlight (`.glow-tint`, Dusk parallax, map flashlight) from `src/scripts/pointer.ts`
-    (fine pointers only; writes custom properties through CSSOM, never markup `style=""`). Specular effects must work without it.
+  - `[data-pointer]` hosts (the clients map stage) get the map flashlight from `src/scripts/pointer.ts`
+    (fine pointers only; writes custom properties through CSSOM, never markup `style=""`). It must work without it.
   - Hover rules live inside `@media (hover: hover)` with a `:focus-visible` (or `:has(a:focus-visible)`) equivalent. Motion is
     wrapped in `prefers-reduced-motion: no-preference`; `forced-colors` guards on decorative layers. No magnetic buttons, no counters.
   - WCAG 2.2.2: no `infinite` animations. Loops are bounded and hover-initiated; entries and MorphShape are scroll-linked (user controlled,
@@ -160,15 +160,16 @@ Verify with `pnpm build && pnpm check` before finishing any change.
     bottom-aligned feed, so new messages push older ones up. Zero JS, no timers; messages are always in the DOM (folded rows are clipped,
     never hidden); without view() support, with reduced motion and in print it is a plain transcript. Spacing inside a folding row is
     margin on the content, never padding on the clipped box.
-  - Color (owner, 2026-11-20): **black and white, pink for small details only.** Text, surfaces, primary buttons (`--primary` = `--ink`,
-    hover `--primary-hover`), links (`--link` = ink, always underlined) and the focus ring (`--ring` = ink) are neutral: `--ink` #0a0a0a,
-    `--foreground` #171717, `--muted-foreground` #595959 in light; #fff, #ededed, #a3a3a3 in dark. **Pink `--pink` #bf0944** (dark:
-    #fb6e83, since #bf0944 is 3.3:1 on black) is the only colour, and only on small details: rating stars, `--brand` (marks and dots,
-    reading bar, map flashlight, chip hover), selection, the pointer spotlight and the glow. Never on links, buttons, text or large fills
-    (MorphShape tones are neutral `--shape-grey/mist`). WhatsApp green stays on WhatsApp CTAs. There is no `--rule` token: every
-    separator is a neutral `--border` hairline, and fewer lines is the default. The glow (`.dusk`, `<DuskGlow />`) is pink grain, on the 404 and the /about portrait,
-    never behind text; the closing CTA is flat. Utility: `text-pink`. Exact values and contrast ratios: `:root` /
-    `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
+  - Color (owner, 2026-11-20; yellow and emerald 2026-11-21): **black and white, yellow for small details only.** Text, surfaces, primary
+    buttons (`--primary` = `--ink`, hover `--primary-hover`), links (`--link` = ink, always underlined) and the focus ring (`--ring` = ink)
+    are neutral: `--ink` #0a0a0a, `--foreground` #171717, `--muted-foreground` #595959 in light; #fff, #ededed, #a3a3a3 in dark.
+    **Yellow `--yellow` #f5c542** (same in both themes; 1.6:1 on white, so decorative only, never text) is the only colour, and only on
+    small details: rating stars, `--brand` (marks and dots, reading bar, map flashlight, chip hover) and selection (black text on it).
+    Never on links, buttons, text or large fills (MorphShape tones are neutral `--shape-grey/mist`). **WhatsApp emerald `--whatsapp`
+    #079669** with a white label (owner 2026-11-20; 3.8:1, below AA for body text) stays on WhatsApp CTAs, hover is lighter (#0aa876).
+    The hero's arrow chip on that CTA is white with an emerald arrow. There is no `--rule` token: every separator is a neutral `--border` hairline, and fewer lines is the default. There is no
+    glow: no gradient/grain layer, no pointer spotlight (tokens `--glow-*`, `--dusk-*`, `--grain*` are gone). Utility: `text-yellow`.
+    Exact values and contrast ratios: `:root` / `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
   - Home hero (owner pick 2026-11-20, lab variant C2 "magazine cover"): on the white page, the name as a giant masthead (a `<p>`; the H1
     stays the outcome headline), then three columns on the 12-column grid (4/4/3): headline, subline and the two doors (WhatsApp, CV)
     stacked; the portrait clipped to the M3 `ghost-ish` shape (static polygon from `m3-shapes.ts`, a hashed inline `<style>` in
@@ -195,8 +196,8 @@ Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw 
   base 16 -> 18px, tracking and line height come with each size. Headings are `text-ink`, semibold, balanced.
 - **Color:** tokens only. `text-ink` (headings, strong), `text-foreground` (body), `text-muted-foreground` (secondary),
   `border-border` for every separator (hairlines only; no coloured rules, use space before adding a line). Buttons, links and focus
-  are ink; `--pink` only for small details (stars, `--brand` marks, selection). WhatsApp green only through `variant="whatsapp"`
-  (`<WhatsAppButton>`); the glow only through `<DuskGlow />` in a `relative isolate` box (404, /about portrait), never behind text.
+  are ink; `--yellow` only for small details (stars, `--brand` marks, selection). WhatsApp emerald only through `variant="whatsapp"`
+  (`<WhatsAppButton>`). No glow layers.
 - **Buttons/links:** `<Button>` from `src/components/site` (renders `<a>` with `href`), sizes sm 40 / default 44 /
   lg 52px. Inline links use the `link` utility (always underlined). Focus is the global `:focus-visible` outline.
   Interaction is morph and turn, never lift or shadow: hover/focus morph the pill (radius = half the height, set per size
@@ -505,6 +506,12 @@ verification): **`docs/launch-checklist.md`**. Summary:
   C1/C2 poster) at `/lab/hero`: owner picked **C2 "magazine cover"** and the M3 `ghost-ish` shape for the portrait; the lab, `HeroShapeStyle`,
   `TrustStrip`, the `--field-*` tokens and the hero morph/halo are deleted. Subline is now the lab's tighter copy ("I build MVPs, new features
   and marketing sites, from Tunis.", still `[Draft]`).
+
+- 2026-11-21 design tokens review (owner: design is settled): pink replaced by yellow `#f5c542` everywhere it was used (stars, brand
+  marks, reading bar, map flashlight, selection, OG chip border); WhatsApp green `#25d366` -> emerald `#079669` (black label kept: 5.6:1,
+  white fails AA at 3.8:1); every glow removed: `DuskGlow`, `.dusk`, `.glow-tint`, the pointer spotlight and parallax, the OG card glow,
+  and the `--glow-*`, `--dusk-*`, `--grain*`, `--glow-rgb/alpha` tokens. `[data-glow]` became `[data-pointer]` (map stage only). The 404
+  keeps the numeral alone. Older entries that mention pink, Dusk or the glow are history.
 
 ## Do not
 

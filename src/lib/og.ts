@@ -11,8 +11,6 @@ export interface OgCard {
   title: string;
   domain: string;
   name: string;
-  /** One soft pink glow in the top-right corner, never behind text. */
-  glow?: boolean;
 }
 
 const W = 1200;
@@ -87,17 +85,6 @@ export async function renderOg(card: OgCard): Promise<Uint8Array> {
       fontFamily: 'Geist',
     },
     [
-      card.glow
-        ? el('div', {
-            position: 'absolute',
-            top: -260,
-            right: -220,
-            width: 760,
-            height: 760,
-            background:
-              'radial-gradient(circle at 50% 50%, rgba(251,110,131,0.30) 0%, rgba(255,199,207,0.22) 34%, rgba(212,212,212,0.16) 58%, rgba(255,255,255,0) 72%)',
-          })
-        : null,
       el(
         'div',
         {
@@ -117,7 +104,7 @@ export async function renderOg(card: OgCard): Promise<Uint8Array> {
               alignItems: 'center',
               height: 40,
               padding: '0 16px',
-              border: '1.5px solid #bf0944',
+              border: '1.5px solid #f5c542',
               borderRadius: 20,
               fontFamily: 'Geist Mono',
               fontWeight: 500,

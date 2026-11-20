@@ -1,6 +1,6 @@
-// Pointer position for glow effects. Fine pointers only, and only after the first pointermove, so touch and
-// keyboard users run nothing. Writes --mx/--my (px inside the element) and --nx/--ny (-1..1) on the nearest
-// [data-glow] ancestor of the pointer; CSS does the drawing. rAF-throttled, cleared when the pointer leaves.
+// Pointer position for the map flashlight. Fine pointers only, and only after the first pointermove, so touch and
+// keyboard users run nothing. Writes --mx/--my (px inside the element) on the nearest
+// [data-pointer] ancestor of the pointer; CSS does the drawing. rAF-throttled, cleared when the pointer leaves.
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   addEventListener('pointermove', start, { once: true, passive: true });
 }
@@ -13,13 +13,13 @@ function start(first: PointerEvent) {
   let target: EventTarget | null = null;
 
   const clear = (el: HTMLElement | null) => {
-    for (const p of ['--mx', '--my', '--nx', '--ny'])
+    for (const p of ['--mx', '--my'])
       el?.style.removeProperty(p);
   };
   const paint = () => {
     frame = 0;
     const el =
-      (target as Element | null)?.closest?.<HTMLElement>('[data-glow]') ?? null;
+      (target as Element | null)?.closest?.<HTMLElement>('[data-pointer]') ?? null;
     if (el !== host) {
       clear(host);
       host = el;
@@ -30,8 +30,6 @@ function start(first: PointerEvent) {
     const py = y - r.top;
     el.style.setProperty('--mx', `${px.toFixed(1)}px`);
     el.style.setProperty('--my', `${py.toFixed(1)}px`);
-    el.style.setProperty('--nx', ((px / r.width) * 2 - 1).toFixed(3));
-    el.style.setProperty('--ny', ((py / r.height) * 2 - 1).toFixed(3));
   };
   const move = (e: PointerEvent) => {
     if (e.pointerType === 'touch') return;

@@ -11,8 +11,6 @@ export interface OgEntry {
   /** Mono chip, top-left. */
   chip: string;
   title: string;
-  /** Soft pink glow, top-right (default card only). */
-  glow?: boolean;
 }
 
 export async function getOgEntries(): Promise<OgEntry[]> {
@@ -32,7 +30,6 @@ export async function getOgEntries(): Promise<OgEntry[]> {
       key: 'default',
       chip: settings.brand,
       title: t('og.default.title'),
-      glow: true,
     },
     page('about', t('about.title')),
     page('cv', t('cv.title')),

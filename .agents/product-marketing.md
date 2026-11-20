@@ -157,7 +157,7 @@ _Decisions and tested lessons. Newest first. Keep it to about 20 active entries.
 
 | Date       | Learning                                                                      | Evidence      | Applies to       | Status |
 | ---------- | ----------------------------------------------------------------------------- | ------------- | ---------------- | ------ |
-| 2026-11-16 | WhatsApp CTAs use WhatsApp green (#25D366, black label): instant recognition of the primary action; the only flat color on the site | User decision (shell previews) | CTAs, design | active |
+| 2026-11-16 | WhatsApp CTAs use WhatsApp emerald (#079669 since 2026-11-21, was #25D366; black label): instant recognition of the primary action; the only flat color on the site | User decision (shell previews) | CTAs, design | active |
 | 2026-11-16 | Visual identity: Swiss editorial, black and white, generous whitespace; color only as grainy gradients (plus WhatsApp green on WhatsApp CTAs); silver accent dropped; hero shows a real face | User decision (design lab) | design, OG images | active |
 | 2026-11-16 | Research is shared as project pages (/work, type research), not as a blog pillar or client message | User decision | copy, blog, CV | active |
 | 2026-11-16 | Testimonials stay verbatim; professionalism comes from labels, badges and placement, never rewording | Trust: quotes link to Upwork | copy | active |

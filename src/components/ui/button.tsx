@@ -22,7 +22,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
-        // WhatsApp CTAs only: brand green with a black label (10.6:1).
+        // WhatsApp CTAs only: emerald with a white label.
         whatsapp:
           'bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp-hover',
         outline: 'border-ink bg-transparent text-ink hover:bg-muted',

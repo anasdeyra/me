@@ -30,7 +30,6 @@ const stack = project.stack.slice(0, 4);
 ---
 
 <article
-  data-glow
   class={cn(
     'group relative flex flex-col gap-4 rounded-lg has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
     className,
@@ -40,7 +39,7 @@ const stack = project.stack.slice(0, 4);
     project={project}
     size="card"
     loading={priority ? 'eager' : 'lazy'}
-    class="glow-tint isolate transition-[border-radius] duration-(--dur-spring-bouncy) ease-(--ease-spring-bouncy) motion-safe:group-hover:rounded-xl motion-safe:group-has-[a:focus-visible]:rounded-xl"
+    class="transition-[border-radius] duration-(--dur-spring-bouncy) ease-(--ease-spring-bouncy) motion-safe:group-hover:rounded-xl motion-safe:group-has-[a:focus-visible]:rounded-xl"
   />
   <div class="flex flex-wrap items-center gap-2">
     <TypeChip type={project.type} />
