@@ -1,87 +1,64 @@
 ---
-// Home section 1 (owner review 2026-11-17, soft & round): one centred stack on a rounded panel that follows the
-// theme, like every other section. Order: the morphing portrait, the name, the outcome headline (H1), the subline,
-// the Upwork proof line (TrustStrip: stars that fill once on load, then a chip of claims that rolls twice and rests),
-// then the two doors (WhatsApp for clients, CV for recruiters), each with one line of reassurance under it.
+// Home section 1 (owner pick 2026-11-20, hero lab C2 "magazine cover"): the name runs across the top as the masthead at
+// the largest display size; under it three columns on the 12-column grid: the outcome headline, sentence and the two
+// doors (WhatsApp for clients, CV for recruiters) on 4, the portrait on 4, the Upwork record as cover lines on 3 (ink
+// figures, pink stars). Under 64rem: masthead, portrait, text, cover lines. No motion, no JS.
 //
-// Name vs H1: the name is a real <p> (read by screen readers, found by search, translate="no"), not the H1. The H1
-// stays the outcome headline ("what I do for whom"), which carries the conversion message and the SEO text; the
-// name also lives in <title>, the header wordmark, the portrait alt and the Person schema.
+// Name vs H1: the name is a real <p> (translate="no"), not the H1. The H1 stays the outcome headline ("what I do for
+// whom"), which carries the conversion message and the SEO text.
 //
-// The portrait is the eager, high-priority LCP image in a fixed square box (no layout shift). Its M3 shape morph is
-// CSS only (HeroShapeStyle, rendered in the page head): the clip-path never delays the image. A Dusk halo and a
-// scroll-linked MorphShape sit behind it, never behind text. No `.reveal` and no JS here.
+// The portrait is clipped to the Material 3 "ghost-ish" shape (static polygon from src/lib/m3-shapes.ts, generated at
+// build time like the other shapes; the clip is the shape, so the box stays square and nothing shifts). It is the
+// eager, high-priority LCP image.
+import { createHash } from 'node:crypto';
 import { Image } from 'astro:assets';
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
 import Button from '@/components/site/Button.astro';
-import DuskGlow from '@/components/site/DuskGlow.astro';
-import MorphShape from '@/components/site/MorphShape.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
-import TrustStrip from '@/components/home/TrustStrip.astro';
 import { t } from '@/i18n';
 import { whatsappPrefill } from '@/lib/contact';
-import { contentImage, getHome, getProfile, getSettings } from '@/lib/content';
+import {
+  contentImage,
+  getClients,
+  getHome,
+  getProfile,
+  getSettings,
+} from '@/lib/content';
+import { shapePolygon } from '@/lib/m3-shapes';
 import { isLive } from '@/lib/routes';
+import { upworkBadgeLabel } from '@/lib/upwork';
 
-const [home, profile, settings] = await Promise.all([
+const [home, profile, settings, clients] = await Promise.all([
   getHome(),
   getProfile(),
   getSettings(),
+  getClients(),
 ]);
 const photo = contentImage('en/profile', profile.photo);
 const showCv = await isLive('cv');
-const { career } = settings;
-const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
-  career.workModes.map((m) => t(`workMode.${m}` as const)),
+const { upwork } = settings;
+const stars = Math.max(0, Math.min(5, Math.round(upwork.rating)));
+// Five-point star path (24 x 24), shared with the other star renderings.
+const star =
+  'm12 2.5 2.94 6.2 6.56.8-4.84 4.55 1.28 6.7L12 17.5l-5.94 3.25 1.28-6.7L2.5 9.5l6.56-.8z';
+// Generated CSS goes in an inline <style> hashed for the CSP (no `style=""`).
+const clipCss = `.hero-photo{clip-path:${shapePolygon('bun')}}`;
+Astro.csp?.insertStyleHash(
+  `sha256-${createHash('sha256').update(clipCss).digest('base64')}`,
 );
 ---
 
-<section class="hero wrap pt-3 md:pt-4">
-  <div class="hero-panel relative isolate flex flex-col items-center overflow-clip bg-muted text-center">
-    {photo && (
-      <div class="hero-portrait relative isolate" data-glow>
-        <DuskGlow class="hero-halo" />
-        <MorphShape
-          uid="hero"
-          shapes={['12-sided-cookie', 'soft-burst', 'flower']}
-          timeline="root"
-          range={['0', '80vh']}
-          turn={120}
-          class="hero-ring"
-        />
-        <div class="hero-shape">
-          <Image
-            src={photo}
-            alt={profile.photoAlt}
-            width={500}
-            height={625}
-            widths={[200, 250, 400, 500]}
-            sizes="(min-width: 1080px) 250px, 200px"
-            loading="eager"
-            fetchpriority="high"
-            class="hero-photo"
-          />
-        </div>
-      </div>
-    )}
+<section class="hero wrap" aria-labelledby="hero-head">
+  <p class="hero-mast text-7xl" translate="no">
+    {settings.name}
+  </p>
 
-    <div class="mt-7 flex flex-wrap items-baseline justify-center gap-x-2.5 gap-y-1 md:mt-9">
-      <p class="text-lg font-semibold text-ink" translate="no">
-        {settings.name}
-      </p>
-      <p class="hero-title text-lg text-muted-foreground">{profile.title}</p>
-    </div>
-
-    <h1 class="mt-4 max-w-[18ch] text-4xl md:mt-5">{home.hero.headline}</h1>
-    <p class="mt-5 max-w-[54ch] text-base md:mt-6 md:text-lg">
-      {home.hero.subline}
-    </p>
-
-    <div class="mt-7 md:mt-8">
-      <TrustStrip />
-    </div>
-
-    <ul class="hero-doors mt-8 md:mt-10" role="list">
+  <div class="hero-copy">
+    <h1 id="hero-head" class="hero-head text-3xl">
+      {home.hero.headline}
+    </h1>
+    <p class="hero-line text-lg">{home.hero.subline}</p>
+    <ul class="hero-doors" role="list">
       <li>
         <WhatsAppButton
           size="lg"
@@ -89,7 +66,6 @@ const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
           class="hero-door ps-6 pe-2"
           text={whatsappPrefill('home_hero')}
           trackLocation="hero"
-          describedBy="hero-client-hint"
         >
           <span
             slot="end"
@@ -99,9 +75,6 @@ const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
             <ArrowIcon class="size-4" />
           </span>
         </WhatsAppButton>
-        <p id="hero-client-hint" class="hero-hint">
-          {t('home.hero.clientHint')}
-        </p>
       </li>
       {showCv && (
         <li>
@@ -112,122 +85,204 @@ const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
             class="hero-door ps-6 pe-2"
             data-track="cv_view"
             data-track-source="hero"
-            aria-describedby={career.openToRoles ? 'hero-cv-hint' : undefined}
           >
             {t('cta.viewCv')}
             <span class="go-chip bg-ink text-background" aria-hidden="true">
               <ArrowIcon class="size-4" />
             </span>
           </Button>
-          {career.openToRoles && (
-            <p id="hero-cv-hint" class="hero-hint">
-              {t('home.hero.cvHint', { modes })}
-            </p>
-          )}
         </li>
       )}
     </ul>
   </div>
+
+  {photo && <style is:inline set:html={clipCss} />}
+  {photo && (
+    <div class="hero-photo">
+      <Image
+        src={photo}
+        alt={profile.photoAlt}
+        widths={[320, 480, 640, 700]}
+        sizes="(min-width: 64rem) 28rem, 100vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+  )}
+
+  <div class="hero-proof">
+    <dl class="hero-lines">
+      <div>
+        <dt>{t('hero.record.jss')}</dt>
+        <dd>{upwork.jobSuccess}%</dd>
+      </div>
+      <div>
+        <dt>{t('hero.record.reviews', { count: upwork.reviews })}</dt>
+        <dd>
+          {upwork.rating.toFixed(1)}
+          <span class="hero-stars" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d={star} class:list={[i >= stars && 'off']} />
+              </svg>
+            ))}
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt>{t('hero.record.platfrom')}</dt>
+        <dd>{upworkBadgeLabel(upwork.badge)}</dd>
+      </div>
+      {clients.length > 0 && (
+        <div>
+          <dt>{t('hero.record.countries')}</dt>
+          <dd>{clients.length}</dd>
+        </div>
+      )}
+    </dl>
+    <a class="link text-sm" href={settings.links.upwork}>
+      {t('trust.verify')}
+    </a>
+  </div>
 </section>
 
 <style>
-  /* Panel: the site's soft radius scale (3xl on phones, 4xl from md), --muted surface in both themes. */
-  .hero-panel {
-    border-radius: var(--radius-3xl);
-    padding: clamp(2.25rem, 1.5rem + 3vw, 4rem) var(--spacing-gutter)
-      clamp(2.5rem, 1.75rem + 3vw, 4rem);
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem)
+      clamp(2.5rem, 1.5rem + 3vw, 4rem);
   }
-  @media (width >= 48rem) {
-    .hero-panel {
-      border-radius: var(--radius-4xl);
-    }
+  .hero-mast {
+    order: -2;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    font-weight: 600;
+    color: var(--ink);
+    text-wrap: balance;
   }
-
-  /* Portrait: a fixed square, so the morph and the turn never move anything around it. */
-  .hero-portrait {
-    --size: clamp(10rem, 7rem + 9vw, 14rem);
-    inline-size: var(--size);
-    block-size: var(--size);
+  .hero-head {
+    max-inline-size: 16ch;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
   }
-  .hero-halo {
-    --dusk-inset: -32%;
-    --dusk-opacity: 0.9;
-  }
-  /* A Material 3 shape behind the portrait (MorphShape; replaces the tick ring): twists, morphs and shifts tone as the
-     page scrolls away from the top. */
-  .hero-ring {
-    inset: -14%;
-  }
-  .hero-shape {
-    position: absolute;
-    inset: 0;
-    overflow: clip;
-    background: var(--border);
-  }
-  /* Overscan (position and size) comes from HeroShapeStyle: the photo stays larger than the frame so it covers it while turning. */
-  .hero-shape :global(.hero-photo) {
-    position: absolute;
-    max-inline-size: none;
-    object-fit: cover;
-    object-position: 50% 30%;
+  .hero-line {
+    margin-block-start: 1.25rem;
+    max-inline-size: 32ch;
   }
 
-  /* The title follows the name after a small dot (decorative). */
-  .hero-title::before {
-    content: '';
-    display: inline-block;
-    inline-size: 0.3em;
-    block-size: 0.3em;
-    margin-inline-end: 0.625rem;
-    vertical-align: 0.2em;
-    border-radius: 50%;
-    background: var(--brand);
-  }
-
-  /* Doors: side by side and centred from sm, stacked full width (to a comfortable cap) on phones. */
+  /* Doors: stacked at every width (a narrow column). */
   .hero-doors {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.25rem 1rem;
-    inline-size: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    margin-block-start: 2rem;
     padding: 0;
     list-style: none;
   }
   .hero-doors > li {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.625rem;
     inline-size: min(100%, 22rem);
-  }
-  @media (width >= 40rem) {
-    .hero-doors > li {
-      inline-size: auto;
-    }
   }
   .hero-doors :global(.hero-door) {
     inline-size: 100%;
     justify-content: space-between;
   }
-  @media (width >= 40rem) {
-    .hero-doors :global(.hero-door) {
-      inline-size: auto;
-    }
+
+  /* Portrait: a square box; the M3 ghost-ish clip-path comes from the generated inline style above. */
+  .hero-photo {
+    order: -1;
+    aspect-ratio: 1;
+    max-inline-size: 28rem;
+    background: var(--muted);
   }
-  .hero-hint {
+  .hero-photo :global(img) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: 50% 25%;
+  }
+
+  .hero-proof {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 1.5rem;
+  }
+  .hero-lines {
+    display: grid;
+    gap: 1.5rem;
+    margin: 0;
+  }
+  .hero-lines > div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.125rem;
+  }
+  .hero-lines dd {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    letter-spacing: var(--text-2xl--letter-spacing);
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hero-lines dt {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     color: var(--muted-foreground);
   }
+  .hero-stars {
+    display: inline-flex;
+    gap: 0.125em;
+    font-size: 1rem;
+    color: var(--pink);
+  }
+  .hero-stars svg {
+    inline-size: 1em;
+    block-size: 1em;
+    overflow: visible;
+  }
+  .hero-stars path {
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .hero-stars .off {
+    fill: none;
+  }
+
+  @media (width >= 64rem) {
+    .hero {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 3fr);
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(2rem, 0.5rem + 3vw, 4rem);
+      row-gap: 2rem;
+    }
+    .hero-mast {
+      grid-column: 1 / -1;
+      order: 0;
+      line-height: 0.85;
+    }
+    .hero-copy,
+    .hero-proof {
+      align-self: end;
+    }
+    .hero-photo {
+      order: 0;
+      max-inline-size: none;
+      inline-size: 100%;
+    }
+  }
 
   @media print {
-    .hero-panel {
-      background: none;
-      padding-block: 0 2rem;
-    }
-    .hero-doors,
-    .hero-halo {
+    .hero-doors {
       display: none;
     }
   }

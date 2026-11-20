@@ -1,9 +1,10 @@
 /*
- * Design system: Swiss editorial in black and white with Dusk accents (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions).
+ * Design system: Swiss editorial in black and white with pink details (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions).
  * Tokens are CSS variables mapped to shadcn's names, so shadcn components restyle themselves.
- * Text, surfaces, hairlines and primary buttons are neutral. Colour is accent only: five harmonic hues sampled along the
- * Dusk gradient (amber -> ember -> pink -> magenta -> violet), one per interaction role, each with a text-safe sibling per
- * theme. Other colours: WhatsApp green (WhatsApp CTAs only) and the Dusk grainy gradient (decorative).
+ * Text, surfaces, hairlines, primary buttons, links and the focus ring are black and white (owner, 2026-11-20). The one
+ * colour is pink #bf0944, for small details only: rating stars, brand marks and dots, the reading bar, the map flashlight,
+ * text selection, the pointer spotlight and the decorative glow; never links, buttons, text or large fills. It has a
+ * text-safe sibling for dark. The only other colour is WhatsApp green (WhatsApp CTAs only).
  * Fonts come from the Astro Fonts API (astro.config.mjs) as --font-geist / --font-geist-mono.
  */
 @import 'tailwindcss';
@@ -22,6 +23,7 @@
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
   --color-link: var(--link);
+  --color-pink: var(--pink);
   --color-display: var(--display);
   --color-link-hover: var(--link-hover);
   --color-primary-hover: var(--primary-hover);
@@ -114,7 +116,7 @@
   --radius: var(--radius-md); /* shadcn's base radius */
   --radius-pill: 9999px; /* buttons, chips */
 
-  /* Neutrals: black and white (owner review 2026-11-17, back from the blue palette). Contrast on white per token. */
+  /* Neutrals: black and white (owner review 2026-11-17; again 2026-11-20 after a one-day blue accent). Contrast on white. */
   --background: #ffffff;
   --foreground: #171717; /* body text, nav: 17.9:1 */
   --ink: #0a0a0a; /* headings, wordmark, strong text: 19.8:1 */
@@ -123,20 +125,13 @@
   --muted-foreground: #595959; /* secondary text, 7.0:1 (6.3 on --muted) */
   --border: #e5e5e5; /* hairlines */
   --input: #8a8a8a; /* form control borders, 3.4:1 */
-  --primary: #0a0a0a; /* primary buttons, selected chips, current-page dots: white label 19.8:1 */
-  --primary-hover: #333333; /* white label 12.6:1 */
-  --primary-foreground: #ffffff;
   --destructive: #c4001a; /* errors only (forms); 6.0:1 on white */
 
-  /*
-   * Accent hues: five steps along the Dusk gradient (OKLCH hue 74 -> 41 -> 8 -> 335 -> 289), deepened for white.
-   * Every one is text-safe (>= 4.5:1 on white); one hue per role (aliases below), never body text.
-   */
-  --hue-amber: #966303; /* 5.1:1; no role since rules went neutral, kept as the palette's first step */
-  --hue-ember: #c34601; /* 5.0:1 */
-  --hue-pink: #cb1459; /* 5.6:1 */
-  --hue-magenta: #b31e9f; /* 5.8:1 */
-  --hue-violet: #6b25ea; /* 6.8:1 */
+  --primary-hover: #333333; /* on --primary (= --ink, see Roles): white label 12.6:1 */
+  --primary-foreground: #ffffff; /* 19.8:1 */
+
+  /* Pink #bf0944 (OKLCH 0.52 0.20 14), small details only (see the header): 6.3:1 on white, 5.6:1 on --muted. */
+  --pink: #bf0944;
 
   /* WhatsApp CTAs: the brand green with a black label (10.6:1); white on this green fails AA. */
   --whatsapp: #25d366;
@@ -144,24 +139,23 @@
   --whatsapp-foreground: #000000;
 
   /*
-   * Dusk grainy gradient (decorative only, see .dusk). Grain: SVG feTurbulence as a data: URI
-   * (CSP img-src allows data:), contrast-boosted and blended with overlay. The bright stops are also the
-   * dark-theme accents where they pass (amber 11.7:1, pink 6.7:1 on black).
+   * Glow: the grainy gradient behind the 404 numeral and the /about portrait (decorative only, see .dusk; class name kept
+   * from the retired Dusk palette). Pink-weighted, a paler pink second, a neutral grey edge. Grain: SVG feTurbulence as a
+   * data: URI (CSP img-src allows data:), contrast-boosted and blended with overlay.
    */
-  --dusk-amber: #ffb238;
-  --dusk-pink: #ff4f81;
-  --dusk-violet: #7a3cff;
-  /* Amber-weighted, pink second, violet a small cool edge (back now that no blue sits beside it). */
+  --glow-pink: #fb6e83;
+  --glow-pale: #ffc7cf;
+  --glow-grey: #d4d4d4;
   --dusk-gradient:
-    radial-gradient(closest-side at 36% 64%, var(--dusk-amber), transparent),
+    radial-gradient(closest-side at 36% 64%, var(--glow-pink), transparent),
     radial-gradient(
       closest-side at 64% 42%,
-      color-mix(in srgb, var(--dusk-pink) 60%, transparent),
+      color-mix(in srgb, var(--glow-pale) 70%, transparent),
       transparent
     ),
     radial-gradient(
       closest-side at 54% 20%,
-      color-mix(in srgb, var(--dusk-violet) 35%, transparent),
+      color-mix(in srgb, var(--glow-grey) 60%, transparent),
       transparent
     );
   --dusk-opacity: 1;
@@ -404,19 +398,16 @@
   );
 
   /*
-   * Shape tones (MorphShape, owner review 2026-11-18): M3-style container tones of three accent hues, OKLCH L 0.91 /
-   * C 0.06 at hues 289 (violet, the link hue), 8 (pink, the brand hue) and 74 (amber, a warm tertiary). Decorative
-   * fills only, never text. Text on any of them keeps its contrast: ink 14.6:1 or more, muted-foreground 5.1:1 or more.
-   * Warm tertiary (amber) is an owner decision: it sits outside the "Dusk only on the 404, /about and map" rule.
+   * Shape tones (MorphShape): neutral greys (large fills are never pink). Decorative fills only, never text. Text on
+   * either keeps its contrast: ink 15.7:1 or more, muted-foreground 5.6:1 or more.
    */
-  --shape-violet: #dfdcff;
-  --shape-pink: #ffd2da;
-  --shape-amber: #fadcb6;
+  --shape-grey: #e5e5e5;
+  --shape-mist: #f2f2f2;
 
-  /* Highlighter: Dusk amber under black text in both themes (11.7:1). */
-  --selection: var(--dusk-amber);
-  --selection-foreground: #000000;
-  --glow-rgb: 255 79 129; /* Dusk pink: pointer spotlight */
+  /* Highlighter: the pink highlight under white text (6.3:1). */
+  --selection: var(--pink);
+  --selection-foreground: #ffffff;
+  --glow-rgb: 191 9 68; /* the pink: pointer spotlight */
   --glow-alpha: 0.1;
 }
 
@@ -430,35 +421,28 @@
   --muted-foreground: #a3a3a3; /* 8.3:1 */
   --border: #262626; /* hairlines */
   --input: #757575; /* form control borders, 4.6:1 */
-  --primary: #ffffff; /* black label 21:1 */
   --primary-hover: #d4d4d4; /* black label 14.2:1 */
-  --primary-foreground: #000000;
   --destructive: #ff6b6b;
 
-  /* The same five hues, lifted for black (Dusk amber and pink pass as they are). */
-  --hue-amber: var(--dusk-amber); /* 11.7:1 */
-  --hue-ember: #ff7842; /* 8.0:1 */
-  --hue-pink: var(--dusk-pink); /* 6.7:1 */
-  --hue-magenta: #fe6de4; /* 8.5:1 */
-  --hue-violet: #a797fe; /* 8.5:1 */
+  --primary-foreground: #000000; /* on --primary (white): 21:1 */
 
-  /* Shape tones, deep containers for black (OKLCH C 0.12, L 0.40; amber L 0.44, darker it turns to mud). White text
-     on them 7.9:1 or more; muted-foreground drops to ~3.1:1, so keep secondary text off them. */
-  --shape-violet: #483983;
-  --shape-pink: #7a243b;
-  --shape-amber: #784500;
+  /* Pink lifted for black (#bf0944 is only 3.3:1 there): same hue, OKLCH L 0.71, 7.7:1 on black. */
+  --pink: #fb6e83;
 
+  /* Shape tones, neutral greys for black. White text on them 16.5:1 or more; muted-foreground 6.5:1 or more. */
+  --shape-grey: #1f1f1f;
+  --shape-mist: #141414;
+
+  --selection-foreground: #000000; /* on the lifted pink, 7.7:1 */
+  --glow-rgb: 251 110 131;
   --glow-alpha: 0.18;
 }
 
 /*
  * Roles. Declared on `.dark` as well as `:root` so a `.dark` island inside a light page (the home hero) resolves
- * them against its own hues and neutrals instead of inheriting the light values computed on <html>.
- * One hue per role, so neighbouring signals never share a colour:
- *   links violet (the classic link cue, coolest step, furthest from body text) -> hover warms one step to magenta;
- *   focus ring ember (hottest step, unmistakable, and never the colour of the link it surrounds);
- *   brand marks pink (the centre of Dusk). No coloured rules: separators are neutral hairlines (--border);
- *   map arcs violet (home) -> pink (client), sparks amber: the whole Dusk path across one arc.
+ * them against its own accent and neutrals instead of inheriting the light values computed on <html>.
+ * Buttons, links and the focus ring are ink (links always underlined; the ring sits offset from what it surrounds);
+ * brand marks are the pink detail colour. No coloured rules: separators are neutral hairlines (--border).
  */
 :root,
 .dark {
@@ -471,20 +455,11 @@
   --accent: var(--muted);
   --accent-foreground: var(--ink);
 
-  --link: var(--hue-violet); /* inline links, glyph accents */
-  --link-hover: var(--hue-magenta);
-  --ring: var(--hue-ember); /* focus outline */
-  --brand: var(
-    --hue-pink
-  ); /* eyebrow squares, map home base and markers, progress bar, chip hover */
-  --brand-hot: var(
-    --hue-magenta
-  ); /* hot end: progress bar, map ripples and flashlight */
-  --map-from: var(--hue-violet); /* arcs: violet at the home city ... */
-  --map-to: var(--hue-pink); /* ... pink at the client */
-  --spark: var(
-    --dusk-amber
-  ); /* decorative warm counterpoint (map lights); never text */
+  --primary: var(--ink);
+  --link: var(--ink); /* inline links (underlined; hover thickens the line) */
+  --link-hover: var(--ink);
+  --ring: var(--ink); /* focus outline */
+  --brand: var(--pink); /* small details: brand marks and dots, progress bar, map flashlight, chip hover */
 }
 
 /* Desktop header (nav visible) from lg = 1024px; the mobile menu is used below. */
@@ -753,7 +728,7 @@
     aspect-ratio: 1;
     pointer-events: none;
     contain: strict;
-    background-color: var(--shape-violet);
+    background-color: var(--shape-grey);
   }
   @media (forced-colors: active), print {
     .morph-shape {

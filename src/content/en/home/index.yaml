@@ -1,8 +1,6 @@
 hero:
   headline: '[Draft] Polished software for startup founders'
-  subline: >-
-    [Draft] Full-stack engineer in Tunis. I design and build MVPs, new features
-    and marketing sites that load fast, work for everyone and stay secure.
+  subline: '[Draft] I build MVPs, new features and marketing sites, from Tunis.'
 services:
   - title: MVP build
     forWho: '[TBD] Who it is for'

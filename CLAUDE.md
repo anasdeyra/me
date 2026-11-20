@@ -11,5 +11,7 @@ Project skills live in `.claude/skills/` (pinned in `skills-lock.json`). Use the
 - `schema`: Person / JSON-LD and other structured data.
 - Pre-merge audits: `web-design-guidelines`, `accessibility`, `seo`, `performance`, `core-web-vitals`, `best-practices`, `web-quality-audit`.
 
+- `grill-with-docs` (global skill, `~/.claude/skills/grill-with-docs`): always use it on this project. Run it before any plan, design or non-trivial change, so the plan is checked against the documented decisions in AGENTS.md and `docs/`, and update those docs inline when decisions change.
+
 Workflow: read AGENTS.md, make the smallest change, run `pnpm build` and `pnpm check`, then audit with the relevant skill.
 Do not commit or push unless asked.

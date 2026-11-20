@@ -18,7 +18,7 @@
 // position it) inside a `relative isolate` box that clips overflow, since the turn reaches past the box.
 //
 // Usage:
-//   <MorphShape uid="statement-start" shapes={['sunny', 'flower', '4-sided-cookie']} tones={['violet', 'pink']}
+//   <MorphShape uid="statement-start" shapes={['sunny', 'flower', '4-sided-cookie']} tones={['grey', 'mist']}
 //     turn={120} size="min(70vw, 34rem)" class="statement-shape-start" />
 import type { HTMLAttributes } from 'astro/types';
 import { createHash } from 'node:crypto';
@@ -31,14 +31,14 @@ import {
 import { SPRINGS, springEasing } from '@/lib/spring';
 
 /** Fill tones: the `--shape-*` tokens in global.css (light and dark values). */
-export type ShapeTone = 'violet' | 'pink' | 'amber';
+export type ShapeTone = 'grey' | 'mist';
 
 interface Props extends Omit<HTMLAttributes<'span'>, 'class' | 'style'> {
   /** Unique on the page; names the generated class (`ms-<uid>`) and keyframes. Lowercase letters, digits, dashes. */
   uid: string;
   /** Shapes in scroll order (at least two). The first is also the still shape. */
   shapes: ShapeName[];
-  /** Tone per step, cycled when shorter than `shapes` (one tone = no colour change). Default violet, pink, amber. */
+  /** Tone per step, cycled when shorter than `shapes` (one tone = no colour change). Default grey, mist. */
   tones?: ShapeTone[];
   /** Degrees turned over the whole range, split evenly between the steps; negative turns anticlockwise. Default 90. */
   turn?: number;
@@ -57,7 +57,7 @@ interface Props extends Omit<HTMLAttributes<'span'>, 'class' | 'style'> {
 const {
   uid,
   shapes,
-  tones = ['violet', 'pink', 'amber'],
+  tones = ['grey', 'mist'],
   turn = 90,
   timeline = 'view',
   range = timeline === 'view' ? ['cover 0%', 'cover 100%'] : ['0', '100vh'],

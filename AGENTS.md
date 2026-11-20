@@ -51,7 +51,7 @@ src/
                         ContactForm (3 fields + honeypot, one inline script), CopyEmail, QrCode (build-time SVG), Analytics,
                         Search (trigger + native dialog; lazy Pagefind chunk),
                         MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
-  components/home/      Hero (renders TrustStrip: stars + rolling Upwork claims chip; HeroShapeStyle = the portrait's spring shape morph), Statement, Services, Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
+  components/home/      Hero (C2 magazine cover: name masthead, copy + doors, ghost-ish portrait, Upwork record as cover lines), Statement, Services, Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
                         Faq (native details), SelectedWork, Proof (clients map + reviews, one `#proof` section), LatestWriting
                         (the gated ones go live via the `sections.*` gates)
   components/cv/        CvEntry
@@ -135,7 +135,7 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - `SHOW_DRAFTS=1 pnpm build` includes draft projects in a production build; verification only, never set on Vercel.
   Finish with a plain `pnpm build`.
 - Clients map geometry is build-time only (no map library; motion is CSS, pointer glow via pointer.ts). Regenerate the land mask with `scripts/generate-land-mask.mjs`.
-  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, HeroShapeStyle, MorphShape)
+  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, Hero's portrait clip, MorphShape)
   goes in inline `<style>` hashed with `Astro.csp.insertStyleHash`; `config/security-headers.mjs` also adds inline style hashes to `style-src`.
 - **Motion and interaction (Phase 5b; springs since 2026-11-18).** Tokens in `global.css`, no raw values. M3 Expressive springs (CSS `linear()`
   sampled by `src/lib/spring.ts`; pair each easing with its own duration): `--ease-spring-fast`/`--dur-spring-fast` (buttons, chips, presses),
@@ -153,26 +153,28 @@ Verify with `pnpm build && pnpm check` before finishing any change.
   - Hover rules live inside `@media (hover: hover)` with a `:focus-visible` (or `:has(a:focus-visible)`) equivalent. Motion is
     wrapped in `prefers-reduced-motion: no-preference`; `forced-colors` guards on decorative layers. No magnetic buttons, no counters.
   - WCAG 2.2.2: no `infinite` animations. Loops are bounded and hover-initiated; entries and MorphShape are scroll-linked (user controlled,
-    no pause needed). Two exceptions: the home review loop (`ReviewLoop`, `playback="loop"`) cycles reviews indefinitely, with an Auto-play switch,
-    pause on focus in the country chips (not on hover over the map, owner 2026-11-20), and no rotation under reduced motion; and the hero portrait morph loops
-    (owner override). `playback="scroll"` is user-driven (no pause control needed).
+    no pause needed). One exception: the home review loop (`ReviewLoop`, `playback="loop"`) cycles reviews indefinitely, with an Auto-play switch,
+    pause on focus in the country chips (not on hover over the map, owner 2026-11-20), and no rotation under reduced motion. `playback="scroll"` is user-driven (no pause control needed).
   - Process chat (`ProcessThread`): a sticky chat window over a tall track; each item (step chip, typing dots, message) takes a slice of
     the track's `contain` range (`[--k:n]`/`[--n:n]` literal Tailwind classes, no `style=""`) and grows from `0fr` to `1fr` in a
     bottom-aligned feed, so new messages push older ones up. Zero JS, no timers; messages are always in the DOM (folded rows are clipped,
     never hidden); without view() support, with reduced motion and in print it is a plain transcript. Spacing inside a folding row is
     margin on the content, never padding on the clipped box.
-  - Color: bright blue (`--link`, also `--ring`, `--brand`, `--map-from`) is the interaction colour: links, buttons, focus.
-    There is no `--rule` token: every separator is a neutral `--border` hairline, and fewer lines is the default. Text is deep navy in light (`--ink` #0b2545 headings, `--foreground` #25405e body, `--muted-foreground` #4a6176)
-    and white/neutral in dark (`--ink` #fff, `--foreground` #ededed, `--muted-foreground` #a3a3a3, `--border` #262626, `--muted` #111).
-    `--primary` (buttons) and `--display` (large display type only) are separate tokens. Dusk (amber-weighted, pink) appears only
-    on the 404, the /about portrait and the hero portrait halo, never behind text; the closing CTA is flat. MorphShape tones are
-    `--shape-violet/pink/amber` (pale in light, deep in dark; keep muted text off them in dark, ~3.1:1). Exact values and
-    contrast ratios: `:root` / `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
-  - Home hero: a soft rounded `bg-muted` panel that follows the theme: the morphing portrait (HeroShapeStyle: each shape-to-shape morph and
-    turn rides one spring with overshoot and a small breath; shapes are drawn inset with a negative margin so overshoot is not clipped;
-    photo overscan is computed over the spring's full range), a MorphShape behind it, name and title, the outcome H1, subline,
-    TrustStrip, pill doors (WhatsApp, CV) with hints. Then `Statement` (centred uppercase line, "More about me" pill, two MorphShapes at
-    the edges). No `.reveal` and no JS on the hero. The hero is being redone from scratch (owner review 2026-11-20).
+  - Color (owner, 2026-11-20): **black and white, pink for small details only.** Text, surfaces, primary buttons (`--primary` = `--ink`,
+    hover `--primary-hover`), links (`--link` = ink, always underlined) and the focus ring (`--ring` = ink) are neutral: `--ink` #0a0a0a,
+    `--foreground` #171717, `--muted-foreground` #595959 in light; #fff, #ededed, #a3a3a3 in dark. **Pink `--pink` #bf0944** (dark:
+    #fb6e83, since #bf0944 is 3.3:1 on black) is the only colour, and only on small details: rating stars, `--brand` (marks and dots,
+    reading bar, map flashlight, chip hover), selection, the pointer spotlight and the glow. Never on links, buttons, text or large fills
+    (MorphShape tones are neutral `--shape-grey/mist`). WhatsApp green stays on WhatsApp CTAs. There is no `--rule` token: every
+    separator is a neutral `--border` hairline, and fewer lines is the default. The glow (`.dusk`, `<DuskGlow />`) is pink grain, on the 404 and the /about portrait,
+    never behind text; the closing CTA is flat. Utility: `text-pink`. Exact values and contrast ratios: `:root` /
+    `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
+  - Home hero (owner pick 2026-11-20, lab variant C2 "magazine cover"): on the white page, the name as a giant masthead (a `<p>`; the H1
+    stays the outcome headline), then three columns on the 12-column grid (4/4/3): headline, subline and the two doors (WhatsApp, CV)
+    stacked; the portrait clipped to the M3 `ghost-ish` shape (static polygon from `m3-shapes.ts`, a hashed inline `<style>` in
+    `Hero.astro`, square box, no motion); the Upwork record as cover lines (100% Job Success, 5.0 + pink stars, badge, client countries).
+    Under 64rem it stacks: masthead, portrait, text, record. No `.reveal`, no JS, no animation. Then `Statement` (centred uppercase
+    line, "More about me" pill, two MorphShapes at the edges).
   - Scroll-driven animations: lightningcss drops shorthand `animation-timeline`/`animation-range` in some cascades, so write longhands.
   - Keep any map label above the flashlight layer with a background halo (`paint-order: stroke`), or it is unreadable under the pointer.
   - JS before interaction on `/`: re-measure (last measured ~4 KB gz of the 5 KB budget, which included the now-removed SpecToggle
@@ -192,8 +194,9 @@ Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw 
 - **Type:** `text-xs`..`text-7xl` are the fluid scale (Tailwind's default sizes are removed); xs/sm are UI sizes,
   base 16 -> 18px, tracking and line height come with each size. Headings are `text-ink`, semibold, balanced.
 - **Color:** tokens only. `text-ink` (headings, strong), `text-foreground` (body), `text-muted-foreground` (secondary),
-  `border-border` for every separator (hairlines only; no coloured rules, use space before adding a line). WhatsApp green only through `variant="whatsapp"`
-  (`<WhatsAppButton>`); Dusk only through `<DuskGlow />` in a `relative isolate` box (404, /about portrait), never behind text.
+  `border-border` for every separator (hairlines only; no coloured rules, use space before adding a line). Buttons, links and focus
+  are ink; `--pink` only for small details (stars, `--brand` marks, selection). WhatsApp green only through `variant="whatsapp"`
+  (`<WhatsAppButton>`); the glow only through `<DuskGlow />` in a `relative isolate` box (404, /about portrait), never behind text.
 - **Buttons/links:** `<Button>` from `src/components/site` (renders `<a>` with `href`), sizes sm 40 / default 44 /
   lg 52px. Inline links use the `link` utility (always underlined). Focus is the global `:focus-visible` outline.
   Interaction is morph and turn, never lift or shadow: hover/focus morph the pill (radius = half the height, set per size
@@ -492,6 +495,16 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - 2026-11-20 hero restart (owner review: the live hero is too busy, does not match the site and looks low quality): the round-2
   hero lab is deleted; the hero is redone from scratch with the Hallmark skill. The review loop no longer pauses on hover over the
   map (owner); the Auto-play switch and focus in the country chips still pause it.
+- 2026-11-20 palette (owner: "colours are all over the place, no real accent"). The five Dusk hue roles (violet links, ember focus, pink
+  marks, magenta hover, amber stars) are gone. A blue accent (#225c98 on buttons, links, focus) was tried the same day and reverted by
+  the owner: **black and white, with pink #bf0944 for small details only** (stars, brand marks and dots, reading bar, map flashlight,
+  selection, pointer spotlight, glow; dark #fb6e83). Buttons, links and the focus ring are ink. WhatsApp green kept on WhatsApp CTAs
+  (owner). Dusk retired: `--hue-*`, `--dusk-amber/pink/violet`, `--map-from/to`, `--spark` and `--brand-hot` are gone; the glow and the
+  OG card glow are pink; MorphShape tones are neutral `grey/mist` (large fills are never pink). Every pair checked (>= 4.5 text, >= 3 UI).
+- 2026-11-20 hero lab round 3 (austere, editorial, spec sheet, soft shape) rejected and deleted. Round 4 (A1/A2 dark field, B1/B2 scoreboard,
+  C1/C2 poster) at `/lab/hero`: owner picked **C2 "magazine cover"** and the M3 `ghost-ish` shape for the portrait; the lab, `HeroShapeStyle`,
+  `TrustStrip`, the `--field-*` tokens and the hero morph/halo are deleted. Subline is now the lab's tighter copy ("I build MVPs, new features
+  and marketing sites, from Tunis.", still `[Draft]`).
 
 ## Do not
 

@@ -3,8 +3,8 @@
 // "More about me" pill with a circular arrow, with two Material 3 shapes peeking in at the edges (owner review
 // 2026-11-18, replacing the tick rings). Follows the theme (light by default).
 // The shapes are decorative (MorphShape: aria-hidden, absolute, contained). As the section scrolls through the viewport
-// they morph through three shapes, twist in opposite directions and walk the tones in opposite directions (violet ->
-// pink -> amber and back; neighbouring hues only, so no step fades through grey), only when motion is allowed. They stay mostly off-canvas; on narrow screens their edges can sit under the text, where the container
+// they morph through three shapes, twist in opposite directions and walk the tones in opposite directions (grey ->
+// mist and back; neutral tones only), only when motion is allowed. They stay mostly off-canvas; on narrow screens their edges can sit under the text, where the container
 // tones keep the statement at AAA contrast. The pill is shown only when /about is live (FR-22).
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
 import Button from '@/components/site/Button.astro';
@@ -23,14 +23,14 @@ const aboutLive = await isLive('about');
   <MorphShape
     uid="statement-start"
     shapes={['sunny', 'flower', '4-sided-cookie']}
-    tones={['violet', 'pink', 'amber']}
+    tones={['grey', 'mist']}
     turn={150}
     class="statement-shape statement-shape-s"
   />
   <MorphShape
     uid="statement-end"
     shapes={['clamshell', '6-sided-cookie', 'pill']}
-    tones={['amber', 'pink', 'violet']}
+    tones={['mist', 'grey']}
     turn={-120}
     class="statement-shape statement-shape-e"
   />

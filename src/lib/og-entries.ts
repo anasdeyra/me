@@ -11,7 +11,7 @@ export interface OgEntry {
   /** Mono chip, top-left. */
   chip: string;
   title: string;
-  /** Soft Dusk glow, top-right (default card only). */
+  /** Soft pink glow, top-right (default card only). */
   glow?: boolean;
 }
 

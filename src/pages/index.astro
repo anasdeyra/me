@@ -4,7 +4,6 @@ import AboutTeaser from '@/components/home/AboutTeaser.astro';
 import Faq from '@/components/home/Faq.astro';
 import LatestWriting from '@/components/home/LatestWriting.astro';
 import Hero from '@/components/home/Hero.astro';
-import HeroShapeStyle from '@/components/home/HeroShapeStyle.astro';
 import Process from '@/components/home/Process.astro';
 import ReviewLoopStyle from '@/components/proof/ReviewLoopStyle.astro';
 import Proof from '@/components/home/Proof.astro';
@@ -40,7 +39,6 @@ const reviewPlayback: 'loop' | 'scroll' = 'loop';
   ]}
   footerCta={false}
 >
-  <HeroShapeStyle slot="head" />
   {proofLive && (
     <ReviewLoopStyle slot="head" uid="proof" playback={reviewPlayback} />
   )}

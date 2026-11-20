@@ -86,7 +86,7 @@ const landId = `land-${uid}`;
 </div>
 
 <style>
-  /* Land: blue-tinted slate dots. Decorative; the label and the list are the real content. */
+  /* Land: grey dots (muted foreground). Decorative; the label and the list are the real content. */
   .land {
     stroke: var(--muted-foreground);
     stroke-opacity: 0.4;
@@ -103,10 +103,10 @@ const landId = `land-${uid}`;
     }
   }
 
-  /* Land flashlight: a second dot layer in the hot brand blue, revealed under the pointer (fine pointers only).
+  /* Land flashlight: a second dot layer in the pink brand detail colour, revealed under the pointer (fine pointers only).
      --mx/--my come from src/scripts/pointer.ts on the [data-glow] stage; the layer is invisible until it runs. */
   .land-lit {
-    stroke: var(--brand-hot);
+    stroke: var(--brand);
     stroke-linecap: round;
     fill: none;
   }
