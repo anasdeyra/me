@@ -8,7 +8,7 @@ import { getFeaturedProjects } from '@/lib/projects';
 import { isSectionLive } from '@/lib/routes';
 
 const live = await isSectionLive('selectedWork');
-const projects = live ? await getFeaturedProjects(4) : [];
+const projects = live ? await getFeaturedProjects(3) : [];
 ---
 
 {live && projects.length > 0 && (
@@ -27,7 +27,14 @@ const projects = live ? await getFeaturedProjects(4) : [];
       ]}
     >
       {projects.map((p, i) => (
-        <li class:list={['reveal', i % 2 === 1 && 'sm:[--i:1]']}>
+        <li
+          class:list={[
+            'reveal',
+            i % 2 === 1 && 'sm:[--i:1]',
+            // Third card only from lg (one row of 3); below that, two cards.
+            i === 2 && 'hidden lg:block',
+          ]}
+        >
           <ProjectCard project={p} headingLevel={3} class="h-full" />
         </li>
       ))}
