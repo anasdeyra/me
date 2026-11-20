@@ -18,6 +18,25 @@ const blogGated = isBlogGated();
 const isDev =
   process.argv.includes('dev') || process.env.NODE_ENV === 'development';
 
+/**
+ * Dev-only design labs (one injectRoute per lab page under /lab/*, sources in src/dev). Registered only under
+ * `astro dev`, so the routes are never part of the production build.
+ * @type {import('astro').AstroIntegration}
+ */
+const devLab = {
+  name: 'dev-lab',
+  hooks: {
+    'astro:config:setup': ({ injectRoute }) => {
+      // One route per lab (sources in src/dev/<name>-lab), dev only like the rest.
+      for (const [pattern, file] of [
+        ['/lab/proof', './src/dev/proof-lab/ProofLab.astro'],
+      ]) {
+        injectRoute({ pattern, entrypoint: new URL(file, import.meta.url) });
+      }
+    },
+  },
+};
+
 // Self-hosted fonts from the installed @fontsource-variable packages (pinned by the lockfile, no network
 // at build). Latin subset only: one variable woff2 per family covers every weight.
 /** @param {string} pkg @param {string} file */
@@ -41,7 +60,7 @@ export default defineConfig({
         !(workGated && /\/work\/?$/.test(page)) &&
         !(blogGated && /\/blog\/?$/.test(page)),
     }),
-    ...(isDev ? [markdoc(), keystatic()] : []),
+    ...(isDev ? [markdoc(), keystatic(), devLab] : []),
     // After the adapter has copied the static output; before securityHeaders (which reads the HTML).
     searchIndex(),
     // Last, so it runs after the adapter has written .vercel/output/config.json.

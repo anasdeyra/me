@@ -58,7 +58,7 @@ const settings = await getSettings();
     data-loading={t('search.loading')}
     data-unavailable={t('search.unavailable')}
     data-error={t('search.error')}
-    class="search-dialog mx-auto mt-[8dvh] mb-auto max-h-[84dvh] w-[min(100%-2rem,44rem)] max-w-none overflow-hidden border border-rule bg-background p-0 text-foreground"
+    class="search-dialog mx-auto mt-[8dvh] mb-auto max-h-[84dvh] w-[min(100%-2rem,44rem)] max-w-none overflow-hidden rounded-xl border border-border bg-background p-0 text-foreground"
   >
     <div class="flex max-h-[84dvh] flex-col">
       <div class="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
@@ -87,7 +87,7 @@ const settings = await getSettings();
           spellcheck="false"
           autofocus
           placeholder={t('search.placeholder')}
-          class="h-12 w-full rounded-xs border border-ink bg-background px-3 text-base text-ink placeholder:text-muted-foreground"
+          class="h-12 w-full rounded-sm border border-ink bg-background px-3 text-base text-ink placeholder:text-muted-foreground"
         />
         <p
           role="status"

@@ -30,7 +30,7 @@ const { email, location, class: className } = Astro.props;
   </a>
   <button
     type="button"
-    class="js-only inline-flex h-10 items-center rounded-sm border border-input px-3 text-sm text-ink hover:bg-muted"
+    class="js-only inline-flex h-10 items-center rounded-full border border-input px-4 text-sm text-ink hover:bg-muted"
     data-copy-email={email}
     data-copied={t('contact.email.copied')}
     data-failed={t('contact.email.copyFailed')}

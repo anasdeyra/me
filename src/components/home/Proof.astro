@@ -1,8 +1,11 @@
 ---
-// Home section 4: clients world map and testimonials in one. Each country with a review is a control on the map
-// (radio + :has(), no JS) that shows that review beside it. Reviews not tagged with a client country follow as plain
-// cards, so nothing is lost while the country field is empty. Hidden until there is a client or a review (FR-22).
+// Home section 4: clients world map and testimonials in one. Reviews tagged with a client country pop from that
+// country on the map as chat bubbles, one at a time or two on wide stages (ReviewLoop; its generated CSS is
+// ReviewLoopStyle in the page head, same `uid` and `playback`). `playback`: `loop` plays them on a timed loop,
+// `scroll` pins the map and plays one review per scroll step. Reviews not tagged with a country follow as plain cards, so nothing is lost while the country field is
+// empty. Hidden until there is a client or a review (FR-22).
 import ClientsMap from '@/components/proof/ClientsMap.astro';
+import ReviewLoop from '@/components/proof/ReviewLoop.astro';
 import TestimonialCard from '@/components/proof/TestimonialCard.astro';
 import Section from '@/components/site/Section.astro';
 import SectionHeading from '@/components/site/SectionHeading.astro';
@@ -11,6 +14,12 @@ import { getClients, getSettings } from '@/lib/content';
 import { getProofPlaces } from '@/lib/proof';
 import { isSectionLive } from '@/lib/routes';
 
+interface Props {
+  /** How the map plays the reviews; match the ReviewLoopStyle in the page head. */
+  playback?: 'loop' | 'scroll';
+}
+
+const { playback = 'loop' } = Astro.props;
 const live = await isSectionLive('proof');
 const [clients, proof, settings] = live
   ? await Promise.all([getClients(), getProofPlaces(), getSettings()])
@@ -31,11 +40,11 @@ const hasReviews =
     </SectionHeading>
     {count > 0 && (
       <div class="col-span-12">
-        <ClientsMap
-          variant={proof.places.length > 0 ? 'proof' : 'full'}
-          places={proof.places}
-          defaultIso={proof.defaultIso}
-        />
+        {proof.places.length > 0 ? (
+          <ReviewLoop uid="proof" places={proof.places} playback={playback} />
+        ) : (
+          <ClientsMap variant="bare" uid="proof" />
+        )}
       </div>
     )}
     {proof.unplaced.length > 0 && (

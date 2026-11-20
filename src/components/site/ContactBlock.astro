@@ -30,18 +30,20 @@ const { location, headingId, form = false, class: className } = Astro.props;
 const settings = await getSettings();
 const { city, timezone } = settings.location;
 
-// Row anatomy: hairline-free stack separated by strong rules; the label is the link's name.
+// Row anatomy: an open stack (no outer rules, owner review 2026-11-17); the WhatsApp card and the email row sit on
+// space alone, and a neutral hairline (`divider`) separates the denser rows below. The label is the link's name.
 const row =
-  'group/row relative grid grid-cols-[1fr_auto] items-center gap-x-4 border-t border-rule py-5 no-underline';
+  'group/row relative grid grid-cols-[1fr_auto] items-center gap-x-4 py-5 no-underline';
+const divider = 'border-t border-border';
 const rowLabel = 'text-xl font-semibold text-ink';
 const rowHint = 'mt-1 text-sm text-muted-foreground';
 const rowArrow =
   'size-5 shrink-0 text-ink transition-transform duration-(--dur-2) ease-(--ease-out) motion-reduce:transition-none';
-// Arrow nudges on hover/focus where hover exists; the whole row is the target (>= 44px).
+// The arrow turns on hover/focus (the global [data-arrow] rule); the whole row is the target (>= 44px).
 const rowLink = cn(
   row,
+  divider,
   'min-h-20 text-foreground',
-  '[&:is(:hover,:focus-visible)_svg]:translate-x-0.5 [&:is(:hover,:focus-visible)_svg]:-translate-y-0.5',
   '[&:is(:hover,:focus-visible)_[data-row-label]]:text-link-hover',
 );
 const profiles = [
@@ -70,14 +72,14 @@ const profiles = [
   </div>
 
   <div class="col-span-12 lg:col-span-5 lg:col-start-8">
-    <ul class="border-t border-b border-rule">
-      <li>
+    <ul>
+      <li class="pb-4">
         {/* Primary path: the only green on the page (variant="whatsapp"), same link as WhatsAppButton. */}
         <Button
           href={whatsappHref(settings.whatsappNumber, whatsappPrefill('final'))}
           variant="whatsapp"
           size="lg"
-          class="!h-auto min-h-24 w-full justify-between gap-4 rounded-sm px-5 py-5 text-start whitespace-normal"
+          class="!h-auto min-h-24 w-full justify-between gap-4 rounded-lg px-5 py-5 text-start whitespace-normal motion-safe:hover:rounded-md motion-safe:focus-visible:rounded-md"
           target="_blank"
           rel="noopener noreferrer"
           data-track="contact_whatsapp"
@@ -90,9 +92,7 @@ const profiles = [
                 {t('whatsapp.cta')}
                 <span class="sr-only"> {t('a11y.newTab')}</span>
               </span>
-              <span class="text-sm font-normal">
-                {t('cta.whatsapp.hint')}
-              </span>
+              <span class="text-sm font-normal">{t('cta.whatsapp.hint')}</span>
             </span>
           </span>
           <ArrowIcon class="size-5" />
@@ -108,7 +108,7 @@ const profiles = [
       </li>
 
       {form ? (
-        <li class={cn(row, 'grid-cols-1 gap-y-6 pt-6 pb-8')}>
+        <li class={cn(row, divider, 'grid-cols-1 gap-y-6 pt-6 pb-8')}>
           <div>
             <h3 class={rowLabel}>{t('cta.form.title')}</h3>
             <p class={rowHint}>{t('cta.form.hint')}</p>
@@ -124,7 +124,9 @@ const profiles = [
             data-track-location={location}
           >
             <span>
-              <span class={rowLabel} data-row-label>{t('cta.form.title')}</span>
+              <span class={rowLabel} data-row-label>
+                {t('cta.form.title')}
+              </span>
               <span class={cn(rowHint, 'block')}>{t('cta.form.hint')}</span>
             </span>
             <ArrowIcon class={rowArrow} />

@@ -188,7 +188,7 @@ const tagChips = await tagLinks(project.tagRefs);
               <h2 id="quote-title" class="sr-only">
                 {t('work.clientQuote')}
               </h2>
-              <TestimonialCard testimonial={testimonial} variant="pull" />
+              <TestimonialCard testimonial={testimonial} variant="pull" excerpt />
             </section>
           )}
         </div>
@@ -196,7 +196,7 @@ const tagChips = await tagLinks(project.tagRefs);
     </article>
 
     <section aria-labelledby="cta-title" class="wrap grid-page pt-section">
-      <div class="col-span-12 grid grid-cols-subgrid gap-y-6 border-t border-rule pt-8">
+      <div class="col-span-12 grid grid-cols-subgrid gap-y-6">
         <h2 id="cta-title" class="col-span-12 text-3xl lg:col-span-5">
           {t(research ? 'work.cta.research.title' : 'work.cta.title')}
         </h2>

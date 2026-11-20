@@ -1,8 +1,9 @@
 /*
- * Design system: Swiss editorial in Aegean blue (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions 2026-11-17).
+ * Design system: Swiss editorial in black and white with Dusk accents (docs/ux-study.md 7.1, 7.1b; AGENTS.md decisions).
  * Tokens are CSS variables mapped to shadcn's names, so shadcn components restyle themselves.
- * Blue is the brand colour (ink, text, links, primary). Other colours: WhatsApp green (WhatsApp CTAs only),
- * and the Dusk grainy gradient (decorative).
+ * Text, surfaces, hairlines and primary buttons are neutral. Colour is accent only: five harmonic hues sampled along the
+ * Dusk gradient (amber -> ember -> pink -> magenta -> violet), one per interaction role, each with a text-safe sibling per
+ * theme. Other colours: WhatsApp green (WhatsApp CTAs only) and the Dusk grainy gradient (decorative).
  * Fonts come from the Astro Fonts API (astro.config.mjs) as --font-geist / --font-geist-mono.
  */
 @import 'tailwindcss';
@@ -21,7 +22,6 @@
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
   --color-link: var(--link);
-  --color-rule: var(--rule);
   --color-display: var(--display);
   --color-link-hover: var(--link-hover);
   --color-primary-hover: var(--primary-hover);
@@ -44,16 +44,6 @@
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
   --color-whatsapp-foreground: var(--whatsapp-foreground);
-
-  /* Radius is 2px everywhere; the shadcn steps all resolve to it. */
-  --radius-xs: var(--radius);
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
-  --radius-2xl: var(--radius);
-  --radius-3xl: var(--radius);
-  --radius-4xl: var(--radius);
 }
 
 @theme {
@@ -103,39 +93,50 @@
   --spacing-header: 3.5rem; /* sticky header height; 4rem from lg (below) */
   --container-page: 90rem;
   --container-measure: 68ch;
+
+  /*
+   * Radius: soft and round. xs tiny marks (kbd), sm inputs and small controls, md code blocks and default surfaces,
+   * lg cards and project frames, xl large frames (dialogs, photos), 2xl+ oversized panels. Buttons and chips are
+   * pills (`rounded-full` / var(--radius-pill)). Tailwind's rounded-* utilities read these.
+   */
+  --radius-xs: 0.375rem; /* 6px */
+  --radius-sm: 0.625rem; /* 10px */
+  --radius-md: 0.875rem; /* 14px */
+  --radius-lg: 1.25rem; /* 20px */
+  --radius-xl: 1.75rem; /* 28px */
+  --radius-2xl: 2.25rem; /* 36px */
+  --radius-3xl: 3rem; /* 48px */
+  --radius-4xl: 4rem; /* 64px */
 }
 
 :root {
   color-scheme: light;
-  --radius: 2px;
+  --radius: var(--radius-md); /* shadcn's base radius */
+  --radius-pill: 9999px; /* buttons, chips */
 
-  /* Two blues (owner review 2026-11-17): deep navy for TEXT (ink, foreground), bright Aegean for INTERACTION and
-     accents (links, rules, focus, buttons, active bars). Contrast on white is noted per token. */
+  /* Neutrals: black and white (owner review 2026-11-17, back from the blue palette). Contrast on white per token. */
   --background: #ffffff;
-  --foreground: #25405e; /* body text, nav: navy slate, 10.6:1 */
-  --ink: #0b2545; /* headings, wordmark, strong text: deep navy, 15.4:1 */
-  --link: #0d5eaf; /* links, eyebrow squares, glyph accents: Aegean, 6.5:1 */
-  --rule: var(--link); /* strong rules, 6.5:1 */
-  --display: #327bc4; /* LARGE display type only (404 numeral, footer wordmark), 4.4:1; never small text */
-  --link-hover: #0a4f96; /* deeper Aegean, 8.2:1 */
-  --muted: #eef3f8; /* hover surfaces */
-  --muted-foreground: #4a6176; /* secondary text, blue-tinted slate, 6.4:1 (5.8 on --muted) */
-  --border: #d5e2ef; /* hairlines */
-  --input: #6f8ba6; /* form control borders, 3.6:1 */
-  --ring: var(--link); /* focus outline, 6.5:1 */
-
-  --card: var(--background);
-  --card-foreground: var(--foreground);
-  --popover: var(--background);
-  --popover-foreground: var(--foreground);
-  --primary: #1565c0; /* primary buttons, active states: royal blue, white label 5.8:1 */
-  --primary-hover: #0b5ed7; /* cobalt, white label 5.8:1 */
+  --foreground: #171717; /* body text, nav: 17.9:1 */
+  --ink: #0a0a0a; /* headings, wordmark, strong text: 19.8:1 */
+  --display: var(--ink); /* large display type (404 numeral) */
+  --muted: #f2f2f2; /* hover surfaces */
+  --muted-foreground: #595959; /* secondary text, 7.0:1 (6.3 on --muted) */
+  --border: #e5e5e5; /* hairlines */
+  --input: #8a8a8a; /* form control borders, 3.4:1 */
+  --primary: #0a0a0a; /* primary buttons, selected chips, current-page dots: white label 19.8:1 */
+  --primary-hover: #333333; /* white label 12.6:1 */
   --primary-foreground: #ffffff;
-  --secondary: var(--muted);
-  --secondary-foreground: var(--ink);
-  --accent: var(--muted);
-  --accent-foreground: var(--ink);
   --destructive: #c4001a; /* errors only (forms); 6.0:1 on white */
+
+  /*
+   * Accent hues: five steps along the Dusk gradient (OKLCH hue 74 -> 41 -> 8 -> 335 -> 289), deepened for white.
+   * Every one is text-safe (>= 4.5:1 on white); one hue per role (aliases below), never body text.
+   */
+  --hue-amber: #966303; /* 5.1:1; no role since rules went neutral, kept as the palette's first step */
+  --hue-ember: #c34601; /* 5.0:1 */
+  --hue-pink: #cb1459; /* 5.6:1 */
+  --hue-magenta: #b31e9f; /* 5.8:1 */
+  --hue-violet: #6b25ea; /* 6.8:1 */
 
   /* WhatsApp CTAs: the brand green with a black label (10.6:1); white on this green fails AA. */
   --whatsapp: #25d366;
@@ -144,18 +145,23 @@
 
   /*
    * Dusk grainy gradient (decorative only, see .dusk). Grain: SVG feTurbulence as a data: URI
-   * (CSP img-src allows data:), contrast-boosted and blended with overlay.
+   * (CSP img-src allows data:), contrast-boosted and blended with overlay. The bright stops are also the
+   * dark-theme accents where they pass (amber 11.7:1, pink 6.7:1 on black).
    */
   --dusk-amber: #ffb238;
   --dusk-pink: #ff4f81;
   --dusk-violet: #7a3cff;
-  /* Amber-weighted (Phase 5b spike, 2026-11-17): violet is 1.2:1 from Aegean and looked muddy beside it, so it is
-     retired from the stack (token kept, unused); pink is a quiet second light. */
+  /* Amber-weighted, pink second, violet a small cool edge (back now that no blue sits beside it). */
   --dusk-gradient:
-    radial-gradient(closest-side at 40% 60%, var(--dusk-amber), transparent),
+    radial-gradient(closest-side at 36% 64%, var(--dusk-amber), transparent),
     radial-gradient(
-      closest-side at 62% 40%,
-      color-mix(in srgb, var(--dusk-pink) 55%, transparent),
+      closest-side at 64% 42%,
+      color-mix(in srgb, var(--dusk-pink) 60%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      closest-side at 54% 20%,
+      color-mix(in srgb, var(--dusk-violet) 35%, transparent),
       transparent
     );
   --dusk-opacity: 1;
@@ -163,52 +169,322 @@
   --grain-opacity: 0.55;
 
   /* Phase 5b: motion tokens (compositor-only properties; reduced motion switches the effects off). */
+  /* --dur-1/2 and the two curves are the pre-spring tokens, kept for components not yet moved to the springs below. */
   --dur-1: 120ms; /* colour, underline */
-  --dur-2: 220ms; /* lift, glow, hover scale */
+  --dur-2: 220ms; /* small fades and slides */
   --dur-3: 600ms; /* reveals */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Springs (M3 Expressive motion scheme), sampled from a damped spring (mass 1) into linear(). Pair each easing with its
+     own duration: the curve is the whole spring, so a shorter duration speeds it up instead of cutting it off.
+     spatial (position, size, shape, rotation) may overshoot; effect (colour, opacity) never does.
+     Generator: springEasing() in src/lib/spring.ts (40 segments, settle within 0.2%, duration rounded up to 10 ms); to
+     retune, run it with new damping/stiffness and paste the curve and duration here (SPRINGS there lists these five).
+     Use: buttons, chips, arrows and presses on -fast; card frames on the default; shape morphs and the arrow turn on
+     -bouncy; every colour and opacity change on -effect. Overshoot never goes on text position or layout. */
+  --dur-spring-fast: 350ms; /* damping 0.6, stiffness 800, peak 1.095: small parts (chips, arrows, presses) */
+  --ease-spring-fast: linear(
+    0,
+    0.028,
+    0.099,
+    0.2,
+    0.317,
+    0.44,
+    0.561,
+    0.674,
+    0.775,
+    0.862,
+    0.934,
+    0.991,
+    1.034,
+    1.064,
+    1.083,
+    1.092,
+    1.095,
+    1.091,
+    1.084,
+    1.074,
+    1.063,
+    1.051,
+    1.04,
+    1.03,
+    1.02,
+    1.012,
+    1.005,
+    1,
+    0.996,
+    0.994,
+    0.992,
+    0.991,
+    0.991,
+    0.991,
+    0.992,
+    0.993,
+    0.994,
+    0.995,
+    0.996,
+    0.997,
+    1
+  );
+  --dur-spring: 420ms; /* damping 0.8, stiffness 380, peak 1.015: default spatial */
+  --ease-spring: linear(
+    0,
+    0.019,
+    0.067,
+    0.135,
+    0.215,
+    0.301,
+    0.387,
+    0.471,
+    0.551,
+    0.624,
+    0.69,
+    0.749,
+    0.8,
+    0.844,
+    0.882,
+    0.913,
+    0.938,
+    0.959,
+    0.975,
+    0.988,
+    0.997,
+    1.004,
+    1.009,
+    1.012,
+    1.014,
+    1.015,
+    1.015,
+    1.015,
+    1.014,
+    1.013,
+    1.011,
+    1.01,
+    1.009,
+    1.007,
+    1.006,
+    1.005,
+    1.004,
+    1.003,
+    1.003,
+    1.002,
+    1
+  );
+  --dur-spring-slow: 570ms; /* damping 0.8, stiffness 200, peak 1.015: large surfaces */
+  --ease-spring-slow: linear(
+    0,
+    0.018,
+    0.065,
+    0.132,
+    0.21,
+    0.294,
+    0.379,
+    0.463,
+    0.541,
+    0.614,
+    0.681,
+    0.74,
+    0.791,
+    0.836,
+    0.874,
+    0.906,
+    0.933,
+    0.954,
+    0.971,
+    0.984,
+    0.995,
+    1.002,
+    1.008,
+    1.011,
+    1.014,
+    1.015,
+    1.015,
+    1.015,
+    1.014,
+    1.013,
+    1.012,
+    1.011,
+    1.009,
+    1.008,
+    1.007,
+    1.006,
+    1.005,
+    1.004,
+    1.003,
+    1.002,
+    1
+  );
+  --dur-spring-bouncy: 710ms; /* damping 0.5, stiffness 300, peak 1.163: expressive moments (shape morphs, pops) */
+  --ease-spring-bouncy: linear(
+    0,
+    0.042,
+    0.151,
+    0.299,
+    0.465,
+    0.63,
+    0.781,
+    0.91,
+    1.012,
+    1.086,
+    1.134,
+    1.158,
+    1.163,
+    1.153,
+    1.134,
+    1.109,
+    1.082,
+    1.055,
+    1.031,
+    1.011,
+    0.995,
+    0.984,
+    0.977,
+    0.974,
+    0.974,
+    0.976,
+    0.979,
+    0.983,
+    0.988,
+    0.992,
+    0.996,
+    0.999,
+    1.001,
+    1.003,
+    1.004,
+    1.004,
+    1.004,
+    1.004,
+    1.003,
+    1.003,
+    1
+  );
+  --dur-effect: 220ms; /* critically damped, stiffness 1600: colour and opacity, no overshoot */
+  --ease-effect: linear(
+    0,
+    0.021,
+    0.073,
+    0.142,
+    0.22,
+    0.301,
+    0.38,
+    0.455,
+    0.525,
+    0.589,
+    0.645,
+    0.696,
+    0.74,
+    0.779,
+    0.812,
+    0.841,
+    0.866,
+    0.887,
+    0.905,
+    0.921,
+    0.934,
+    0.945,
+    0.954,
+    0.962,
+    0.968,
+    0.973,
+    0.978,
+    0.982,
+    0.985,
+    0.987,
+    0.99,
+    0.991,
+    0.993,
+    0.994,
+    0.995,
+    0.996,
+    0.997,
+    0.997,
+    0.998,
+    0.998,
+    1
+  );
 
-  /* Phase 5b: colour aliases onto the palette above (never new hexes). Brand = interaction colour. */
-  --brand: var(--link);
-  --brand-hot: var(--link-hover);
-  --brand-display: var(--display);
-  --map-from: var(--link); /* arcs: deep at the home city ... */
-  --map-to: var(
-    --display
-  ); /* ... lighter at the destination; both ends >= 4.4:1 on the page */
-  --spark: var(
-    --dusk-amber
-  ); /* decorative warm counterpoint (map lights, home glow); never text */
-  --glow-rgb: 11 94 215; /* cobalt, pointer spotlight and button glow */
-  --glow-alpha: 0.12;
+  /*
+   * Shape tones (MorphShape, owner review 2026-11-18): M3-style container tones of three accent hues, OKLCH L 0.91 /
+   * C 0.06 at hues 289 (violet, the link hue), 8 (pink, the brand hue) and 74 (amber, a warm tertiary). Decorative
+   * fills only, never text. Text on any of them keeps its contrast: ink 14.6:1 or more, muted-foreground 5.1:1 or more.
+   * Warm tertiary (amber) is an owner decision: it sits outside the "Dusk only on the 404, /about and map" rule.
+   */
+  --shape-violet: #dfdcff;
+  --shape-pink: #ffd2da;
+  --shape-amber: #fadcb6;
+
+  /* Highlighter: Dusk amber under black text in both themes (11.7:1). */
+  --selection: var(--dusk-amber);
+  --selection-foreground: #000000;
+  --glow-rgb: 255 79 129; /* Dusk pink: pointer spotlight */
+  --glow-alpha: 0.1;
 }
 
 .dark {
   color-scheme: dark;
-  /* Pure black with white text (owner review 2026-11-17); blue is the interaction colour only (links, rules, focus,
-     buttons), in lighter siblings because the light-theme blues fail on black. Neutral greys for surfaces and
-     secondary text. Contrast on --background is noted per token. */
+  /* Pure black with white text; neutral greys for surfaces and secondary text. Contrast on black per token. */
   --background: #000000;
   --foreground: #ededed; /* body text, 17.9:1 */
   --ink: #ffffff; /* headings, strong text, 21:1 */
-  --link: #8ec3f5; /* links, eyebrow squares, 11.3:1 */
-  --rule: var(--link); /* strong rules */
-  --ring: var(--link); /* focus outline, 11.3:1 */
-  --display: #5aa0e8; /* large display type only (accent), 7.6:1 */
-  --link-hover: #b3d6f8; /* 13.9:1 */
   --muted: #111111; /* hover surfaces; text on it stays >= 7.4:1 */
   --muted-foreground: #a3a3a3; /* 8.3:1 */
   --border: #262626; /* hairlines */
-  --input: #737373; /* form control borders, 4.4:1 */
-  --primary: #6cb0f0; /* black label 9.1:1 */
-  --primary-hover: #8ec3f5; /* black label 11.3:1 */
+  --input: #757575; /* form control borders, 4.6:1 */
+  --primary: #ffffff; /* black label 21:1 */
+  --primary-hover: #d4d4d4; /* black label 14.2:1 */
   --primary-foreground: #000000;
   --destructive: #ff6b6b;
-  --brand-hot: var(--primary-hover);
-  --map-from: var(--link);
-  --glow-rgb: 142 195 245;
-  --glow-alpha: 0.2;
+
+  /* The same five hues, lifted for black (Dusk amber and pink pass as they are). */
+  --hue-amber: var(--dusk-amber); /* 11.7:1 */
+  --hue-ember: #ff7842; /* 8.0:1 */
+  --hue-pink: var(--dusk-pink); /* 6.7:1 */
+  --hue-magenta: #fe6de4; /* 8.5:1 */
+  --hue-violet: #a797fe; /* 8.5:1 */
+
+  /* Shape tones, deep containers for black (OKLCH C 0.12, L 0.40; amber L 0.44, darker it turns to mud). White text
+     on them 7.9:1 or more; muted-foreground drops to ~3.1:1, so keep secondary text off them. */
+  --shape-violet: #483983;
+  --shape-pink: #7a243b;
+  --shape-amber: #784500;
+
+  --glow-alpha: 0.18;
+}
+
+/*
+ * Roles. Declared on `.dark` as well as `:root` so a `.dark` island inside a light page (the home hero) resolves
+ * them against its own hues and neutrals instead of inheriting the light values computed on <html>.
+ * One hue per role, so neighbouring signals never share a colour:
+ *   links violet (the classic link cue, coolest step, furthest from body text) -> hover warms one step to magenta;
+ *   focus ring ember (hottest step, unmistakable, and never the colour of the link it surrounds);
+ *   brand marks pink (the centre of Dusk). No coloured rules: separators are neutral hairlines (--border);
+ *   map arcs violet (home) -> pink (client), sparks amber: the whole Dusk path across one arc.
+ */
+:root,
+.dark {
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--ink);
+  --accent: var(--muted);
+  --accent-foreground: var(--ink);
+
+  --link: var(--hue-violet); /* inline links, glyph accents */
+  --link-hover: var(--hue-magenta);
+  --ring: var(--hue-ember); /* focus outline */
+  --brand: var(
+    --hue-pink
+  ); /* eyebrow squares, map home base and markers, progress bar, chip hover */
+  --brand-hot: var(
+    --hue-magenta
+  ); /* hot end: progress bar, map ripples and flashlight */
+  --map-from: var(--hue-violet); /* arcs: violet at the home city ... */
+  --map-to: var(--hue-pink); /* ... pink at the client */
+  --spark: var(
+    --dusk-amber
+  ); /* decorative warm counterpoint (map lights); never text */
 }
 
 /* Desktop header (nav visible) from lg = 1024px; the mobile menu is used below. */
@@ -255,8 +531,8 @@
     outline-offset: 2px;
   }
   ::selection {
-    background-color: var(--ink);
-    color: var(--background);
+    background-color: var(--selection);
+    color: var(--selection-foreground);
   }
   /* Theme toggles need JS; hide them when it is off (the theme then follows light defaults). */
   html:not(.js) [data-theme-toggle] {
@@ -289,17 +565,35 @@
   column-gap: var(--spacing-gutter);
 }
 
+/*
+ * Interaction transition for controls that morph (buttons, chips, card frames): colours on the effect curve (no
+ * overshoot), corner radius and scale on the fast spatial spring, so a hover morph and a press squash land with a
+ * small bounce. Reduced motion: the base layer cuts every transition to 0.01ms, and the morphs themselves sit behind
+ * motion-safe, so only colours change.
+ */
+@utility transition-morph {
+  transition-property:
+    color, background-color, border-color, text-decoration-color, border-radius,
+    scale;
+  transition-duration:
+    var(--dur-effect), var(--dur-effect), var(--dur-effect), var(--dur-effect),
+    var(--dur-spring-fast), var(--dur-spring-fast);
+  transition-timing-function:
+    var(--ease-effect), var(--ease-effect), var(--ease-effect),
+    var(--ease-effect), var(--ease-spring-fast), var(--ease-spring-fast);
+}
+
 /* Inline text link: always underlined (not colour-dependent). Hover and keyboard focus add colour, a thicker
-   rule and a little more offset, eased over --dur-1 (hover only on devices that hover). */
+   rule and a little more offset, on the effect curve (hover only on devices that hover). */
 @utility link {
   color: var(--link);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
   transition:
-    color var(--dur-1) var(--ease-out),
-    text-decoration-thickness var(--dur-1) var(--ease-out),
-    text-underline-offset var(--dur-1) var(--ease-out);
+    color var(--dur-effect) var(--ease-effect),
+    text-decoration-thickness var(--dur-effect) var(--ease-effect),
+    text-underline-offset var(--dur-effect) var(--ease-effect);
   &:focus-visible {
     color: var(--link-hover);
     text-decoration-thickness: 2px;
@@ -381,19 +675,6 @@
     opacity: 1 !important;
     translate: none !important;
   }
-  /* The home hero is `.dark` (white text) in both themes; browsers drop backgrounds when printing, so the name and
-     headline would print white on white. Give the hero's scope black-on-white tokens. */
-  .hero.dark {
-    --background: #fff;
-    --ink: #000;
-    --foreground: #000;
-    --muted-foreground: #333;
-    --link: #000;
-    --border: #999;
-  }
-  .hero::before {
-    display: none;
-  }
 }
 
 /*
@@ -420,7 +701,7 @@
     }
   }
 
-  /* Soft cobalt spotlight under a surface's content (frames, rows). Needs `isolate` + `relative` on the surface. */
+  /* Soft Dusk-pink spotlight under a surface's content (frames, rows). Needs `isolate` + `relative` on the surface. */
   .glow-tint::before {
     content: '';
     position: absolute;
@@ -434,7 +715,7 @@
       rgb(var(--glow-rgb) / var(--glow-alpha)),
       transparent 70%
     );
-    transition: opacity var(--dur-2) var(--ease-out);
+    transition: opacity var(--dur-effect) var(--ease-effect);
   }
   @media (hover: hover) and (pointer: fine) {
     [data-glow]:hover .glow-tint::before,
@@ -455,76 +736,61 @@
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     [data-glow] > .dusk {
       translate: calc(var(--nx, 0) * 14px) calc(var(--ny, 0) * 14px);
-      transition: translate 400ms var(--ease-out);
-    }
-  }
-
-  /* Footer wordmark: a blue light under the pointer shows inside the letters (decorative, aria-hidden). */
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-    .wordmark-light:hover {
-      -webkit-text-fill-color: transparent; /* not `color`: the text-display utility outranks this layer */
-      background-image: radial-gradient(
-        circle 16rem at var(--mx, 50%) var(--my, 50%),
-        var(--brand-hot),
-        var(--brand-display) 70%
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
+      transition: translate var(--dur-spring-slow) var(--ease-spring-slow);
     }
   }
 
   /*
-   * Tick ring (home hero and statement ornaments): a thin ring of radial tick marks, pure CSS (a conic stripe pattern
-   * cut to a band by a radial mask), no markup beyond one empty element. Decorative: aria-hidden at the use site.
-   * Size it with inline-size, tint it with color; --tick-len is the tick length. The slow scroll-linked turn exists
-   * only with motion allowed (user controlled, never an infinite animation, WCAG 2.2.2). Hidden in forced colors/print.
+   * Morph shape (src/components/site/MorphShape.astro; replaces the tick rings): a flat M3 Expressive shape that
+   * twists, morphs and changes tone as the page scrolls. The component writes the per-instance shapes, keyframes and
+   * scroll range into a hashed inline <style>; this is the shared base. Decorative and out of the way: absolute, square,
+   * no pointer events, contained, aria-hidden at the source. Place it in a `relative isolate` box that clips overflow
+   * (the turn can reach past its box). Still without motion or scroll timelines; hidden in forced colours and print.
    */
-  .tick-ring {
-    --tick-len: 0.875rem;
-    --tick-w: 0.4deg;
+  .morph-shape {
+    position: absolute;
+    z-index: -1;
     aspect-ratio: 1;
-    border-radius: 50%;
-    background: repeating-conic-gradient(
-      from -0.2deg,
-      currentColor 0 var(--tick-w),
-      transparent var(--tick-w) 3deg
-    );
-    mask-image: radial-gradient(
-      farthest-side,
-      transparent calc(100% - var(--tick-len)),
-      #000 calc(100% - var(--tick-len) + 1px)
-    );
     pointer-events: none;
-  }
-  @keyframes tick-turn {
-    to {
-      rotate: 45deg;
-    }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: scroll()) {
-      .tick-ring {
-        animation-name: tick-turn;
-        animation-timing-function: linear;
-        animation-fill-mode: both;
-        animation-duration: 1ms;
-        animation-timeline: scroll(root block);
-        animation-range-start: 0;
-        animation-range-end: 150vh;
-      }
-    }
+    contain: strict;
+    background-color: var(--shape-violet);
   }
   @media (forced-colors: active), print {
-    .tick-ring {
+    .morph-shape {
       display: none;
+    }
+  }
+
+  /*
+   * Arrow chip: the circle that holds an ArrowIcon at the end of a pill (hero doors, statement, closing CTAs). It
+   * morphs from circle to squircle on a spring when its button is hovered or keyboard-focused, while the arrow turns.
+   */
+  .go-chip {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    margin-inline-start: 0.25rem;
+    border-radius: 50%;
+    transition: border-radius var(--dur-spring-fast) var(--ease-spring-fast);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      [data-slot='button']:hover .go-chip {
+        border-radius: 30%;
+      }
+    }
+    [data-slot='button']:focus-visible .go-chip {
+      border-radius: 30%;
     }
   }
 
   /* Chip links: border and text pick up the brand colour. Chips that are plain text do nothing. */
   a.chip {
     transition:
-      color var(--dur-1) var(--ease-out),
-      border-color var(--dur-1) var(--ease-out);
+      color var(--dur-effect) var(--ease-effect),
+      border-color var(--dur-effect) var(--ease-effect);
   }
   a.chip:focus-visible {
     border-color: var(--brand);
@@ -536,6 +802,37 @@
       color: var(--brand);
     }
   }
+
+  /*
+   * Arrow turn (owner review 2026-11-17): an ArrowIcon (data-arrow, the up-right "open" arrow) turns 45 degrees to a
+   * right arrow when its link or button is hovered or keyboard-focused: buttons, contact rows, profile links, icon
+   * chips. Pairs with the button shape morph (src/components/ui/button.tsx). Motion-safe only (reduced motion keeps
+   * the arrow still); `rotate` is its own property, so translate utilities on the same icon still apply.
+   * Springs (2026-11-18): the transition is the unlayered rule below the layer.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      :is(a, button):hover [data-arrow] {
+        rotate: 45deg;
+      }
+    }
+    :is(a, button):focus-visible [data-arrow] {
+      rotate: 45deg;
+    }
+  }
+}
+
+/*
+ * Arrow springs (2026-11-18): the turn swings ~7 degrees past and settles (bouncy); an arrow that also slides in
+ * (project cards, entry rows) slides on the default spatial spring and fades on the effect curve. Unlayered on
+ * purpose, so it wins over transition utilities left on individual icons and every ArrowIcon moves the same way.
+ * Reduced motion: the base layer cuts transitions to 0.01ms and the turn itself is motion-safe.
+ */
+[data-arrow] {
+  transition:
+    rotate var(--dur-spring-bouncy) var(--ease-spring-bouncy),
+    translate var(--dur-spring) var(--ease-spring),
+    opacity var(--dur-effect) var(--ease-effect);
 }
 
 /* Helpers keyed on `html.js` (set by ThemeScript before paint). */
@@ -587,7 +884,7 @@ html.js .no-js-only {
     margin-block-start: 0.4em;
   }
   .prose-site blockquote {
-    border-inline-start: 2px solid var(--rule);
+    border-inline-start: 2px solid var(--border);
     padding-inline-start: 1em;
     color: var(--muted-foreground);
   }
@@ -711,8 +1008,8 @@ html.js .no-js-only {
     min-block-size: 1.5rem;
     align-items: center;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding-inline: 0.5rem;
+    border-radius: var(--radius-pill);
+    padding-inline: 0.625rem;
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
     color: var(--muted-foreground);
@@ -753,9 +1050,9 @@ html.js .no-js-only {
     min-block-size: 2.5rem;
     cursor: pointer;
     align-items: center;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius);
-    padding-inline: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding-inline: 1.125rem;
     font-size: var(--text-sm);
     color: var(--ink);
   }
@@ -884,7 +1181,7 @@ html.js .no-js-only {
   }
 }
 
-/* Print stays black on white: the blue palette (text, rules, links, quote marks) is screen-only. */
+/* Print stays black on white: the accent hues (links, quote marks) are screen-only; hairlines print black. */
 @media print {
   :is(.cv-page, .post-page) :is(*, *::before, *::after) {
     color: #000 !important;

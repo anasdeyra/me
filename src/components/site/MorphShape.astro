@@ -1,0 +1,143 @@
+---
+// A playful Material 3 Expressive shape (cookies, clovers, bursts, pills; src/lib/m3-shapes.ts) that twists, morphs
+// and changes tone as the page scrolls. Decorative only: aria-hidden, no pointer events, absolute and contained, so it
+// never takes space, moves layout or catches clicks. Base styles: `.morph-shape` in src/styles/global.css.
+//
+// Motion is scroll-driven (user controlled, so WCAG 2.2.2 needs no pause control; nothing runs on its own): one
+// animation morphs the clip-path through `shapes` while turning by `turn` degrees in total, each step on the bouncy
+// spring (src/lib/spring.ts), so the outline and the angle overshoot a little and settle as the scroll moves on;
+// a second one moves the fill through `tones` on the effect curve (never overshoots). Without scroll timelines and with
+// reduced motion it is a still first shape in the first tone; forced colours and print hide it.
+//
+// The shapes are drawn inset by just enough to keep the spring's overshoot inside the element's box (a clip-path
+// cannot paint past it), so the resting shape is a little smaller than the box.
+//
+// CSP: the per-instance CSS (shapes, keyframes, range, size) is one inline <style> next to the element, hashed with
+// Astro.csp.insertStyleHash; config/security-headers.mjs also adds inline style hashes to style-src post-build. No
+// style="" attributes. Placement: pass `class` (Astro forwards the parent's scope, so the parent's scoped CSS can
+// position it) inside a `relative isolate` box that clips overflow, since the turn reaches past the box.
+//
+// Usage:
+//   <MorphShape uid="statement-start" shapes={['sunny', 'flower', '4-sided-cookie']} tones={['violet', 'pink']}
+//     turn={120} size="min(70vw, 34rem)" class="statement-shape-start" />
+import type { HTMLAttributes } from 'astro/types';
+import { createHash } from 'node:crypto';
+import {
+  morphBounds,
+  morphKeyframes,
+  shapePolygon,
+  type ShapeName,
+} from '@/lib/m3-shapes';
+import { SPRINGS, springEasing } from '@/lib/spring';
+
+/** Fill tones: the `--shape-*` tokens in global.css (light and dark values). */
+export type ShapeTone = 'violet' | 'pink' | 'amber';
+
+interface Props extends Omit<HTMLAttributes<'span'>, 'class' | 'style'> {
+  /** Unique on the page; names the generated class (`ms-<uid>`) and keyframes. Lowercase letters, digits, dashes. */
+  uid: string;
+  /** Shapes in scroll order (at least two). The first is also the still shape. */
+  shapes: ShapeName[];
+  /** Tone per step, cycled when shorter than `shapes` (one tone = no colour change). Default violet, pink, amber. */
+  tones?: ShapeTone[];
+  /** Degrees turned over the whole range, split evenly between the steps; negative turns anticlockwise. Default 90. */
+  turn?: number;
+  /** `view` (default): the shape's own pass through the viewport. `root`: the page scroll from the top (hero). */
+  timeline?: 'view' | 'root';
+  /** `animation-range` start and end. Defaults: view `cover 0%` -> `cover 100%`; root `0` -> `100vh`. */
+  range?: [string, string];
+  /** Inline size (a CSS length, e.g. `min(60vw, 30rem)`); omit to size it from `class` or insets. */
+  size?: string;
+  /** Points per polygon (1 decimal each). Default 96: smooth petals and notches up to ~40rem, ~1 KB per shape. */
+  points?: number;
+  /** Placement: position (insets), size, z-index. */
+  class?: string;
+}
+
+const {
+  uid,
+  shapes,
+  tones = ['violet', 'pink', 'amber'],
+  turn = 90,
+  timeline = 'view',
+  range = timeline === 'view' ? ['cover 0%', 'cover 100%'] : ['0', '100vh'],
+  size,
+  points = 96,
+  class: className,
+  ...rest
+} = Astro.props;
+
+if (!/^[a-z][a-z0-9-]*$/.test(uid))
+  throw new Error(`MorphShape: invalid uid "${uid}"`);
+if (shapes.length < 2)
+  throw new Error(`MorphShape ${uid}: needs at least two shapes`);
+if (tones.length < 1)
+  throw new Error(`MorphShape ${uid}: needs at least one tone`);
+// Values that land in the generated CSS: plain lengths, percentages and functions only (no braces, semicolons).
+const safe = (v: string, what: string) => {
+  if (!/^[a-z0-9 .,%()+*/-]+$/i.test(v))
+    throw new Error(`MorphShape ${uid}: unsafe ${what} "${v}"`);
+  return v;
+};
+safe(range[0], 'range');
+safe(range[1], 'range');
+if (size) safe(size, 'size');
+
+const name = `ms-${uid}`;
+const spring = springEasing(SPRINGS.bouncy);
+const effect = springEasing(SPRINGS.effect);
+const deg = (v: number) => `${Math.round(v * 100) / 100}deg`;
+const pct = (v: number) => `${Math.round(v * 1000) / 1000}%`;
+const steps = shapes.length - 1;
+
+// Room for the overshoot: how far any step's outline leaves the 0..100 box over the progress the spring reaches.
+let out = 0;
+shapes.slice(0, -1).forEach((s, i) => {
+  const b = morphBounds(s, shapes[i + 1]!, spring.min, spring.max, points);
+  out = Math.max(out, -b.min, b.max - 100);
+});
+const pad = Math.ceil(out * 10) / 10 + 0.2;
+const poly = { pad, decimals: 1 };
+
+const morph = morphKeyframes(name, shapes, {
+  points,
+  hold: 0,
+  loop: false,
+  easing: spring.easing,
+  ...poly,
+  extra: (i) => `rotate:${deg((turn * i) / steps)}`,
+});
+const toneAt = (i: number) => `var(--shape-${tones[i % tones.length]})`;
+const tone =
+  tones.length > 1
+    ? `@keyframes ${name}-tone{${shapes
+        .map(
+          (_, i) =>
+            `${pct((100 * i) / steps)}{background-color:${toneAt(i)};animation-timing-function:${effect.easing}}`,
+        )
+        .join('')}}`
+    : '';
+
+const timelineValue = timeline === 'view' ? 'view()' : 'scroll(root block)';
+const css = [
+  `.${name}{clip-path:${shapePolygon(shapes[0]!, points, poly)};background-color:${toneAt(0)}${size ? `;inline-size:${size}` : ''}}`,
+  morph,
+  tone,
+  // Longhands only: shorthands reset animation-timeline, and lightningcss drops shorthand timelines in some cascades.
+  `@media (prefers-reduced-motion:no-preference){@supports (animation-timeline:view()){.${name}{`,
+  `animation-name:${tone ? `${name},${name}-tone` : name};animation-duration:1ms;animation-timing-function:linear;`,
+  `animation-fill-mode:both;animation-timeline:${timelineValue};`,
+  `animation-range-start:${range[0]};animation-range-end:${range[1]}}}}`,
+].join('');
+
+Astro.csp?.insertStyleHash(
+  `sha256-${createHash('sha256').update(css).digest('base64')}`,
+);
+---
+
+<style is:inline set:html={css} />
+<span
+  class:list={['morph-shape', name, className]}
+  aria-hidden="true"
+  {...rest}
+></span>

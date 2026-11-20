@@ -1,6 +1,19 @@
 ---
-// Home section 2: Upwork proof straight under the hero. Figures come from settings only. The clients item
-// links to the map section only when that section is live (FR-22); otherwise it is plain text.
+// Hero proof line (owner review 2026-11-17; was a four-column strip under the Statement). Rendered by Hero.astro
+// between the subline and the doors, so the proof sits right before the asks. Figures come from settings only.
+//
+//   [5 stars] 5.0   ( Top Rated on Upwork  [pause] )   Verified on Upwork
+//
+// Stars: outlines are always drawn; the fills pop in once, in sequence (--i stagger), then rest. Static fills for
+// reduced motion and print. Decorative (aria-hidden): the sr-only "Rated 5.0 out of 5 on Upwork" carries the fact.
+//
+// Claims chip: one <ul> with every claim, always in the accessibility tree (no aria-live). The base CSS lays the
+// list out as a static wrapping row; only with motion allowed, :has() support and on screen does it become a
+// one-line slot that rolls up through the claims twice, then rests on the badge (an aria-hidden copy of the first
+// claim ends the track, so the second pass starts and finishes seamlessly). WCAG 2.2.2: bounded (2 x 12 s, never
+// infinite), paused on hover and while focus is inside, and the pause toggle (a checkbox, zero JS) stops it and shows
+// the whole list. Keyboard focus on the countries link also switches to the full list, so a focused link is never
+// rolled out of view. The countries claim links to the map only when that section is live (FR-22).
 import { t } from '@/i18n';
 import { getClients, getSettings } from '@/lib/content';
 import { isSectionLive } from '@/lib/routes';
@@ -11,21 +24,34 @@ const { upwork } = settings;
 const clientCount = (await getClients()).length;
 const clientsLive = await isSectionLive('proof');
 
-const items = [
-  { value: upworkBadgeLabel(upwork.badge), label: t('trust.topRatedLabel') },
+const rating = upwork.rating.toFixed(1);
+const filled = Math.max(0, Math.min(5, Math.round(upwork.rating)));
+// Literal class names so Tailwind finds them (a template string would not be scanned).
+const stagger = ['[--i:0]', '[--i:1]', '[--i:2]', '[--i:3]', '[--i:4]'];
+const star =
+  'm12 2.5 2.94 6.2 6.56.8-4.84 4.55 1.28 6.7L12 17.5l-5.94 3.25 1.28-6.7L2.5 9.5l6.56-.8z';
+
+const badge = t('trust.claim.badge', { badge: upworkBadgeLabel(upwork.badge) });
+const claims: { text: string; href?: string }[] = [
+  { text: badge },
+  { text: t('trust.claim.jss', { value: upwork.jobSuccess }) },
   {
-    value: t('trust.jss', { value: upwork.jobSuccess }),
-    label: t('trust.jssLabel'),
-  },
-  {
-    value: t('trust.rating', { rating: upwork.rating.toFixed(1) }),
-    label: t('trust.ratingLabel', { reviews: upwork.reviews }),
+    text: t(
+      upwork.reviews === 1
+        ? 'trust.claim.reviews.one'
+        : 'trust.claim.reviews.other',
+      { count: upwork.reviews },
+    ),
   },
   ...(clientCount > 0
     ? [
         {
-          value: t('trust.clients', { count: clientCount }),
-          label: t('trust.clientsLabel'),
+          text: t(
+            clientCount === 1
+              ? 'trust.claim.countries.one'
+              : 'trust.claim.countries.other',
+            { count: clientCount },
+          ),
           href: clientsLive ? '#proof' : undefined,
         },
       ]
@@ -33,45 +59,316 @@ const items = [
 ];
 ---
 
-<section
-  aria-label={t('home.trust.label')}
-  class="wrap grid-page border-t border-rule py-10 md:py-14"
->
-  <p class="col-span-12 mb-6 text-sm font-medium text-muted-foreground lg:col-span-3 lg:mb-0">
-    {t('home.trust.label')}
+<div class="trust" role="group" aria-label={t('home.trust.label')}>
+  <p class="trust-rating">
+    <span class="trust-stars" aria-hidden="true">
+      {stagger.map((i, n) => (
+        <svg viewBox="0 0 24 24" class={`trust-star ${i}`} focusable="false">
+          {n < filled && <path class="trust-star-fill" d={star} />}
+          <path class="trust-star-line" d={star} />
+        </svg>
+      ))}
+    </span>
+    <span class="font-semibold text-ink tabular-nums" aria-hidden="true">
+      {rating}
+    </span>
+    <span class="sr-only">{t('trust.rated', { rating })}</span>
   </p>
-  <ul class="col-span-12 grid grid-cols-2 gap-x-gutter gap-y-8 lg:col-span-9 lg:grid-cols-4">
-    {items.map((item) => (
-      <li>
-        {item.href ? (
-          <a href={item.href} class="link text-ink">
-            <span class="block text-2xl font-semibold">{item.value}</span>
-            <span class="mt-1 block text-sm">{item.label}</span>
-          </a>
-        ) : (
-          <>
-            <span class="block text-2xl font-semibold text-ink">
-              {item.value}
-            </span>
-            <span class="mt-1 block text-sm text-muted-foreground">
-              {item.label}
-            </span>
-          </>
-        )}
-      </li>
-    ))}
-  </ul>
-  <p class="col-span-12 mt-8 lg:col-span-9 lg:col-start-4">
-    <a
-      href={settings.links.upwork}
-      class="link text-ink"
-      target="_blank"
-      rel="noopener noreferrer"
-      data-track="upwork_click"
-      data-track-location="trust"
-    >
-      {t('trust.verify')}
-      <span class="sr-only"> {t('a11y.newTab')}</span>
-    </a>
-  </p>
-</section>
+
+  <div class="trust-chip">
+    <div class="trust-slot">
+      <ul
+        class:list={['trust-track', claims.length === 3 && 'trust-track-3']}
+        role="list"
+      >
+        {claims.map((claim) => (
+          <li>
+            {claim.href ? (
+              <a href={claim.href} class="link">
+                {claim.text}
+              </a>
+            ) : (
+              claim.text
+            )}
+          </li>
+        ))}
+        <li class="trust-rest" aria-hidden="true">
+          {badge}
+        </li>
+      </ul>
+    </div>
+    <input type="checkbox" id="trust-pause" class="trust-toggle sr-only" />
+    <label for="trust-pause" class="trust-pause">
+      <svg
+        viewBox="0 0 16 16"
+        class="trust-icon-pause"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M5 3.5v9M11 3.5v9"></path>
+      </svg>
+      <svg
+        viewBox="0 0 16 16"
+        class="trust-icon-play"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M5 3.5v9l7-4.5z"></path>
+      </svg>
+      <span class="sr-only">{t('trust.pause')}</span>
+    </label>
+  </div>
+
+  <a
+    href={settings.links.upwork}
+    class="link text-sm"
+    target="_blank"
+    rel="noopener noreferrer"
+    data-track="upwork_click"
+    data-track-location="hero"
+  >
+    {t('trust.verify')}
+    <span class="sr-only"> {t('a11y.newTab')}</span>
+  </a>
+</div>
+
+<style>
+  .trust {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+  }
+
+  /* Rating: five stars (gold edge, bright Dusk amber fill) and the figure. */
+  .trust-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+  .trust-stars {
+    display: inline-flex;
+    gap: 0.125rem;
+  }
+  .trust-star {
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    overflow: visible;
+  }
+  .trust-star-line {
+    fill: none;
+    stroke: var(--hue-amber);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .trust-star-fill {
+    fill: var(--dusk-amber);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Claims chip: a soft pill on the panel surface; it grows into a rounded box if the full list wraps. */
+  .trust-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-block-size: 2.5rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: var(--background);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* Base layout (no motion, paused, keyboard focus, print, no :has()): every claim in one wrapping row. */
+  .trust-track {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    padding: 0.5rem 0;
+    list-style: none;
+  }
+  .trust-track > li + li {
+    padding-inline-start: 0.75rem;
+    border-inline-start: 1px solid var(--border);
+  }
+  .trust-track > .trust-rest {
+    display: none;
+  }
+
+  /* Pause toggle: only where the claims can roll. Pause bars while rolling, a play triangle once checked. */
+  .trust-toggle,
+  .trust-pause {
+    display: none;
+  }
+  .trust-pause {
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: 50%;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out);
+  }
+  .trust-pause svg {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .trust-icon-play,
+  .trust-toggle:checked + .trust-pause .trust-icon-pause {
+    display: none;
+  }
+  .trust-toggle:checked + .trust-pause .trust-icon-play {
+    display: block;
+  }
+  .trust-toggle:focus-visible + .trust-pause {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) {
+    .trust-pause:hover {
+      color: var(--ink);
+      background: var(--muted);
+    }
+  }
+
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Stars: each fill pops in once (overshoot, then settle), staggered by --i. */
+    .trust-star-fill {
+      animation: trust-star var(--dur-3) var(--ease-out) both;
+      animation-delay: calc(var(--dur-2) + var(--i, 0) * var(--dur-1));
+    }
+
+    @supports selector(:has(*)) {
+      .trust-chip {
+        padding-inline-end: 0.25rem;
+      }
+      .trust-pause {
+        display: grid;
+      }
+      .trust-toggle {
+        display: block;
+      }
+    }
+
+    /* Rolling slot: one claim at a time, faded at the top and bottom edges. */
+    .trust:not(:has(.trust-toggle:checked, .trust-track :focus-visible))
+      .trust-slot {
+      block-size: 2.5rem;
+      overflow: clip;
+      mask-image: linear-gradient(
+        transparent,
+        black 20%,
+        black 80%,
+        transparent
+      );
+    }
+    .trust:not(:has(.trust-toggle:checked, .trust-track :focus-visible))
+      .trust-track {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      gap: 0;
+      padding: 0;
+      animation: trust-roll-4 calc(var(--dur-3) * 20) var(--ease-in-out) 2 both;
+    }
+    .trust:not(:has(.trust-toggle:checked, .trust-track :focus-visible))
+      .trust-track-3 {
+      animation-name: trust-roll-3;
+      animation-duration: calc(var(--dur-3) * 15);
+    }
+    .trust:not(:has(.trust-toggle:checked, .trust-track :focus-visible))
+      .trust-track
+      > li {
+      display: flex;
+      align-items: center;
+      block-size: 2.5rem;
+      padding: 0;
+      border: 0;
+      white-space: nowrap;
+    }
+    .trust:hover .trust-track,
+    .trust:focus-within .trust-track {
+      animation-play-state: paused;
+    }
+  }
+
+  /* Claims plus the resting copy: each holds, then rolls up one slot; the roll is always --dur-3 (5% of 12 s with
+     four claims, 6.67% of 9 s with three, when there are no clients yet). */
+  @keyframes trust-roll-4 {
+    0%,
+    20% {
+      translate: 0 0;
+    }
+    25%,
+    45% {
+      translate: 0 -20%;
+    }
+    50%,
+    70% {
+      translate: 0 -40%;
+    }
+    75%,
+    95% {
+      translate: 0 -60%;
+    }
+    100% {
+      translate: 0 -80%;
+    }
+  }
+  @keyframes trust-roll-3 {
+    0%,
+    26.667% {
+      translate: 0 0;
+    }
+    33.333%,
+    60% {
+      translate: 0 -25%;
+    }
+    66.667%,
+    93.333% {
+      translate: 0 -50%;
+    }
+    100% {
+      translate: 0 -75%;
+    }
+  }
+  @keyframes trust-star {
+    0% {
+      scale: 0;
+    }
+    60% {
+      scale: 1.25;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .trust-star-line {
+      stroke: CanvasText;
+    }
+    .trust-star-fill {
+      fill: CanvasText;
+    }
+    .trust-pause {
+      border: 1px solid ButtonText;
+    }
+  }
+</style>

@@ -23,13 +23,35 @@ services:
 designNote: Bring your designs, or I'll design it.
 process:
   - title: Chat on WhatsApp or a call
-    text: '[TBD]'
+    messages:
+      - from: client
+        text: >-
+          [Draft] Hi Anas, I have an idea for a product and a launch date in
+          mind. Can we talk?
+      - from: me
+        text: '[Draft] Happy to. Tell me about it here, or pick a time for a call.'
   - title: Scope and quote
-    text: '[TBD]'
+    messages:
+      - from: me
+        text: >-
+          [Draft] Here is the scope and the quote, in writing. You work with me
+          from this first call to launch.
+      - from: client
+        text: '[Draft] Looks good. Let’s start.'
   - title: Build with weekly updates
-    text: '[TBD]'
+    messages:
+      - from: me
+        text: >-
+          [Draft] Weekly update: what shipped this week, what comes next, and
+          anything I need from you.
+      - from: client
+        text: '[Draft] Clear, thanks. Talk next week.'
   - title: Launch, handover and support
-    text: '[TBD]'
+    messages:
+      - from: me
+        text: >-
+          [Draft] We’re live. Here is the documented handover, and I’m here for
+          support after launch.
 quoteProcess: '[TBD] How quotes work (no public prices).'
 faq:
   - question: Do you do design too?

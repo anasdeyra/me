@@ -2,7 +2,6 @@
 // /about (FR-8): who, how I work, languages, research, human details, then the two doors (WhatsApp, CV).
 // Long text comes from Keystatic markdoc fields rendered at build time (src/lib/markdoc.ts).
 import { getImage, Image } from 'astro:assets';
-import ClientsMapStyle from '@/components/proof/ClientsMapStyle.astro';
 import ClientsMap from '@/components/proof/ClientsMap.astro';
 import Button from '@/components/site/Button.astro';
 import DuskGlow from '@/components/site/DuskGlow.astro';
@@ -60,7 +59,6 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
   ]}
   footerCta={false}
 >
-  {clientsLive && <ClientsMapStyle slot="head" />}
   <main id="main">
     <section class="wrap grid-page pt-8 pb-12 md:pt-14 md:pb-16 lg:grid-rows-[auto_auto_1fr] lg:pt-20 lg:pb-20">
       <h1 class="col-span-12 text-5xl lg:col-span-7">{heading}</h1>
@@ -80,7 +78,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
             sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 66vw"
             loading="eager"
             fetchpriority="high"
-            class="aspect-[4/5] h-auto w-full rounded-md object-cover"
+            class="aspect-[4/5] h-auto w-full rounded-xl object-cover"
           />
         </div>
       )}
@@ -95,7 +93,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
       <Section
         id="how-i-work"
         labelledby="how-title"
-        class="border-t border-rule py-12 md:py-16 lg:py-20"
+        class="border-t border-border py-12 md:py-16 lg:py-20"
       >
         <h2 id="how-title" class={h2}>
           {t('about.howIWork')}
@@ -107,7 +105,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
     <Section
       id="languages"
       labelledby="languages-title"
-      class="border-t border-rule py-12 md:py-16 lg:py-20"
+      class="border-t border-border py-12 md:py-16 lg:py-20"
     >
       <h2 id="languages-title" class={h2}>
         {t('about.languages')}
@@ -121,7 +119,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
       <Section
         id="research"
         labelledby="research-title"
-        class="border-t border-rule py-12 md:py-16 lg:py-20"
+        class="border-t border-border py-12 md:py-16 lg:py-20"
       >
         <h2 id="research-title" class={h2}>
           {t('about.research')}
@@ -143,7 +141,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
       <Section
         id="endorsements"
         labelledby="endorsements-title"
-        class="border-t border-rule py-12 md:py-16 lg:py-20"
+        class="border-t border-border py-12 md:py-16 lg:py-20"
       >
         <h2 id="endorsements-title" class={h2}>
           {t('about.endorsements')}
@@ -168,7 +166,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
       <Section
         id="clients"
         labelledby="clients-title"
-        class="border-t border-rule py-12 md:py-16 lg:py-20"
+        class="border-t border-border py-12 md:py-16 lg:py-20"
       >
         <h2 id="clients-title" class={h2}>
           {t('about.clients')}
@@ -183,7 +181,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
       <Section
         id="facts"
         labelledby="facts-title"
-        class="border-t border-rule py-12 md:py-16 lg:py-20"
+        class="border-t border-border py-12 md:py-16 lg:py-20"
       >
         <h2 id="facts-title" class={h2}>
           {t('about.facts')}
@@ -204,7 +202,7 @@ const body = 'reveal col-span-12 [--i:1] md:col-span-9 lg:col-span-7';
     <Section
       id="contact"
       labelledby="about-cta-title"
-      class="border-t border-rule py-12 md:py-16 lg:py-20"
+      class="border-t border-border py-12 md:py-16 lg:py-20"
     >
       <h2 id="about-cta-title" class={h2}>
         {t('about.ctaTitle')}

@@ -97,7 +97,24 @@ export const home = (locale: string) =>
       process: fields.array(
         fields.object({
           title: fields.text({ label: 'Step', validation: { isRequired: true } }),
-          text: fields.text({ label: 'Details', multiline: true }),
+          // Shown on the home page as a chat between a founder and me, one step after another.
+          messages: fields.array(
+            fields.object({
+              from: fields.select({
+                label: 'From',
+                options: [
+                  { label: 'Founder (the visitor)', value: 'client' },
+                  { label: 'Me', value: 'me' },
+                ],
+                defaultValue: 'me',
+              }),
+              text: fields.text({ label: 'Message', multiline: true, validation: { isRequired: true } }),
+            }),
+            {
+              label: 'Chat messages',
+              itemLabel: (p) => `${p.fields.from.value === 'me' ? 'Me' : 'Founder'}: ${p.fields.text.value || '…'}`,
+            },
+          ),
         }),
         { label: 'How we work (steps, in order)', itemLabel: (p) => p.fields.title.value || 'Untitled' },
       ),
@@ -277,7 +294,11 @@ export const testimonials = (locale: string) =>
         multiline: true,
       }),
       author: fields.text({ label: 'Author', defaultValue: 'Upwork client', validation: { isRequired: true } }),
-      role: fields.text({ label: 'Author role' }),
+      role: fields.text({ label: 'Author role', description: 'Shown under the name, e.g. Founder, Acme' }),
+      photo: fields.image({
+        label: 'Author photo',
+        description: 'Square headshot, stored next to the entry. Without one, the initials are shown.',
+      }),
       company: fields.text({ label: 'Company' }),
       country: fields.relationship({ label: 'Country', collection: 'clients' }),
       source: fields.select({ label: 'Source', options: testimonialSources, defaultValue: 'upwork' }),

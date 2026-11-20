@@ -1,0 +1,28 @@
+---
+// Generated rules for one ReviewLoop instance (country positions, the two-at-a-time container query and, for the
+// loop, keyframes for both rhythms, per-review delays and country selection), emitted as one inline <style> in the page head (`slot="head"`
+// on BaseLayout) and hashed for the CSP (config/security-headers.mjs also adds inline style hashes to style-src).
+// Valid placement: <style> is not allowed inside body content. `uid`, `places` and `playback` must match the
+// <ReviewLoop>.
+import { createHash } from 'node:crypto';
+import { getProofPlaces, type ProofPlace } from '@/lib/proof';
+import { reviewLoopCss, reviewLoopModel } from '@/lib/review-loop';
+
+interface Props {
+  uid: string;
+  /** Defaults to the real places (reviews tagged with a client country). */
+  places?: ProofPlace[];
+  playback?: 'loop' | 'scroll';
+}
+
+const { uid, playback = 'loop' } = Astro.props;
+const places = Astro.props.places ?? (await getProofPlaces()).places;
+const model = await reviewLoopModel(places);
+const css = model.items.length > 0 ? reviewLoopCss(uid, model, playback) : '';
+if (css)
+  Astro.csp?.insertStyleHash(
+    `sha256-${createHash('sha256').update(css).digest('base64')}`,
+  );
+---
+
+{css && <style is:inline set:html={css} />}

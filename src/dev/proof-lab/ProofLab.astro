@@ -1,0 +1,57 @@
+---
+// Dev-only lab at /lab/proof (registered in astro.config.mjs under `astro dev` only; never built).
+// The proof map's scroll playback in context: the real home sections around it (Selected work above, Services and
+// Process below), so the pinned steps and the release into the next section can be felt. Lab strings are not i18n.
+import Process from '@/components/home/Process.astro';
+import Proof from '@/components/home/Proof.astro';
+import SelectedWork from '@/components/home/SelectedWork.astro';
+import Services from '@/components/home/Services.astro';
+import ReviewLoopStyle from '@/components/proof/ReviewLoopStyle.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Proof lab"
+  description="Dev-only lab"
+  noindex
+  footerCta={false}
+>
+  <ReviewLoopStyle slot="head" uid="proof" playback="scroll" />
+  <main id="main">
+    <div class="wrap pt-10 md:pt-14">
+      <p class="font-mono text-xs text-muted-foreground uppercase">
+        Dev only · /lab/proof
+      </p>
+      <h1 class="mt-3 text-3xl">Reviews map: scroll playback</h1>
+      <div class="mt-5 grid max-w-measure gap-3 text-muted-foreground">
+        <p>
+          Scroll down through Selected work into the reviews. The map pins under
+          the header and each scroll step brings the next client: their avatar
+          types, then the review pops out of it (two at a time on wide screens).
+          After the last review the map scrolls away into Services. A fling,
+          PageDown or a scrollbar drag stops at each review (snap points) and
+          the reviews never advance faster than one every 0.9 s.
+        </p>
+        <p>
+          To use it on the home page, set
+          <code class="font-mono text-sm text-ink">
+            const reviewPlayback = 'scroll'
+          </code>
+          in{' '}
+          <code class="font-mono text-sm text-ink">src/pages/index.astro</code>
+          (it feeds both{' '}
+          <code class="font-mono text-sm text-ink">
+            &lt;Proof playback&gt;
+          </code>{' '}
+          and its head style). The home stays on
+          <code class="font-mono text-sm text-ink">'loop'</code> (the timed
+          loop, zero JS) until then.
+        </p>
+      </div>
+    </div>
+    <SelectedWork />
+    <Proof playback="scroll" />
+    <Services />
+    <Process />
+  </main>
+</BaseLayout>

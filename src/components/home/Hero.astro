@@ -1,23 +1,26 @@
 ---
-// Home section 1 (owner review 2026-11-17): a full-bleed black hero in both themes. The section carries the `.dark`
-// token set, so every token below it (ink, foreground, border, WhatsApp, outline button) resolves to its dark value
-// even in the light theme; the page under it follows the theme. Composition: a giant uppercase name across the
-// width, a portrait card breaking the name at its slash, a thin tick ring behind the card, tiny mono corner labels,
-// then the outcome headline (the H1) with the two doors (WhatsApp for clients, CV for recruiters).
+// Home section 1 (owner review 2026-11-17, soft & round): one centred stack on a rounded panel that follows the
+// theme, like every other section. Order: the morphing portrait, the name, the outcome headline (H1), the subline,
+// the Upwork proof line (TrustStrip: stars that fill once on load, then a chip of claims that rolls twice and rests),
+// then the two doors (WhatsApp for clients, CV for recruiters), each with one line of reassurance under it.
 //
 // Name vs H1: the name is a real <p> (read by screen readers, found by search, translate="no"), not the H1. The H1
 // stays the outcome headline ("what I do for whom"), which carries the conversion message and the SEO text; the
 // name also lives in <title>, the header wordmark, the portrait alt and the Person schema.
-// The portrait is the eager, high-priority image. No `.reveal` here (LCP, first screen). Zero JS: the ring turns
-// with the scroll only where animation-timeline exists and motion is allowed (see .tick-ring in global.css).
+//
+// The portrait is the eager, high-priority LCP image in a fixed square box (no layout shift). Its M3 shape morph is
+// CSS only (HeroShapeStyle, rendered in the page head): the clip-path never delays the image. A Dusk halo and a
+// scroll-linked MorphShape sit behind it, never behind text. No `.reveal` and no JS here.
 import { Image } from 'astro:assets';
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
 import Button from '@/components/site/Button.astro';
+import DuskGlow from '@/components/site/DuskGlow.astro';
+import MorphShape from '@/components/site/MorphShape.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
+import TrustStrip from '@/components/home/TrustStrip.astro';
 import { t } from '@/i18n';
-import { mailtoHref, whatsappPrefill } from '@/lib/contact';
+import { whatsappPrefill } from '@/lib/contact';
 import { contentImage, getHome, getProfile, getSettings } from '@/lib/content';
-import { utcOffset } from '@/lib/place';
 import { isLive } from '@/lib/routes';
 
 const [home, profile, settings] = await Promise.all([
@@ -27,327 +30,205 @@ const [home, profile, settings] = await Promise.all([
 ]);
 const photo = contentImage('en/profile', profile.photo);
 const showCv = await isLive('cv');
-const { city, countryCode, timezone } = settings.location;
-// Static, computed at build: Africa/Tunis has no DST, so "UTC+1" never goes stale and no clock script is needed.
-const offset = utcOffset(timezone);
-const [firstName, ...rest] = settings.name.split(' ');
-const lastName = rest.join(' ');
+const { career } = settings;
+const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
+  career.workModes.map((m) => t(`workMode.${m}` as const)),
+);
 ---
 
-<section class="hero dark relative isolate overflow-clip bg-background text-foreground">
-  <div class="wrap hero-micro flex items-start justify-between gap-x-6 pt-4 md:pt-5">
-    <p class="mono">{t('home.hero.place', { city, country: countryCode })}</p>
-    <p class="mono max-sm:hidden">{t('home.hero.time', { city, offset })}</p>
-    <a
-      href={mailtoHref(settings.email)}
-      class="mono hero-mail"
-      data-track="contact_email_click"
-      data-track-location="hero"
-    >
-      {settings.email}
-    </a>
-  </div>
-
-  <div class="wrap">
-    <div class="hero-stage">
-      <div class="hero-inner">
-        <span class="mono hero-corner hero-corner-ts max-md:hidden" aria-hidden="true">//</span>
-        <span class="mono hero-corner hero-corner-te max-md:hidden" aria-hidden="true">//</span>
-        <span class="mono hero-corner hero-corner-bs max-md:hidden" aria-hidden="true">//</span>
-        <span class="mono hero-corner hero-corner-be max-md:hidden" aria-hidden="true">//</span>
-
-        <span class="tick-ring hero-ring" aria-hidden="true"></span>
-
-        <p class="hero-name" translate="no">
-          <span>{firstName}</span>
-          <span class="hero-slash" aria-hidden="true">/</span>
-          <span>{lastName}</span>
-        </p>
-
-        {photo && (
-          <div class="hero-card">
-            <Image
-              src={photo}
-              alt={profile.photoAlt}
-              width={560}
-              height={700}
-              widths={[140, 280, 420, 560]}
-              sizes="(min-width: 1600px) 280px, (min-width: 768px) 19vw, 32vw"
-              loading="eager"
-              fetchpriority="high"
-            />
-          </div>
-        )}
+<section class="hero wrap pt-3 md:pt-4">
+  <div class="hero-panel relative isolate flex flex-col items-center overflow-clip bg-muted text-center">
+    {photo && (
+      <div class="hero-portrait relative isolate" data-glow>
+        <DuskGlow class="hero-halo" />
+        <MorphShape
+          uid="hero"
+          shapes={['12-sided-cookie', 'soft-burst', 'flower']}
+          timeline="root"
+          range={['0', '80vh']}
+          turn={120}
+          class="hero-ring"
+        />
+        <div class="hero-shape">
+          <Image
+            src={photo}
+            alt={profile.photoAlt}
+            width={500}
+            height={625}
+            widths={[200, 250, 400, 500]}
+            sizes="(min-width: 1080px) 250px, 200px"
+            loading="eager"
+            fetchpriority="high"
+            class="hero-photo"
+          />
+        </div>
       </div>
-    </div>
-  </div>
+    )}
 
-  <div class="wrap grid-page hero-copy">
-    <div class="col-span-12 lg:col-span-7">
-      <p class="eyebrow mb-4 text-sm font-medium text-muted-foreground md:mb-5">
-        {profile.title}
+    <div class="mt-7 flex flex-wrap items-baseline justify-center gap-x-2.5 gap-y-1 md:mt-9">
+      <p class="text-lg font-semibold text-ink" translate="no">
+        {settings.name}
       </p>
-      <h1 class="text-3xl">{home.hero.headline}</h1>
-      <p class="mt-4 max-w-measure text-base md:mt-6 md:text-lg">{home.hero.subline}</p>
+      <p class="hero-title text-lg text-muted-foreground">{profile.title}</p>
     </div>
 
-    <div class="col-span-12 mt-7 flex flex-col items-start gap-3 md:mt-9 lg:col-span-4 lg:col-start-9 lg:mt-0 lg:justify-end">
-      <WhatsAppButton
-        size="lg"
-        class="max-w-full rounded-full ps-6 pe-2"
-        text={whatsappPrefill('home_hero')}
-        trackLocation="hero"
-      >
-        <span slot="end" class="hero-go bg-background text-ink" aria-hidden="true">
-          <ArrowIcon class="size-4" />
-        </span>
-      </WhatsAppButton>
-      {showCv && (
-        <Button
-          href="/cv"
-          variant="outline"
+    <h1 class="mt-4 max-w-[18ch] text-4xl md:mt-5">{home.hero.headline}</h1>
+    <p class="mt-5 max-w-[54ch] text-base md:mt-6 md:text-lg">
+      {home.hero.subline}
+    </p>
+
+    <div class="mt-7 md:mt-8">
+      <TrustStrip />
+    </div>
+
+    <ul class="hero-doors mt-8 md:mt-10" role="list">
+      <li>
+        <WhatsAppButton
           size="lg"
-          class="rounded-full ps-6 pe-2"
-          data-track="cv_view"
-          data-track-source="hero"
+          label={t('home.hero.client')}
+          class="hero-door ps-6 pe-2"
+          text={whatsappPrefill('home_hero')}
+          trackLocation="hero"
+          describedBy="hero-client-hint"
         >
-          {t('cta.viewCv')}
-          <span class="hero-go bg-ink text-background" aria-hidden="true">
+          <span
+            slot="end"
+            class="go-chip bg-background text-ink"
+            aria-hidden="true"
+          >
             <ArrowIcon class="size-4" />
           </span>
-        </Button>
+        </WhatsAppButton>
+        <p id="hero-client-hint" class="hero-hint">
+          {t('home.hero.clientHint')}
+        </p>
+      </li>
+      {showCv && (
+        <li>
+          <Button
+            href="/cv"
+            variant="outline"
+            size="lg"
+            class="hero-door ps-6 pe-2"
+            data-track="cv_view"
+            data-track-source="hero"
+            aria-describedby={career.openToRoles ? 'hero-cv-hint' : undefined}
+          >
+            {t('cta.viewCv')}
+            <span class="go-chip bg-ink text-background" aria-hidden="true">
+              <ArrowIcon class="size-4" />
+            </span>
+          </Button>
+          {career.openToRoles && (
+            <p id="hero-cv-hint" class="hero-hint">
+              {t('home.hero.cvHint', { modes })}
+            </p>
+          )}
+        </li>
       )}
-      <p class="mt-1 text-sm text-muted-foreground">{t('home.hero.reply')}</p>
-    </div>
-  </div>
-
-  <div class="wrap hero-micro max-md:hidden">
-    <a href="#statement" class="mono hero-scroll">
-      <span>{t('home.hero.scroll')}</span>
-      <span class="hero-scroll-line" aria-hidden="true"></span>
-    </a>
+    </ul>
   </div>
 </section>
 
 <style>
-  /*
-   * Hero block (owner review 2026-11-17). The only raw values here are geometry in em/cqi of the name's size. Colour is
-   * tokens only: the section's `.dark` scope makes --ink white, --muted-foreground #a3a3a3 (8.3:1 on black).
-   */
-  .hero {
-    min-block-size: calc(100svh - var(--spacing-header));
+  /* Panel: the site's soft radius scale (3xl on phones, 4xl from md), --muted surface in both themes. */
+  .hero-panel {
+    border-radius: var(--radius-3xl);
+    padding: clamp(2.25rem, 1.5rem + 3vw, 4rem) var(--spacing-gutter)
+      clamp(2.5rem, 1.75rem + 3vw, 4rem);
   }
-  /* Film grain: the shared grain tile at low opacity (flat black reads as digital without it). */
-  .hero::before {
-    content: '';
+  @media (width >= 48rem) {
+    .hero-panel {
+      border-radius: var(--radius-4xl);
+    }
+  }
+
+  /* Portrait: a fixed square, so the morph and the turn never move anything around it. */
+  .hero-portrait {
+    --size: clamp(10rem, 7rem + 9vw, 14rem);
+    inline-size: var(--size);
+    block-size: var(--size);
+  }
+  .hero-halo {
+    --dusk-inset: -32%;
+    --dusk-opacity: 0.9;
+  }
+  /* A Material 3 shape behind the portrait (MorphShape; replaces the tick ring): twists, morphs and shifts tone as the
+     page scrolls away from the top. */
+  .hero-ring {
+    inset: -14%;
+  }
+  .hero-shape {
     position: absolute;
     inset: 0;
-    z-index: -1;
-    background-image: var(--grain);
-    background-size: 240px;
-    opacity: 0.07;
-    pointer-events: none;
-  }
-  @media (forced-colors: active) {
-    .hero::before {
-      display: none;
-    }
-  }
-
-  .mono {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    line-height: 1.3;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-  .hero-mail,
-  .hero-scroll {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 2.75rem;
-    margin-block: -0.75rem;
-    transition: color var(--dur-1) var(--ease-out);
-  }
-  .hero-mail {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.25em;
-  }
-  .hero-mail:focus-visible,
-  .hero-scroll:focus-visible {
-    color: var(--ink);
-  }
-  @media (hover: hover) {
-    .hero-mail:hover,
-    .hero-scroll:hover {
-      color: var(--ink);
-    }
-  }
-
-  /* Stage: the name, the card and the ring share one box whose type size is a share of the page column's width,
-     so the name always fits (everything inside is in em). */
-  .hero-stage {
-    container-type: inline-size;
-    margin-block: 1.25rem 0.5rem;
-  }
-  @media (width >= 48rem) {
-    .hero-stage {
-      margin-block: 2.75rem 0.5rem;
-    }
-  }
-  .hero-inner {
-    --slash-shift: 0em;
-    position: relative;
-    font-size: 24.5cqi;
-    padding-block-start: 0.5em;
-    padding-block-end: 0.15em;
-  }
-  .hero-name {
-    display: grid;
-    justify-items: start;
-    margin: 0;
-    font-weight: 800;
-    font-size: 1em;
-    line-height: 0.82;
-    letter-spacing: -0.055em;
-    text-transform: uppercase;
-    color: var(--ink);
-    white-space: nowrap;
-  }
-  .hero-slash {
-    display: none;
-    color: var(--link);
-  }
-  /* Phone: the card sits at the end of the first line and dips into the second, breaking its last letters. */
-  .hero-card {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-end: 0;
-    inline-size: 1.22em;
-    border-radius: var(--radius);
     overflow: clip;
+    background: var(--border);
   }
-  .hero-card :global(img) {
-    display: block;
-    inline-size: 100%;
-    block-size: auto;
-    aspect-ratio: 4 / 5;
+  /* Overscan (position and size) comes from HeroShapeStyle: the photo stays larger than the frame so it covers it while turning. */
+  .hero-shape :global(.hero-photo) {
+    position: absolute;
+    max-inline-size: none;
     object-fit: cover;
-  }
-  .hero-ring {
-    position: absolute;
-    inset-block-start: 0.7em;
-    inset-inline-end: -0.6em;
-    inline-size: 2.5em;
-    translate: 0 -50%;
-    color: var(--muted-foreground);
-    opacity: 0.55;
-    z-index: -1;
-  }
-  .hero-corner {
-    position: absolute;
+    object-position: 50% 30%;
   }
 
-  @media (width >= 48rem) {
-    .hero-inner {
-      font-size: 14.5cqi;
-      --slash-shift: -0.21em;
-      display: grid;
-      place-items: center;
-      padding-block: 0.4em;
-    }
-    .hero-name {
-      display: flex;
-      align-items: center;
-      justify-items: initial;
-      white-space: nowrap;
-    }
-    .hero-slash {
-      display: block;
-      margin-inline: 0.3em;
-      font-weight: 300;
-    }
-    .hero-card {
-      inset-block-start: 0;
-      inset-inline: 0;
-      margin-inline: auto;
-      inline-size: 1.2em;
-      translate: var(--slash-shift) 0;
-    }
-    .hero-ring {
-      inset-block-start: 50%;
-      inset-inline: 0;
-      margin-inline: auto;
-      inline-size: 2.15em;
-      translate: var(--slash-shift) -50%;
-      opacity: 0.6;
-    }
-    .hero-corner-ts,
-    .hero-corner-te {
-      inset-block-start: 0.1em;
-    }
-    .hero-corner-bs,
-    .hero-corner-be {
-      inset-block-end: 0.1em;
-    }
-    .hero-corner-ts,
-    .hero-corner-bs {
-      inset-inline-start: 0;
-    }
-    .hero-corner-te,
-    .hero-corner-be {
-      inset-inline-end: 0;
-    }
-  }
-
-  .hero-copy {
-    padding-block: 2.5rem 3rem;
-    align-items: end;
-  }
-  @media (width >= 48rem) {
-    .hero-copy {
-      padding-block: 2.5rem 1.5rem;
-    }
-  }
-
-  /* The circular arrow inside each pill. Slides up and out a hair on hover / keyboard focus (decorative; off for
-     reduced motion). */
-  .hero-go {
-    display: grid;
-    place-items: center;
-    inline-size: 2.25rem;
-    block-size: 2.25rem;
+  /* The title follows the name after a small dot (decorative). */
+  .hero-title::before {
+    content: '';
+    display: inline-block;
+    inline-size: 0.3em;
+    block-size: 0.3em;
+    margin-inline-end: 0.625rem;
+    vertical-align: 0.2em;
     border-radius: 50%;
-    margin-inline-start: 0.25rem;
-    flex-shrink: 0;
-    transition: translate var(--dur-2) var(--ease-out);
-  }
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    :global([data-slot='button']:hover) .hero-go {
-      translate: 0.125rem -0.125rem;
-    }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    :global([data-slot='button']:focus-visible) .hero-go {
-      translate: 0.125rem -0.125rem;
-    }
+    background: var(--brand);
   }
 
-  .hero-scroll {
-    gap: 0.75rem;
+  /* Doors: side by side and centred from sm, stacked full width (to a comfortable cap) on phones. */
+  .hero-doors {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem 1rem;
+    inline-size: 100%;
+    padding: 0;
+    list-style: none;
   }
-  .hero-scroll-line {
-    inline-size: 2.5rem;
-    block-size: 1px;
-    background: currentColor;
+  .hero-doors > li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    inline-size: min(100%, 22rem);
   }
-  @media (width >= 48rem) {
-    .hero-micro:last-child {
-      display: flex;
-      justify-content: flex-end;
-      padding-block-end: 0.75rem;
+  @media (width >= 40rem) {
+    .hero-doors > li {
+      inline-size: auto;
+    }
+  }
+  .hero-doors :global(.hero-door) {
+    inline-size: 100%;
+    justify-content: space-between;
+  }
+  @media (width >= 40rem) {
+    .hero-doors :global(.hero-door) {
+      inline-size: auto;
+    }
+  }
+  .hero-hint {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--muted-foreground);
+  }
+
+  @media print {
+    .hero-panel {
+      background: none;
+      padding-block: 0 2rem;
+    }
+    .hero-doors,
+    .hero-halo {
+      display: none;
     }
   }
 </style>

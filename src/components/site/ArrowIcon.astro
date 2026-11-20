@@ -1,5 +1,6 @@
 ---
-// Diagonal arrow for "open this" affordances (decorative; the link's own text is the name).
+// Diagonal arrow for "open this" affordances (decorative; the link's own text is the name). `data-arrow` hooks the
+// arrow turn in global.css: it rotates 45 degrees to a right arrow when its link or button is hovered or focused.
 interface Props {
   class?: string;
 }
@@ -13,6 +14,7 @@ const { class: className } = Astro.props;
   stroke-width="1.5"
   stroke-linecap="square"
   aria-hidden="true"
+  data-arrow
   class={className}
 >
   <path d="M4 12 12 4M5.5 4H12v6.5"></path>

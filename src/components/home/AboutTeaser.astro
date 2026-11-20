@@ -1,87 +1,196 @@
 ---
-// Home section 8: short bio with a small portrait, then the recruiter strip (the second door).
+// Home About ("Two readers"): a short founder-facing story on the start side (who, how every project is run, More
+// about me) and a recruiter spec card on the end side (work mode, relocation, base, languages, stack, education,
+// CV in HTML and PDF). Gated links: /about, /cv and /cv.pdf render only when live. Zero JS.
 import { Image } from 'astro:assets';
 import Button from '@/components/site/Button.astro';
-import Section from '@/components/site/Section.astro';
-import SectionHeading from '@/components/site/SectionHeading.astro';
 import { t } from '@/i18n';
-import { contentImage, getProfile, getSettings } from '@/lib/content';
-import { getResearchHref } from '@/lib/projects';
+import {
+  contentImage,
+  getEducation,
+  getProfile,
+  getSettings,
+  getSkills,
+} from '@/lib/content';
+import { countryName, languageList, utcOffset } from '@/lib/place';
 import { isLive } from '@/lib/routes';
 
-const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
+const TBD = /^\[TBD\]/;
+const [profile, settings, skills, education, aboutLive, cvLive] =
+  await Promise.all([
+    getProfile(),
+    getSettings(),
+    getSkills(),
+    getEducation(),
+    isLive('about'),
+    isLive('cv'),
+  ]);
+const { career, location } = settings;
 const photo = contentImage('en/profile', profile.photo);
-const { career } = settings;
-const aboutLive = await isLive('about');
-const cvLive = await isLive('cv');
-const workLive = await isLive('work');
-const researchHref = workLive ? await getResearchHref() : undefined;
 
+// "Practices" is how the work is done; every other group is the stack. A group that only holds a [TBD] marker is
+// named, so the gap stays visible instead of silently shrinking the stack.
+const practicesGroup = skills.groups.find((g) => g.name === 'Practices');
+const practices = practicesGroup?.items.filter((i) => !TBD.test(i)) ?? [];
+const stackGroups = skills.groups.filter((g) => g !== practicesGroup);
+const stack = [
+  ...stackGroups.flatMap((g) => g.items.filter((i) => !TBD.test(i))),
+  ...stackGroups
+    .filter((g) => g.items.every((i) => TBD.test(i)))
+    .map((g) => `[TBD] ${g.name}`),
+];
 const modes = new Intl.ListFormat('en', { type: 'conjunction' }).format(
   career.workModes.map((m) => t(`workMode.${m}` as const)),
 );
+const study = education[0]?.entry;
+const rows = [
+  { term: t('home.about.card.modes'), value: modes },
+  ...(career.openToRelocation
+    ? [
+        {
+          term: t('home.about.card.relocation'),
+          value: t('home.about.card.relocationYes'),
+        },
+      ]
+    : []),
+  {
+    term: t('home.about.card.base'),
+    value: `${location.city}, ${countryName(location.countryCode)} (${utcOffset(location.timezone)})`,
+  },
+  {
+    term: t('home.about.card.languages'),
+    value: languageList(settings.languages.map((l) => l.code)),
+  },
+  ...(stack.length
+    ? [{ term: t('home.about.card.stack'), value: stack.join(', ') }]
+    : []),
+  ...(study
+    ? [
+        {
+          term: t('home.about.card.education'),
+          value: `${study.degree}, ${study.school}`,
+        },
+      ]
+    : []),
+];
 ---
 
-<Section id="about" labelledby="about-title">
-  <SectionHeading id="about-title" class="reveal lg:col-span-4">
-    {t('home.about.title')}
-  </SectionHeading>
-
-  {photo && (
-    <div class="col-span-5 sm:col-span-3 lg:col-span-2 lg:col-start-6">
-      <Image
-        src={photo}
-        alt={profile.photoAlt}
-        width={240}
-        height={300}
-        widths={[240, 360]}
-        sizes="(min-width: 1024px) 14vw, 30vw"
-        loading="lazy"
-        class="aspect-[4/5] h-auto w-full rounded-md object-cover grayscale"
-      />
+<section
+  id="about"
+  aria-labelledby="about-title"
+  class="wrap grid-page gap-y-12 py-section"
+>
+  <div class="col-span-12 lg:col-span-6">
+    <div class="reveal flex items-center gap-4">
+      {photo && (
+        <Image
+          src={photo}
+          alt=""
+          width={128}
+          height={128}
+          widths={[64, 128]}
+          sizes="4rem"
+          loading="lazy"
+          class="size-16 shrink-0 rounded-full object-cover object-[50%_30%]"
+        />
+      )}
+      <p class="grid">
+        <span class="font-semibold text-ink" translate="no">
+          {settings.name}
+        </span>
+        <span class="text-sm text-muted-foreground">{profile.title}</span>
+      </p>
     </div>
-  )}
-  <div class="reveal col-span-12 mt-8 lg:col-span-5 lg:col-start-8 [--i:1] lg:mt-0">
-    <p class="text-lg text-ink">{profile.shortBio}</p>
-    {(aboutLive || researchHref) && (
-      <p class="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-        {aboutLive && (
-          <a href="/about" class="link text-ink">
-            {t('home.about.more')}
-          </a>
-        )}
-        {researchHref && (
-          <a href={researchHref} class="link text-ink">
-            {t('home.about.research')}
-          </a>
-        )}
+
+    <h2 id="about-title" class="reveal mt-10 text-4xl">
+      {t('home.about.title')}
+    </h2>
+    <p class="reveal mt-6 max-w-[40ch] text-xl text-ink [--i:1]">
+      {profile.shortBio}
+    </p>
+
+    {practices.length > 0 && (
+      <div class="reveal mt-10">
+        <h3 class="text-base">{t('home.about.practices')}</h3>
+        <ul class="mt-4 flex flex-wrap gap-2" role="list">
+          {practices.map((p) => (
+            <li class="tr-practice">{p}</li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {aboutLive && (
+      <p class="reveal mt-10">
+        <Button href="/about" variant="outline" size="lg">
+          {t('home.about.more')}
+        </Button>
       </p>
     )}
   </div>
 
   {career.openToRoles && (
     <aside
-      aria-labelledby="recruiter-title"
-      class="reveal col-span-12 mt-16 grid items-center gap-x-gutter gap-y-5 border-y border-rule py-8 md:grid-cols-[auto_1fr_auto] lg:mt-24"
+      aria-labelledby="about-hiring"
+      class="reveal col-span-12 rounded-2xl bg-muted p-6 md:p-8 lg:col-span-5 lg:col-start-8 lg:self-start lg:[--i:1]"
     >
-      <h3 id="recruiter-title" class="text-xl">
+      <h3 id="about-hiring" class="text-2xl">
         {t('home.recruiter.title')}
       </h3>
-      <p class="max-w-measure">
-        {t('home.recruiter.body', { modes })}
-        {career.openToRelocation && t('home.recruiter.relocate')}
-      </p>
+      <p class="mt-2 text-ink">{t('home.about.card.lead')}</p>
+
+      <dl class="mt-6">
+        {rows.map((r) => (
+          <div class="grid gap-1 border-t border-border py-3 sm:grid-cols-[8.5rem_1fr] sm:gap-x-4">
+            <dt class="text-sm text-muted-foreground">{r.term}</dt>
+            <dd class="text-sm text-ink">{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+
       {cvLive && (
-        <Button
-          href="/cv"
-          variant="outline"
-          size="lg"
-          data-track="cv_view"
-          data-track-source="home_recruiter"
-        >
-          {t('cta.viewCv')}
-        </Button>
+        <p class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Button
+            href="/cv"
+            size="lg"
+            data-track="cv_view"
+            data-track-source="home_about"
+          >
+            {t('work.cta.cv')}
+          </Button>
+          <a href="/cv.pdf" class="link text-sm" download>
+            {t('cv.download')}
+          </a>
+        </p>
       )}
     </aside>
   )}
-</Section>
+</section>
+
+<style>
+  /* Practices read as small tags; the brand dot marks them as one set (decorative). */
+  .tr-practice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 2rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--ink);
+  }
+  .tr-practice::before {
+    content: '';
+    inline-size: 0.375rem;
+    block-size: 0.375rem;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+  @media (forced-colors: active) {
+    .tr-practice::before {
+      background: CanvasText;
+    }
+  }
+</style>

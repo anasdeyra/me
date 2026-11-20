@@ -17,6 +17,8 @@ interface Props {
   trackLocation?: string;
   /** Optional analytics slug (project pages): adds data-track-slug. */
   trackSlug?: string;
+  /** id of a visible hint under the button (aria-describedby). */
+  describedBy?: string;
   class?: string;
 }
 
@@ -26,6 +28,7 @@ const {
   text,
   trackLocation,
   trackSlug,
+  describedBy,
   class: className,
 } = Astro.props;
 const settings = await getSettings();
@@ -41,6 +44,7 @@ const settings = await getSettings();
   data-track={trackLocation ? 'contact_whatsapp' : undefined}
   data-track-location={trackLocation}
   data-track-slug={trackLocation ? trackSlug : undefined}
+  aria-describedby={describedBy}
 >
   <WhatsAppIcon />
   <span>

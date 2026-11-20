@@ -9,12 +9,12 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 - [ ] **Home hero**: replace the `[Draft]` headline and subline (`src/content/en/home/index.yaml` `hero`) and set `shortBio`
       (`src/content/en/profile/index.yaml`). Feeds the meta description, OG, Person JSON-LD, `/llms.txt`, About teaser.
 - [ ] **Hero statement**: review the new centred statement copy under the hero (`src/i18n/en.ts`, `home.statement.body`).
-- [ ] **Testimonial countries**: set `country` on every testimonial in Keystatic (Testimonials -> Country; none is tagged yet, the
+- [ ] **Testimonial countries**: set `country` on every testimonial in Keystatic (Testimonials -> Country; Solana, React product page and React form app carry RANDOM placeholder countries marked `[TBD]`, the
       real client country is not in the repo, so it is an owner fact). The home proof map
       picks a review by country; untagged reviews fall back to plain cards below the map. Countries available: France, Germany,
       India, Singapore, Spain, United States, Tunisia.
 - [ ] **Services**: who it is for / what you get for the 4 offers (`home/index.yaml`, Keystatic: Home).
-- [ ] **Process**: 4 step descriptions and "How quotes work" (`home/index.yaml`).
+- [ ] **Process**: the `[Draft]` chat messages of the 4 steps (`home/index.yaml`, `process[].messages`) and "How quotes work".
 - [ ] **FAQ**: answers on code ownership, after launch, NDA, Upwork vs direct; drop `[Draft]` on the other answers.
 - [ ] **About**: story (`profile/longBio.mdoc`), how I work (`profile/howIWork.mdoc`), research summary
       (`profile/index.yaml`), and the "A few things about me" row (`[TBD] Label/Value`: fill or delete).
@@ -24,7 +24,7 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
       add real dates, set `draft: false`.
 - [ ] **Privacy** (`src/i18n/en.ts`, `privacy.*`): confirm retention (12 months), processors (Resend, Vercel; add Cloudflare
       Email Routing and Gmail if `hello@` is the contact address), rights text; remove `[Draft]`; update "Last updated".
-- [ ] **Time-zone line**: `src/i18n/en.ts` home time-zone copy is `[Draft]`; soften "full overlap with European working hours".
+- [ ] **Time-zone line**: `src/i18n/en.ts` time-zone copy (`home.process.timezone`, `cta.timezone`, `footer.base`, `clients.caption`); soften "full overlap with European working hours".
 - [ ] **Claims to confirm**: "usually replies within an hour" (WhatsApp), "I reply within a day" (email/form);
       "Clients in 7 countries" (counts Tunisia, the home country: confirm it is the Upwork tally, or list 6 / label Tunisia as home).
 - [ ] **Unlock Work**: publish at least 2 projects (`src/content/en/projects/*`: remove `draft`, replace every `[TBD]`

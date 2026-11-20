@@ -1,6 +1,7 @@
 ---
 // Two-state theme toggle (light/dark), persisted in localStorage. Pattern: a toggle button named
-// "Dark theme" with aria-pressed; the contrast glyph flips when dark is on. The first paint is set by
+// "Dark theme" with aria-pressed; the contrast glyph half-turns when dark is on, on the bouncy spring (it swings past
+// and settles; instant with reduced motion, via the global transition cut-off). The first paint is set by
 // the inline script in BaseLayout; this script only syncs state and handles clicks.
 import { t } from '@/i18n';
 import { buttonVariants } from '@/components/ui/button';
@@ -30,7 +31,7 @@ const { withLabel = false, class: className } = Astro.props;
 >
   <span class={withLabel ? undefined : 'sr-only'}>{t('theme.dark')}</span>
   <svg
-    class="size-5 transition-transform duration-200 group-aria-pressed/theme:rotate-180"
+    class="size-5 transition-[rotate] duration-(--dur-spring-bouncy) ease-(--ease-spring-bouncy) group-aria-pressed/theme:rotate-180"
     viewBox="0 0 20 20"
     aria-hidden="true"
     focusable="false"

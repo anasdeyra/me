@@ -79,7 +79,7 @@ const home = new URL('/', Astro.site).href;
       </p>
 
       {gated ? (
-        <div class="col-span-12 mt-16 border-t border-rule pt-8 md:col-span-8 lg:col-span-6">
+        <div class="col-span-12 mt-16 md:col-span-8 lg:col-span-6">
           <h2 class="text-2xl">{t('work.empty.title')}</h2>
           <p class="mt-3 max-w-measure text-lg">{t('work.empty.body')}</p>
           <WhatsAppButton

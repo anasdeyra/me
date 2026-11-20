@@ -4,6 +4,7 @@ quote: >-
 excerpt: >-
   Anas has a solid understanding of current development best practices… I would happily recommend Anas for any (Full-stack) web development project!
 author: Upwork client
+role: '[TBD]'
 source: upwork
 sourceUrl: https://www.upwork.com/freelancers/~0141d0cac0eb05dc40
 rating: 5
@@ -11,3 +12,5 @@ endorsement: Committed to Quality
 relatedProject: solana-nft-marketplace
 featured: true
 order: 1
+# [TBD] placeholder country (random, for preview): replace with the reviewer's real country before launch.
+country: united-states

@@ -4,13 +4,13 @@ import AboutTeaser from '@/components/home/AboutTeaser.astro';
 import Faq from '@/components/home/Faq.astro';
 import LatestWriting from '@/components/home/LatestWriting.astro';
 import Hero from '@/components/home/Hero.astro';
+import HeroShapeStyle from '@/components/home/HeroShapeStyle.astro';
 import Process from '@/components/home/Process.astro';
-import ClientsMapStyle from '@/components/proof/ClientsMapStyle.astro';
+import ReviewLoopStyle from '@/components/proof/ReviewLoopStyle.astro';
 import Proof from '@/components/home/Proof.astro';
 import SelectedWork from '@/components/home/SelectedWork.astro';
 import Services from '@/components/home/Services.astro';
 import Statement from '@/components/home/Statement.astro';
-import TrustStrip from '@/components/home/TrustStrip.astro';
 import ContactBlock from '@/components/site/ContactBlock.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getImage } from 'astro:assets';
@@ -28,6 +28,9 @@ const portrait = photo
     ).href
   : undefined;
 const proofLive = await isSectionLive('proof');
+// How the proof map plays its reviews: 'loop' (timed, zero JS) or 'scroll' (pinned, one review per scroll step;
+// preview at /lab/proof in dev). Used by the section and its generated head style, so set it here only.
+const reviewPlayback: 'loop' | 'scroll' = 'loop';
 ---
 
 <BaseLayout
@@ -37,13 +40,15 @@ const proofLive = await isSectionLive('proof');
   ]}
   footerCta={false}
 >
-  {proofLive && <ClientsMapStyle slot="head" />}
+  <HeroShapeStyle slot="head" />
+  {proofLive && (
+    <ReviewLoopStyle slot="head" uid="proof" playback={reviewPlayback} />
+  )}
   <main id="main">
     <Hero />
     <Statement />
-    <TrustStrip />
     <SelectedWork />
-    <Proof />
+    <Proof playback={reviewPlayback} />
     <Services />
     <Process />
     <AboutTeaser />

@@ -1,0 +1,47 @@
+---
+// A review author's picture: the co-located photo when there is one, else an initials monogram. Decorative (the
+// name is always printed next to it), so the image has empty alt text and the monogram is aria-hidden.
+import { Image } from 'astro:assets';
+import { t } from '@/i18n';
+import { initials, testimonialPhoto, type Testimonial } from '@/lib/proof';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  testimonial: Testimonial;
+  /** sm 32px (review bubbles), md 40px (cards). */
+  size?: 'sm' | 'md';
+  class?: string;
+}
+
+const { testimonial, size = 'md', class: className } = Astro.props;
+const photo = testimonialPhoto(testimonial);
+const px = size === 'sm' ? 32 : 40;
+const name = testimonial.entry.author || t('testimonial.client');
+const box = cn(
+  'shrink-0 rounded-full ring-1 ring-border',
+  size === 'sm' ? 'size-8 text-xs' : 'size-10 text-sm',
+  className,
+);
+---
+
+{photo ? (
+  <Image
+    src={photo}
+    alt=""
+    width={px}
+    height={px}
+    densities={[1, 2]}
+    class={cn(box, 'object-cover')}
+    loading="lazy"
+  />
+) : (
+  <span
+    class={cn(
+      box,
+      'inline-grid place-items-center bg-muted leading-none font-semibold tracking-wide text-ink',
+    )}
+    aria-hidden="true"
+  >
+    {initials(name)}
+  </span>
+)}

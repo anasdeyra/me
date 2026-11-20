@@ -1,8 +1,29 @@
 // Testimonials and endorsement helpers. Quotes are verbatim (docs/ux-study.md 8b): never reword.
-import { getClients, getTestimonials } from './content';
+import type { ImageMetadata } from 'astro';
+import { contentImage, getClients, getTestimonials } from './content';
 import { countryName } from './place';
 
 export type Testimonial = Awaited<ReturnType<typeof getTestimonials>>[number];
+
+/** The short form shown on cards and bubbles: the verbatim `excerpt` when there is one, else the quote. */
+export const briefQuote = ({ entry }: Testimonial) =>
+  entry.excerpt || entry.quote;
+
+/** The author's photo, stored next to the entry (src/content/en/testimonials/<slug>/). */
+export const testimonialPhoto = ({
+  slug,
+  entry,
+}: Testimonial): ImageMetadata | undefined =>
+  contentImage(`en/testimonials/${slug}`, entry.photo);
+
+/** Up to two initials for the monogram avatar shown when there is no photo. */
+export const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
 
 /** Featured testimonials in `order`, up to `max`. */
 export async function getFeaturedTestimonials(max = 3): Promise<Testimonial[]> {

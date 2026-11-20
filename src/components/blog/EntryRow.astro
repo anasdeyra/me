@@ -35,7 +35,7 @@ const tags = entry.tags.map((slug) => labels?.get(slug) ?? slug);
 <article
   data-glow
   class={cn(
-    'glow-tint group isolate relative grid gap-x-gutter gap-y-2 border-t border-border py-6 transition-colors duration-(--dur-1) [--glow-bleed:0_-0.75rem] hover:border-rule has-[a:focus-visible]:border-rule has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
+    'glow-tint group isolate relative grid gap-x-gutter gap-y-2 border-t border-border py-6 [--glow-bleed:0_-0.75rem] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
     !stacked && 'md:grid-cols-[10rem_1fr]',
     className,
   )}
@@ -71,7 +71,7 @@ const tags = entry.tags.map((slug) => labels?.get(slug) ?? slug);
         class="decoration-1 underline-offset-4 transition-colors duration-(--dur-1) after:absolute after:inset-0 group-hover:text-link-hover group-hover:underline focus-visible:outline-none"
       >
         {entry.title}
-        <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 transition-[opacity,translate] duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
+        <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 transition-[opacity,translate,rotate] duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
       </a>
     </Heading>
     <p class="mt-2 text-muted-foreground">{entry.description}</p>

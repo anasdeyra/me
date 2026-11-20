@@ -1,7 +1,9 @@
 ---
 // Project card: the whole card is one link (stretched title link, no nested links).
 // Order: visual, type chip, title, headline metric or outcome, stack chips, year. The caller adds `data-type`
-// and the `work-card` class to the <li> wrapper when the chip filter is used.
+// and the `work-card` class to the <li> wrapper when the chip filter is used. Hover/focus morphs the frame's corners
+// (rounded-lg -> xl, like the buttons' shape morph; no lift) on the bouncy spring, so they land with a soft wobble, and
+// slides in and turns the title arrow (global [data-arrow] rule: its springs, no transition utilities on the icon).
 import { t } from '@/i18n';
 import type { ProjectView } from '@/lib/projects';
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
@@ -30,7 +32,7 @@ const stack = project.stack.slice(0, 4);
 <article
   data-glow
   class={cn(
-    'group relative flex flex-col gap-4 rounded-sm has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
+    'group relative flex flex-col gap-4 rounded-lg has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4',
     className,
   )}
 >
@@ -38,7 +40,7 @@ const stack = project.stack.slice(0, 4);
     project={project}
     size="card"
     loading={priority ? 'eager' : 'lazy'}
-    class="glow-tint isolate transition-[translate,border-color] duration-(--dur-2) ease-(--ease-out) group-hover:-translate-y-0.5 group-hover:border-rule group-has-[a:focus-visible]:-translate-y-0.5 group-has-[a:focus-visible]:border-rule motion-reduce:group-hover:translate-y-0 motion-reduce:group-has-[a:focus-visible]:translate-y-0"
+    class="glow-tint isolate transition-[border-radius] duration-(--dur-spring-bouncy) ease-(--ease-spring-bouncy) motion-safe:group-hover:rounded-xl motion-safe:group-has-[a:focus-visible]:rounded-xl"
   />
   <div class="flex flex-wrap items-center gap-2">
     <TypeChip type={project.type} />
@@ -49,10 +51,10 @@ const stack = project.stack.slice(0, 4);
   <Heading class="text-xl">
     <a
       href={project.href}
-      class="decoration-1 underline-offset-4 transition-colors duration-(--dur-1) after:absolute after:inset-0 group-hover:text-link-hover group-hover:underline focus-visible:outline-none"
+      class="decoration-1 underline-offset-4 transition-colors duration-(--dur-effect) ease-(--ease-effect) after:absolute after:inset-0 group-hover:text-link-hover group-hover:underline focus-visible:outline-none"
     >
       {project.title}
-      <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 transition-[opacity,translate] duration-(--dur-2) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
+      <ArrowIcon class="ms-1 inline-block size-4 -translate-x-1 align-[-0.1em] opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:opacity-100 motion-reduce:translate-x-0" />
     </a>
   </Heading>
   {project.headline ? (

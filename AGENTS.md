@@ -49,16 +49,17 @@ src/
   components/site/      static primitives: Button (cva variants, zero JS), WhatsAppButton, ThemeToggle, ThemeScript,
                         DuskGlow, WhatsAppIcon, GitHubIcon, ArrowIcon (inline SVG, currentColor), Section / SectionHeading (grid sections), ContactBlock (flat two-column closing CTA; props `location`, `headingId`, `form`),
                         ContactForm (3 fields + honeypot, one inline script), CopyEmail, QrCode (build-time SVG), Analytics,
-                        Search (trigger + native dialog; lazy Pagefind chunk)
-  components/home/      Hero (dark, full-bleed), Statement, TrustStrip, Services, Process (incl. time-zone table), AboutTeaser,
+                        Search (trigger + native dialog; lazy Pagefind chunk),
+                        MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
+  components/home/      Hero (renders TrustStrip: stars + rolling Upwork claims chip; HeroShapeStyle = the portrait's spring shape morph), Statement, Services, Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
                         Faq (native details), SelectedWork, Proof (clients map + reviews, one `#proof` section), LatestWriting
                         (the gated ones go live via the `sections.*` gates)
   components/cv/        CvEntry
   components/work/      ProjectCard, ProjectVisual (typographic fallback frame), TypeChip, ResultsBar, QuickFacts
   components/blog/      EntryRow (post or project row), PostMeta, Toc (aside + details), SeriesNav, EndCta, ShareLink, TagChips,
                         PostProgress (CSS scroll-linked reading bar, `:dir(rtl)` aware)
-  components/proof/     ClientsMap (build-time dot-grid map, scroll-linked entry, pointer flashlight; + country list; `proof` variant = country radios + `:has()` showing that country's review), TestimonialCard, Stars
-  components/layout/    SiteHeader (sticky; Popover mobile menu), SiteFooter (closing CTA, columns, wordmark)
+  components/proof/     ClientsMap (build-time land-only dot-grid map, pointer flashlight; + country list; `bare` variant under the review loop), ReviewLoop + ReviewLoopStyle (chat-bubble reviews on the map, prop `playback`: `loop` = timed, one bubble narrow, two staggered tracks wide, country chips; `scroll` = sticky pin stepped by scroll; each client arrives as an avatar with typing dots before its bubble; generated container query + keyframes in the head), ReviewScroll (loads `review-scroll.ts`, scroll mode only), Avatar, TestimonialCard
+  components/layout/    SiteHeader (sticky; Popover mobile menu; desktop nav shape: anchor-positioned dot -> soft-cornered shape, zero JS), SiteFooter (closing CTA, columns, small print; no wordmark)
   components/seo/       JsonLd.astro
   content/shared/       language-neutral content (settings.yaml, clients/*.yaml)
   content/en/           translatable content: profile/, home/, skills.yaml, projects/<slug>/, posts/<slug>/,
@@ -72,14 +73,15 @@ src/
                         routes.ts (nav registry, section registry `isSectionLive`, FR-22 gating), contact.ts (wa.me / mailto / prefills),
                         contact-validate.ts (shared client + server), contact-server.ts (Resend, rate limit; server only),
                         cv.ts + cv-model.ts (CV data/model shared by /cv and the PDF), cv-pdf.ts (pdfkit), markdoc.ts (build-time
-                        renderer), overlap.ts (time-zone table), qr.ts (uqr), upwork.ts (badge label), place.ts (Intl names, UTC offset),
-                        projects.ts (typed project views, related), proof.ts (testimonials, endorsements, map places: reviews grouped by `country`), world-map.ts (build-time
-                        map geometry), land-mask.ts (generated 2.5 degree land grid, do not edit by hand),
+                        renderer), qr.ts (uqr), upwork.ts (badge label), place.ts (Intl names, UTC offset),
+                        projects.ts (typed project views, related), review-loop.ts (review loop model + generated CSS), proof.ts (testimonials, endorsements, map places: reviews grouped by `country`), world-map.ts (build-time
+                        land dots + country points), m3-shapes.ts (M3 Expressive shapes as morphable clip-path polygons), spring.ts (damped spring -> CSS `linear()`; generates the spring tokens), land-mask.ts (generated 2.5 degree land grid, do not edit by hand),
                         posts.ts (post views, series, related, CTA), tags.ts (tag index), entries.ts (unified post/project Entry),
                         highlight.ts (code to class tokens), og.ts + og-entries.ts (OG card renderer and entry list), xml.ts (escape, RFC-822)
   scripts/              client modules: shortcuts.ts (the `/` search shortcut + off switch), search-dialog.ts (lazy Pagefind chunk),
-                        pointer.ts (--mx/--my/--nx/--ny on `[data-glow]` hosts, fine pointers only, rAF, CSSOM; ~0.45 KB gz)
-  pages/                index (home: hero, statement, trust, work, proof, services, process, about, FAQ, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
+                        pointer.ts (--mx/--my/--nx/--ny on `[data-glow]` hosts, fine pointers only, rAF, CSSOM; ~0.45 KB gz),
+                        review-scroll.ts (scroll-mode review stepper: at most one review per 0.9 s, never moves the scroll; 0.75 KB gz)
+  pages/                index (home: hero (incl. Upwork proof line), statement, work, proof, services, process, about, FAQ, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
                         blog/index + blog/[slug], tag/[tag], og/[...key].png.ts, rss.xml.ts, llms.txt.ts
                         (static 303 targets), privacy, 404, robots.txt.ts, api/contact.ts (the only on-demand route)
   styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link), .dusk
@@ -133,30 +135,45 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - `SHOW_DRAFTS=1 pnpm build` includes draft projects in a production build; verification only, never set on Vercel.
   Finish with a plain `pnpm build`.
 - Clients map geometry is build-time only (no map library; motion is CSS, pointer glow via pointer.ts). Regenerate the land mask with `scripts/generate-land-mask.mjs`.
-  Per-client hover/stagger CSS is generated from the data (`m-<ISO>` classes) in an inline `<style>` hashed with
-  `Astro.csp.insertStyleHash`; `config/security-headers.mjs` also adds inline style hashes to `style-src`.
-- **Motion and interaction (Phase 5b).** Tokens in `global.css`: `--dur-1/2/3` (120/220/600ms), `--ease-out`, `--ease-in-out`; use them, no raw values.
+  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, HeroShapeStyle, MorphShape)
+  goes in inline `<style>` hashed with `Astro.csp.insertStyleHash`; `config/security-headers.mjs` also adds inline style hashes to `style-src`.
+- **Motion and interaction (Phase 5b; springs since 2026-11-18).** Tokens in `global.css`, no raw values. M3 Expressive springs (CSS `linear()`
+  sampled by `src/lib/spring.ts`; pair each easing with its own duration): `--ease-spring-fast`/`--dur-spring-fast` (buttons, chips, presses),
+  `--ease-spring` (default spatial), `--ease-spring-slow` (large surfaces), `--ease-spring-bouncy` (shape morphs, arrow turn, card corners,
+  theme glyph, pops), `--ease-effect`/`--dur-effect` (colour and opacity, never overshoots). Overshoot only on shape, rotation and scale,
+  never on text position or layout. Older `--dur-1/2/3`, `--ease-out`, `--ease-in-out` remain for reveals and legacy rules.
+  Buttons use the `transition-morph` utility (corners/scale on the fast spring, colour on effect; pressed corners tighten one step besides
+  the 0.97 squash); the 45° arrow turn is one unlayered `[data-arrow]` rule (icons need no transition classes); `.go-chip` is the round
+  arrow chip inside pills.
   - `.reveal` (scroll-linked `view()`, finishes within 150px of entering, stagger with `[--i:0..3]`, `md:[--i:1]`): wrapper
-    elements only, not on elements that also lift on hover; never on the hero, LCP candidates or forms. Off for reduced motion
+    elements only, not on elements that also move on hover; never on the hero, LCP candidates or forms. Off for reduced motion
     and print; content is never hidden without support.
   - `[data-glow]` hosts get a pointer spotlight (`.glow-tint`, Dusk parallax, map flashlight) from `src/scripts/pointer.ts`
     (fine pointers only; writes custom properties through CSSOM, never markup `style=""`). Specular effects must work without it.
   - Hover rules live inside `@media (hover: hover)` with a `:focus-visible` (or `:has(a:focus-visible)`) equivalent. Motion is
     wrapped in `prefers-reduced-motion: no-preference`; `forced-colors` guards on decorative layers. No magnetic buttons, no counters.
-  - WCAG 2.2.2: no `infinite` animations. Loops are bounded and hover-initiated (map sparks/ripples 2 x 1.8 s, base-ring breathe 3 x 2.2 s);
-    entries are scroll-linked (user controlled).
-  - Color: bright blue (`--link`, also `--rule`, `--ring`, `--brand`, `--map-from`) is the interaction colour: links, buttons, focus,
-    strong rules. Text is deep navy in light (`--ink` #0b2545 headings, `--foreground` #25405e body, `--muted-foreground` #4a6176)
+  - WCAG 2.2.2: no `infinite` animations. Loops are bounded and hover-initiated; entries and MorphShape are scroll-linked (user controlled,
+    no pause needed). Two exceptions: the home review loop (`ReviewLoop`, `playback="loop"`) cycles reviews indefinitely, with an Auto-play switch,
+    pause on focus in the country chips (not on hover over the map, owner 2026-11-20), and no rotation under reduced motion; and the hero portrait morph loops
+    (owner override). `playback="scroll"` is user-driven (no pause control needed).
+  - Process chat (`ProcessThread`): a sticky chat window over a tall track; each item (step chip, typing dots, message) takes a slice of
+    the track's `contain` range (`[--k:n]`/`[--n:n]` literal Tailwind classes, no `style=""`) and grows from `0fr` to `1fr` in a
+    bottom-aligned feed, so new messages push older ones up. Zero JS, no timers; messages are always in the DOM (folded rows are clipped,
+    never hidden); without view() support, with reduced motion and in print it is a plain transcript. Spacing inside a folding row is
+    margin on the content, never padding on the clipped box.
+  - Color: bright blue (`--link`, also `--ring`, `--brand`, `--map-from`) is the interaction colour: links, buttons, focus.
+    There is no `--rule` token: every separator is a neutral `--border` hairline, and fewer lines is the default. Text is deep navy in light (`--ink` #0b2545 headings, `--foreground` #25405e body, `--muted-foreground` #4a6176)
     and white/neutral in dark (`--ink` #fff, `--foreground` #ededed, `--muted-foreground` #a3a3a3, `--border` #262626, `--muted` #111).
     `--primary` (buttons) and `--display` (large display type only) are separate tokens. Dusk (amber-weighted, pink) appears only
-    on the 404, the /about portrait and the map's sparks, never behind text; the hero and closing CTA are flat. Exact values and
+    on the 404, the /about portrait and the hero portrait halo, never behind text; the closing CTA is flat. MorphShape tones are
+    `--shape-violet/pink/amber` (pale in light, deep in dark; keep muted text off them in dark, ~3.1:1). Exact values and
     contrast ratios: `:root` / `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
-  - Home hero: a full-bleed `class="dark"` section in both themes (the page below follows the theme): giant uppercase name, portrait
-    card overlapping it, `.tick-ring` (pure-CSS ring of ticks; scroll-linked turn only with motion allowed, never infinite), mono
-    micro-labels, pill doors (WhatsApp, CV). The H1 is the outcome headline, not the name. Then `Statement` (centred uppercase line,
-    "More about me" pill). No `.reveal` and no JS on the hero.
-  - ClientsMap entry is a CSS scroll timeline (`--cm`, `view-timeline`); lightningcss drops shorthand `animation-timeline`/`animation-range`
-    in some cascades, so write longhands.
+  - Home hero: a soft rounded `bg-muted` panel that follows the theme: the morphing portrait (HeroShapeStyle: each shape-to-shape morph and
+    turn rides one spring with overshoot and a small breath; shapes are drawn inset with a negative margin so overshoot is not clipped;
+    photo overscan is computed over the spring's full range), a MorphShape behind it, name and title, the outcome H1, subline,
+    TrustStrip, pill doors (WhatsApp, CV) with hints. Then `Statement` (centred uppercase line, "More about me" pill, two MorphShapes at
+    the edges). No `.reveal` and no JS on the hero. The hero is being redone from scratch (owner review 2026-11-20).
+  - Scroll-driven animations: lightningcss drops shorthand `animation-timeline`/`animation-range` in some cascades, so write longhands.
   - Keep any map label above the flashlight layer with a background halo (`paint-order: stroke`), or it is unreadable under the pointer.
   - JS before interaction on `/`: re-measure (last measured ~4 KB gz of the 5 KB budget, which included the now-removed SpecToggle
     chunk of 0.9 KB, so there should be more headroom). Check before adding any script.
@@ -175,11 +192,24 @@ Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw 
 - **Type:** `text-xs`..`text-7xl` are the fluid scale (Tailwind's default sizes are removed); xs/sm are UI sizes,
   base 16 -> 18px, tracking and line height come with each size. Headings are `text-ink`, semibold, balanced.
 - **Color:** tokens only. `text-ink` (headings, strong), `text-foreground` (body), `text-muted-foreground` (secondary),
-  `border-rule` (strong rules) vs `border-border` (hairlines). WhatsApp green only through `variant="whatsapp"`
+  `border-border` for every separator (hairlines only; no coloured rules, use space before adding a line). WhatsApp green only through `variant="whatsapp"`
   (`<WhatsAppButton>`); Dusk only through `<DuskGlow />` in a `relative isolate` box (404, /about portrait), never behind text.
 - **Buttons/links:** `<Button>` from `src/components/site` (renders `<a>` with `href`), sizes sm 40 / default 44 /
   lg 52px. Inline links use the `link` utility (always underlined). Focus is the global `:focus-visible` outline.
+  Interaction is morph and turn, never lift or shadow: hover/focus morph the pill (radius = half the height, set per size
+  in `buttonVariants`; never override with `rounded-full` or the morph snaps) to a soft rounded rectangle, a press
+  squashes to 0.97, and any `ArrowIcon` (`data-arrow`) inside a hovered/focused link or button turns 45 degrees (global
+  rule in `global.css`). All motion-safe; reduced motion keeps colour changes only.
 - **Theme:** `.dark` on `<html>`, set before paint by `ThemeScript`; toggles are `[data-theme-toggle]`. No JS = light.
+- **Header nav (variant C "Morph", 2026-11-20):** one anchor-positioned `.site-shape` in the header row (global `<style>` in
+  SiteHeader). At rest a 6px dot under the current tab (current tab also ink + medium weight); hovering or keyboard-focusing a
+  `.site-target` (tabs, theme toggle, GitHub) moves the anchor there and the dot grows into a radius-md shape (travel on
+  `--ease-spring`, growth and corners on `--ease-spring-bouncy`, press 0.94 + radius-sm on the fast spring, a 160ms wait before going
+  home, keyboard focus beats a resting pointer). White with `mix-blend-mode: difference`, so it reads black on light / white on dark
+  and inverts the label under it: keep the header background solid and opaque. Home (no current tab): hidden at rest, grows from the
+  row centre. Desktop only (>= 64rem); tabs padded 12px (16px from xl) so the bar fits its grid at 1024px. Fallbacks: no anchor
+  positioning = each tab fills in place + dot; forced colours = underline; reduced motion = jump. The mobile sheet marks the current
+  page with a round dot.
 - **Navigation:** routes live in `src/lib/routes.ts`. When a page ships, set `built: true`; links then appear in
   production once their content gate passes (Work >= 2 projects, Writing and RSS >= 3 posts). Dev shows everything.
 - **Blog:** posts render through `renderPost` (`src/lib/markdoc.ts`): heading ids, ToC headings and reading time come from it
@@ -194,7 +224,7 @@ Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw 
   `config/security-headers.mjs` adds `'wasm-unsafe-eval'` to those routes' CSP only.
 - **Single-key shortcuts** (`/` search) must go through `src/scripts/shortcuts.ts` (`shortcutKey`, `shortcutsEnabled`,
   `setShortcutsEnabled`): ignored in fields and with modifiers, with an off switch in the search dialog (WCAG 2.1.4).
-- The chip filter (zero-JS radios + `:has()`) is used on `/work` and `/blog`.
+- The chip filter (zero-JS radios + `:has()`) is used on `/work` and `/blog`, and for the home review loop's country chips.
 - **Closing CTA:** `ContactBlock` is a flat two-column block (statement left, contact paths right), no gradient. Props: `location`
   (`final` | `footer_cta`, the analytics location), `headingId`, `form` (inline 3-field form instead of the "Project inquiry" link; one
   per page). `SiteFooter` renders it as `footer_cta` on every page that keeps `footerCta`; the home page renders it as `final` with `form`.
@@ -236,12 +266,15 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - **Contact:** WhatsApp is the primary conversation CTA in the body (context-aware prefilled `wa.me` links, QR on desktop); the
   header CTA is "Let's talk" -> /contact. Secondary: email (copy + mailto), 3-field form (plain `POST /api/contact`,
   `prerender = false`, Resend, honeypot), LinkedIn, Upwork, GitHub.
-- **Proof:** Upwork Top Rated / 100% JSS / 5.0 strip; one home `#proof` section joining the client world map from Tunis (build-time
-  dot-grid SVG, CSS scroll-linked entry and hover loops) with the Upwork review quotes (country radios + `:has()`, zero JS; each
-  review is tagged with a client `country` in Keystatic, untagged reviews follow as plain cards); research projects; case studies
+- **Proof:** Upwork proof line in the hero (5 stars + a chip rolling Top Rated / 100% JSS / reviews / countries); one home `#proof` section joining the client world map from Tunis (build-time
+  dot-grid SVG, CSS scroll-linked entry and hover loops) with the Upwork review quotes popping from their country as a looping chat
+  bubble (country radios + `:has()`, zero JS; each review is tagged with a client `country` in Keystatic, untagged reviews follow as
+  plain cards); research projects; case studies
   added later (sections are content-gated).
 - **Content types (2):** `projects` at /work/[slug] (type: client | side | research) and `posts` at /blog/[slug]
   (type: article | note). Type = chip + zero-JS filter on the index; pillars and topics are tags at /tag/[tag].
+- **How we work:** the home process is a chat between a founder and me (Keystatic `home.process[].messages`, one chip per step);
+  the time-zone objection is one line beside it (Tunis, UTC+1, overlap with European hours) plus the FAQ; no time-zone table.
 - **Pages (all built):** home (services, process, FAQ live here only), /work, /blog, /tag/[tag], /about, /cv
   (+ text PDF, ATS-friendly), /contact, /privacy, 404 (no /legal: not a French business). Done: content engine, OG, RSS, llms.txt, search.
 - **Signature:** none at the moment. Spec mode (blueprint overlay) was removed in the 2026-11-17 owner review and is to be
@@ -281,7 +314,7 @@ verification): **`docs/launch-checklist.md`**. Summary:
   (headings, rules and CTA pure white); AAA secondary grays #595959 / #A3A3A3; hairlines #E5E5E5 / #262626. Fluid type
   scale 16 -> 18px, ratio 1.2 -> 1.333 (320 -> 1440px). Width: margins 16 -> 80px, content capped at 1440px, extra width
   becomes margin. **WhatsApp CTAs use WhatsApp green #25D366 with a black label** (the one exception to "no accent").
-  Header: grid-aligned (nav from column 7, full-bleed ink rule, 3px active bar), WhatsApp button labelled "WhatsApp" (replaced 2026-11-17 by GitHub icon + "Let's talk" CTA),
+  Header: grid-aligned (nav from column 7, full-bleed ink rule, 3px active bar (superseded 2026-11-20: header nav morph)), WhatsApp button labelled "WhatsApp" (replaced 2026-11-17 by GitHub icon + "Let's talk" CTA),
   contrast-glyph theme toggle; mobile menu = full-screen Popover sheet. Footer: closing CTA "Tell me what you're
   building." (not on home), base/timezone, site + contact columns, oversized edge-to-edge wordmark. 404: numeral as
   type + small Dusk glow. Dusk grain: medium. Favicon: black tile, white Geist Bold D. Nav gating: hidden in prod until
@@ -412,6 +445,53 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - 2026-11-17 closing CTA: `ContactBlock` is a flat two-column block (statement left, contact paths right; no gradient), with
   `location` and `form` props; `SiteFooter` renders it as `footer_cta`, the home page as `final` with the inline form. The /contact H1
   lost its Dusk glow.
+- 2026-11-17 rules and buttons (owner review): the amber `--rule` token and every `border-rule` are gone (separators are
+  `--border` hairlines where structure needs them, otherwise removed); the footer wordmark (and its `.wordmark-light`,
+  `--brand-display` and the footer grid's `relative z-10`) is gone; buttons morph shape and turn their arrow instead of
+  lifting with a pink halo, and project cards morph their frame corners instead of lifting.
+
+- 2026-11-17 trust strip -> hero proof line (owner review): the four-column strip under the Statement is gone; `TrustStrip` now
+  renders inside the hero between subline and doors: five stars (fills pop once in sequence, `[--i:n]`), "5.0", a claims chip
+  and "Verified on Upwork". The chip's `<ul>` holds every claim (no aria-live); with motion, `:has()` and on screen it becomes a
+  one-line slot that rolls twice (2 x 12 s) and rests on the badge; paused on hover/focus-within, a zero-JS checkbox pauses and
+  shows the full list, keyboard focus on the countries link does the same. Reduced motion, print and no `:has()` show the list. Zero JS.
+- 2026-11-17 review loop variant A chosen; thread moved to Process; time-zone table removed (owner review). The home proof loop is
+  the chat bubble (A); the toast (B) code and the `/lab/reviews` lab are gone (`devLab` in `astro.config.mjs` keeps one `injectRoute`
+  per lab). The conversation-thread look (C) became the "How we work" section: `ProcessThread` is scroll-linked (user controlled, so
+  no pause control is needed and no timer runs) rather than a timed loop, which also lets full-length messages show unclamped. Process
+  steps gained `messages` (from founder or me) in Keystatic, replacing the unused `text`; the copy is `[Draft]` and only restates
+  facts already on the site (WhatsApp or a call, written scope and quote, one engineer from first call to launch, weekly updates,
+  documented handover, support). `src/lib/overlap.ts`, the `home.tz.*` strings and the table are gone; `home.process.timezone`
+  keeps one line ("full overlap with European working hours", as in the footer and closing CTA).
+
+- 2026-11-18 review round (owner): **About = variant B "Two readers"** (founder story + practices, recruiter spec card with CV HTML/PDF),
+  `/lab/about` removed. **Springs**: M3 Expressive spring tokens (`src/lib/spring.ts`), applied to buttons, arrows, cards, the theme glyph
+  and a livelier portrait morph (13.4 s loop). **Tick rings replaced** by `MorphShape` (scroll-linked morph + twist + tone; `--shape-*`
+  tokens; amber in the shapes is a warm tertiary pending owner OK, given the Dusk rule). **Map stripped** to land dots + flashlight (no
+  client markers, arcs/sparks, base marker or "Based here", no legend, `ClientsMapStyle` deleted). **Reviews two at a time** from 64rem
+  stage width (container query `rl`): a bubble pops every 6 s and lives 10.5 s, so pops and exits never coincide; loop order and bubble
+  side are planned at build time so neighbours never overlap (falls back to one at a time); spring pop from the country point; bubbles
+  name their country; country radios moved into chips under the map ("All" resets). Labs opened: `/lab/header` (nav
+  hover: A state layer, B glide, C morph, D roll; C shipped 2026-11-20, lab deleted) and `/lab/hero` (A quiet, B starlit,
+  C moonrise, D night (recommended): decluttered copy, rating stars scattered as a twinkling night sky, Statement merged into the hero).
+  Labs register in `devLab` (`astro.config.mjs`), dev only.
+- 2026-11-20 header nav: owner picked `/lab/header` variant C "Morph" (a shape that grows from the current-page dot and inverts
+  labels; toggle and GitHub join it). The per-tab underline and 3px current bar are gone; the lab is deleted.
+- 2026-11-20 reviews (owner): **loop faster**: a new review every 3.2 s wide (lives 3.8-5.0 s, scaled by quote length within the
+  two-track rules), 3.6-5.4 s narrow. **Queued client avatars**: the next client's avatar pops at its country and shows typing dots
+  for ~1.2 s, then the bubble grows out of it; the planner keeps bubbles clear of the other visible avatar. **`playback` prop**
+  (`loop` | `scroll`, switched by one const in `src/pages/index.astro`; home stays on `loop`): `scroll` pins the map under the header over
+  40svh per review and steps through the reviews with the same timed spring entries, never scrubbed. A tiny script limits it to one
+  review per 0.9 s so a fling never flashes reviews; it never moves the scroll, so a hard fling can still leave the section (no
+  hijacking). CSS scroll snap was rejected after real-input tests (proximity pulled notched wheels back to the current step;
+  mandatory trapped End). No JS, or viewports under 30rem tall: plain cards. Dev-only `/lab/proof` shows the scroll mode in context.
+- 2026-11-20 hero lab round 2 (owner chose D "alive" with changes): `/lab/hero` now holds four refinements of D with white stars,
+  nothing behind the portrait and one pause control for all hero motion: A Breath (slow circle/cookie breathing, zenith sky),
+  B Starlight (still circle, night grade + 1px rim lit from the upper right, radial sky; recommended), C Orbit (orbit ring with one star,
+  ink sky), D In step (portrait winks in time with a rating star, indigo sky). Proposed `--night-*`/`--star` tokens are in the lab.
+- 2026-11-20 hero restart (owner review: the live hero is too busy, does not match the site and looks low quality): the round-2
+  hero lab is deleted; the hero is redone from scratch with the Hallmark skill. The review loop no longer pauses on hover over the
+  map (owner); the Auto-play switch and focus in the country chips still pause it.
 
 ## Do not
 

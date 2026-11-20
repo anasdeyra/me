@@ -1,9 +1,10 @@
 ---
 // Sticky site header (FR-1, FR-2). Desktop (lg+): wordmark on column 1, nav from column 7, then the theme
-// toggle, a GitHub icon link and the blue "Let's talk" CTA (to /contact); the active page is a 3px bar sitting on
-// the full-bleed rule. Below lg: wordmark, CTA (always visible), GitHub from sm up and a Menu button opening a
-// full-screen sheet (Popover API, zero JS) that also holds GitHub (below sm), WhatsApp and the theme toggle. The Spec mode toggle
-// floats in the bottom corner (Phase 5) and is not part of the header.
+// toggle, a GitHub icon link and the "Let's talk" CTA (to /contact). One shape answers the nav (header lab variant C,
+// "Morph", owner pick 2026-11-20; zero JS, see the global <style> below): a dot under the current page that grows into
+// a solid soft-cornered shape on the hovered or focused tab, toggle or GitHub. Below lg: wordmark, CTA (always
+// visible), GitHub from sm up and a Menu button opening a full-screen sheet (Popover API, zero JS) that also holds
+// GitHub (below sm), WhatsApp and the theme toggle.
 import { t } from '@/i18n';
 import { getSettings } from '@/lib/content';
 import { isCurrent, mainNav } from '@/lib/routes';
@@ -18,10 +19,12 @@ const settings = await getSettings();
 const { pathname } = Astro.url;
 const nav = await mainNav(pathname);
 const atHome = isCurrent('/', pathname);
+// The nav shape also visits the theme toggle and GitHub (desktop); without a nav there is no shape.
+const shapeTarget = nav.length > 0 ? 'site-target site-ghost' : undefined;
 ---
 
-<header class="sticky top-0 z-40 border-b border-rule bg-background">
-  <div class="wrap flex h-header items-center lg:grid-page">
+<header class="sticky top-0 z-40 border-b border-border bg-background">
+  <div class="site-row wrap relative flex h-header items-center lg:grid-page">
     <a
       href="/"
       class="text-[1.3125rem] font-semibold tracking-[-0.04em] text-ink decoration-1 underline-offset-[0.2em] transition-colors duration-(--dur-1) hover:text-link-hover hover:underline focus-visible:text-link-hover lg:col-span-6 lg:justify-self-start"
@@ -35,13 +38,15 @@ const atHome = isCurrent('/', pathname);
     <div class="ms-auto flex h-full items-center gap-2 lg:col-span-6 lg:ms-0">
       {nav.length > 0 && (
         <nav aria-label={t('nav.label')} class="hidden h-full lg:block">
-          <ul class="flex h-full gap-7">
+          {/* Tabs touch (no dead zones while sweeping); the negative start margin keeps the first label on column 7.
+              Padding is 12px up to xl so the bar still fits its grid at 1024px, 16px from xl. */}
+          <ul class="-ms-3 flex h-full items-center xl:-ms-4">
             {nav.map((item) => (
-              <li class="h-full">
+              <li class="site-item">
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="relative flex h-full items-center text-sm text-foreground transition-colors duration-(--dur-1) hover:text-ink focus-visible:text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:origin-left after:scale-x-0 after:bg-ink after:transition-transform after:duration-(--dur-2) after:ease-(--ease-out) hover:after:scale-x-100 focus-visible:after:scale-x-100 aria-[current=page]:after:h-[3px] aria-[current=page]:after:scale-x-100 aria-[current=page]:after:bg-primary forced-colors:after:bg-[CanvasText] motion-reduce:after:transition-none"
+                  class="site-tab site-target relative flex h-10 items-center rounded-md px-3 text-sm text-foreground transition-morph xl:px-4 hover:text-ink focus-visible:text-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
                 >
                   {item.label}
                 </a>
@@ -52,7 +57,7 @@ const atHome = isCurrent('/', pathname);
       )}
 
       <div class="flex items-center gap-2 lg:ms-auto">
-        <ThemeToggle class="hidden lg:inline-flex" />
+        <ThemeToggle class={cn('hidden lg:inline-flex', shapeTarget)} />
         <a
           href={settings.links.github}
           target="_blank"
@@ -60,6 +65,7 @@ const atHome = isCurrent('/', pathname);
           class={cn(
             buttonVariants({ variant: 'ghost', size: 'icon-lg' }),
             'hidden sm:inline-flex',
+            shapeTarget,
           )}
           data-track="contact_github"
           data-track-location="header"
@@ -86,6 +92,7 @@ const atHome = isCurrent('/', pathname);
         </button>
       </div>
     </div>
+    {nav.length > 0 && <span class="site-shape" aria-hidden="true" />}
   </div>
 
   <div id="site-menu" popover class="site-menu bg-background text-foreground">
@@ -98,7 +105,7 @@ const atHome = isCurrent('/', pathname);
                 <a
                   href={item.href}
                   aria-current={item.current ? 'page' : undefined}
-                  class="flex items-center justify-between border-b border-rule py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:bg-primary forced-colors:aria-[current=page]:after:bg-[CanvasText]"
+                  class="flex items-center justify-between border-b border-border py-3 text-4xl font-semibold text-ink aria-[current=page]:after:size-3 aria-[current=page]:after:rounded-full aria-[current=page]:after:bg-primary forced-colors:aria-[current=page]:after:bg-[CanvasText]"
                 >
                   {item.label}
                 </a>
@@ -184,6 +191,245 @@ const atHome = isCurrent('/', pathname);
   }
   :global(html:has(.site-menu:popover-open)) .menu-label-close {
     display: inline;
+  }
+</style>
+
+<style is:global>
+  /*
+   * Desktop nav shape (header lab variant C "Morph", owner pick 2026-11-20). One anchor-positioned element, zero JS. At
+   * rest it is a 6px dot under the current page. Hover or keyboard focus on a tab, the theme toggle or GitHub (each a
+   * `.site-target`) moves the anchor there: the dot leaps over and grows into a solid shape with the buttons' hover corners
+   * (radius-md), glides between targets, squashes when pressed, and shrinks back into the dot after a 160ms hover intent
+   * (so crossing to the toggle never sends it home first). Keyboard focus wins over a pointer parked on the bar.
+   * Colour: white with a difference blend, so it shows as black on the light bar and white on the dark one and inverts the
+   * label it covers, even mid-flight. That needs the header's own solid background (sticky + z-index already make the
+   * header the blend's stacking context). Global, not scoped: the toggle is a child component.
+   * Motion: travel on the default spring, growth and corners on the bouncy spring, press on the fast spring, opacity on the
+   * effect curve, plus a small stretch pulse on each new target. Reduced motion: no transitions, it jumps (colour only).
+   * Home (no current tab): hidden at rest; the anchor() fallbacks park it at the row centre, just before the first tab,
+   * so it grows out from there. Without anchor positioning each tab fills in place; in forced colours tabs underline.
+   * Logical insets throughout, so RTL needs nothing extra.
+   */
+  .site-shape {
+    display: none;
+  }
+
+  @media (width >= 64rem) {
+    @supports (anchor-name: --a) {
+      .site-shape {
+        display: block;
+        position: absolute;
+        position-anchor: --site-shape;
+        z-index: 1;
+        /* Rest: a 6px dot under the current label (anchor = the 40px tab). */
+        inset-inline-start: calc(anchor(center, 50%) - 3px);
+        inset-inline-end: calc(anchor(center, 50%) - 3px);
+        inset-block-start: calc(anchor(end, calc(50% + 1.25rem)) - 9px);
+        inset-block-end: calc(anchor(end, calc(50% - 1.25rem)) + 3px);
+        border-radius: 3px;
+        background-color: var(--background); /* white in light */
+        mix-blend-mode: difference;
+        pointer-events: none; /* never steal the hover from the control below (it would flicker) */
+      }
+      .dark .site-shape {
+        background-color: var(--ink); /* white in dark */
+      }
+      .site-row:not(:has(.site-tab[aria-current='page'])) .site-shape {
+        opacity: 0;
+      }
+
+      /* The shape replaces the ghost buttons' own hover fill (it would show through the blend). */
+      .site-ghost,
+      .site-ghost:hover {
+        background-color: transparent;
+        color: var(--ink);
+      }
+
+      .site-tab[aria-current='page'] {
+        anchor-name: --site-shape;
+      }
+      .site-row:has(.site-target:focus-visible) .site-target {
+        anchor-name: none;
+      }
+      .site-row:has(.site-target:focus-visible) .site-target:focus-visible {
+        anchor-name: --site-shape;
+      }
+      .site-row:has(.site-target:focus-visible) .site-shape {
+        inset-inline-start: anchor(start);
+        inset-inline-end: anchor(end);
+        inset-block-start: anchor(start);
+        inset-block-end: anchor(end);
+        border-radius: var(--radius-md);
+        opacity: 1;
+      }
+      @media (hover: hover) {
+        .site-row:has(.site-target:hover):not(:has(.site-target:focus-visible))
+          .site-target {
+          anchor-name: none;
+        }
+        .site-row:has(.site-target:hover):not(:has(.site-target:focus-visible))
+          .site-target:hover {
+          anchor-name: --site-shape;
+        }
+        .site-row:has(.site-target:hover) .site-shape {
+          inset-inline-start: anchor(start);
+          inset-inline-end: anchor(end);
+          inset-block-start: anchor(start);
+          inset-block-end: anchor(end);
+          border-radius: var(--radius-md);
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .site-shape {
+          transition-property:
+            inset-inline-start, inset-inline-end, inset-block-start,
+            inset-block-end, border-radius, scale, opacity;
+          transition-duration:
+            var(--dur-spring), var(--dur-spring), var(--dur-spring-bouncy),
+            var(--dur-spring-bouncy), var(--dur-spring-bouncy),
+            var(--dur-spring-fast), var(--dur-effect);
+          transition-timing-function:
+            var(--ease-spring), var(--ease-spring), var(--ease-spring-bouncy),
+            var(--ease-spring-bouncy), var(--ease-spring-bouncy),
+            var(--ease-spring-fast), var(--ease-effect);
+          transition-delay: 160ms; /* hover intent, on the way home only */
+          animation-duration: var(--dur-spring);
+          animation-timing-function: var(--ease-in-out);
+        }
+        .site-row:has(.site-target:focus-visible) .site-shape {
+          transition-delay: 0s;
+        }
+        /* Pressed: squash, and the corners tighten one step (as on buttons). */
+        .site-row:has(.site-target:active) .site-shape {
+          scale: 0.94;
+          border-radius: var(--radius-sm);
+        }
+        @media (hover: hover) {
+          .site-row:has(.site-target:hover) .site-shape {
+            transition-delay: 0s;
+          }
+          /* Stretch pulse: one keyframe name per target, so each new target restarts it. */
+          .site-row:has(
+              .site-item:nth-child(1) > .site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-1;
+          }
+          .site-row:has(
+              .site-item:nth-child(2) > .site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-2;
+          }
+          .site-row:has(
+              .site-item:nth-child(3) > .site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-3;
+          }
+          .site-row:has(
+              .site-item:nth-child(4) > .site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-4;
+          }
+          .site-row:has(
+              .site-item:nth-child(5) > .site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-5;
+          }
+          .site-row:has(
+              [data-theme-toggle].site-target:is(:hover, :focus-visible)
+            )
+            .site-shape {
+            animation-name: site-shape-go-6;
+          }
+          .site-row:has(a.site-ghost:is(:hover, :focus-visible)) .site-shape {
+            animation-name: site-shape-go-7;
+          }
+        }
+      }
+    }
+
+    /* Without anchor positioning: each tab fills in place; the current page keeps its dot. */
+    @supports not (anchor-name: --a) {
+      .site-tab[aria-current='page']::after {
+        content: '';
+        position: absolute;
+        inset-block-end: 3px;
+        inset-inline-start: calc(50% - 3px);
+        inline-size: 6px;
+        block-size: 6px;
+        border-radius: 3px;
+        background-color: var(--primary);
+      }
+      .site-tab:focus-visible {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+      }
+      @media (hover: hover) {
+        .site-tab:hover {
+          background-color: var(--primary);
+          color: var(--primary-foreground);
+        }
+      }
+    }
+  }
+
+  @media (forced-colors: active) {
+    .site-row .site-shape {
+      display: none;
+    }
+    .site-tab[aria-current='page']::after {
+      background-color: CanvasText;
+    }
+    .site-tab:is([aria-current='page'], :focus-visible) {
+      text-decoration: underline;
+    }
+    @media (hover: hover) {
+      .site-tab:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  @keyframes site-shape-go-1 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-2 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-3 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-4 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-5 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-6 {
+    45% {
+      scale: 1.06 0.9;
+    }
+  }
+  @keyframes site-shape-go-7 {
+    45% {
+      scale: 1.06 0.9;
+    }
   }
 </style>
 

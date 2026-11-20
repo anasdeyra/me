@@ -1,7 +1,8 @@
 ---
 // Site footer (study 6, FR-17 links): closing CTA (ContactBlock; pages with their own CTA turn it off),
-// base and timezone, site links on column 7 (like the header nav), contact on column 10, an edge-to-edge
-// wordmark, and small print. Links to unbuilt or under-filled sections are gated (src/lib/routes.ts).
+// base and timezone, site links on column 7 (like the header nav), contact on column 10, and small print.
+// No oversized wordmark (removed in the 2026-11-17 owner review). Links to unbuilt or under-filled sections are
+// gated (src/lib/routes.ts).
 import { t } from '@/i18n';
 import { mailtoHref, whatsappHref } from '@/lib/contact';
 import { getSettings } from '@/lib/content';
@@ -55,8 +56,8 @@ const listLink =
 <footer>
   {cta && <ContactBlock location="footer_cta" headingId="footer-cta-title" />}
 
-  <div class="border-t border-rule">
-    <div class="wrap grid-page relative z-10 gap-y-10 pt-10 pb-14">
+  <div class="border-t border-border">
+    <div class="wrap grid-page gap-y-10 py-12 md:py-16">
       <div class="col-span-12 max-w-measure md:col-span-5">
         <p>
           {t('footer.base', {
@@ -121,21 +122,6 @@ const listLink =
             </li>
           ))}
         </ul>
-      </div>
-    </div>
-
-    {/* Brand moment: the wordmark set edge to edge on the grid. 40.2cqi fits "Deyra" in Geist Semibold
-         at -0.05em tracking; the negative indent cancels the D's side bearing so its stem sits on the
-         grid edge. Decorative duplicate of the header wordmark, so hidden from assistive tech. */}
-    <div class="wrap" aria-hidden="true">
-      <div class="@container">
-        <p
-          translate="no"
-          data-glow
-          class="wordmark-light -ms-[0.08em] pb-[0.16em] text-[length:40.2cqi] leading-[0.75] font-semibold tracking-[-0.05em] text-display select-none"
-        >
-          {settings.brand}
-        </p>
       </div>
     </div>
 
