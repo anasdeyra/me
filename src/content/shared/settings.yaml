@@ -20,11 +20,11 @@ location:
   longitude: 10.1815
 languages:
   - code: en
-    level: unspecified
+    level: bilingual
   - code: fr
-    level: unspecified
+    level: professional
   - code: ar
-    level: unspecified
+    level: native
 career:
   openToRoles: true
   workModes:
@@ -34,3 +34,4 @@ career:
   openToRelocation: true
   startYear: 2021
   projects: 10+
+workingHours: {}

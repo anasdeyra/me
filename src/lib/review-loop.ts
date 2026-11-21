@@ -506,6 +506,8 @@ function keyframes(
     out.push(
       `@keyframes ${name('av', L)}{0%{${hidden};transform:scale(.3)}${p(AV_IN)}{${shown};transform:none}${p(LEAD - 0.02)}{${shown};transform:none;${ex}}${p(LEAD + 0.1)},100%{${hidden};transform:scale(.6)}}`,
       `@keyframes ${name('pop', L)}{0%,${p(LEAD)}{transform:scale(.5) rotate(var(--rl-rot,0deg))}${p(LEAD + POP_IN)}{transform:none}${p(end - EXIT)}{transform:none;${ex}}${p(end)},100%{transform:scale(.92)}}`,
+      // The review's pip is long while its bubble shows.
+      `@keyframes ${name('pip', L)}{0%,${p(LEAD)},${p(end)},100%{inline-size:.5rem;background-color:var(--border)}${p(LEAD + FADE_IN)},${p(end - EXIT)}{inline-size:1.5rem;background-color:var(--ink)}}`,
       `@keyframes ${name('fade', L)}{0%,${p(LEAD)}{${hidden}}${p(LEAD + FADE_IN)}{${shown}}${p(end - EXIT)}{${shown};${ex}}${p(end)},100%{${hidden}}}`,
     );
   }
@@ -524,7 +526,7 @@ export function reviewLoopCss(
   model: LoopModel,
   playback: 'loop' | 'scroll' = 'loop',
 ): string {
-  const { items, countries, period: T, width, height, two } = model;
+  const { items, period: T, width, height, two } = model;
   const n = items.length;
   const root = `.rl-${uid}`;
   const out: string[] = [`${root}{--rl-ar:${width}/${height}}`];
@@ -554,11 +556,11 @@ export function reviewLoopCss(
       const vars = items
         .map((it) => {
           const [d, life] = pick(it);
-          return `${root} .q-${it.i}{--d:${d}s;--k-av:${name('av', life)};--k-pop:${name('pop', life)};--k-fade:${name('fade', life)}}`;
+          return `${root} .q-${it.i}{--d:${d}s;--k-av:${name('av', life)};--k-pop:${name('pop', life)};--k-fade:${name('fade', life)};--k-pip:${name('pip', life)}}`;
         })
         .join('');
       return {
-        rules: `${root} .cmap{--T:${period}s;--k-dots:${name('dots')};--k-type:${name('type')}${r === 2 ? ';--rl-two:1' : ''}}${vars}`,
+        rules: `${root} :is(.cmap,.pick){--T:${period}s;--k-dots:${name('dots')};--k-type:${name('type')}${r === 2 ? ';--rl-two:1' : ''}}${vars}`,
         frames: keyframes(
           name,
           period,
@@ -574,12 +576,12 @@ export function reviewLoopCss(
     }
   }
 
-  // Manual selection (a country radio): its first review (avatar and bubble) shows, still. Zero JS.
-  const sel = countries
-    .map((c) => {
-      const first = c.items.find((it) => it.first) ?? c.items[0]!;
-      return `${root}:has(#${uid}-c-${c.iso}:checked) .q-${first.i}.sel{animation:none;opacity:1;visibility:visible;transform:none}`;
-    })
+  // Manual selection (a pip radio): that review (avatar and bubble) shows, still. Zero JS.
+  const sel = items
+    .map(
+      (it) =>
+        `${root}:has(#${uid}-p-${it.i}:checked) .q-${it.i}.sel{animation:none;opacity:1;visibility:visible;transform:none}`,
+    )
     .join('');
   out.push(`@supports selector(:has(*)){${sel}}`);
   return out.join('');

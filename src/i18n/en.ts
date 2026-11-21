@@ -325,13 +325,13 @@ export const en = {
 
   // Testimonials
   'proof.eyebrow': 'Reviews',
-  'proof.title': 'What clients say, country by country',
-  'proof.titlePlain': 'What clients say',
+  'proof.title': 'What clients and colleagues say',
+  'proof.titlePlain': 'What clients and colleagues say',
   'proof.all': 'All reviews on Upwork',
   'proof.loop.auto': 'Auto-play reviews',
-  'proof.loop.pick': 'Reviews by country',
-  'proof.loop.all': 'All',
-  'proof.loop.list': 'Client reviews',
+  'proof.loop.pick': 'Pick a review',
+  'proof.loop.resume': 'Play all',
+  'proof.loop.list': 'Reviews',
   'proof.scroll.hint': 'Scroll for the next review',
   'testimonial.client': 'Upwork client',
   'proof.caseStudy': 'Case study: {title}',

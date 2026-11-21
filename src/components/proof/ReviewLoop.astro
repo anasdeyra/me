@@ -4,13 +4,13 @@
 // review bubble pops, the avatar and dots are gone and the bubble grows out of the avatar's spot. The loop order, each bubble's side of its country and the rhythms come from
 // src/lib/review-loop.ts; the generated CSS (positions, keyframes, the two-at-a-time breakpoint) is ReviewLoopStyle,
 // which the page puts in the head with the same `uid`, `places` and `playback`.
-// The stage is a size container (`rl`): narrow, one bubble at a time sits under the map with its tail at the
+// The pin (map and controls) is a size container (`rl`): narrow, one bubble at a time sits under the map with its tail at the
 // country's x; from 64rem the bubbles float over the map, and when the model found room two at a time.
 // `playback`:
 // - `loop` (default, zero JS): CSS keyframes cycle the reviews. WCAG 2.2.2: the loop pauses with the Auto-play switch
 //   and on focus in the country chips (not on hover over the map: owner review 2026-11-20); under reduced motion it never rotates (the first
-//   review shows, still). Countries are radio chips under the map: picking one stops the loop on that country's
-//   review; "All" returns to the loop.
+//   review shows, still). Under the map, one pip per review (radios): picking one stops the loop on that review;
+//   "Play all" returns to the loop.
 // - `scroll`: the scene is pinned (sticky) over a track with one step per review (snap points); the shown step
 //   follows the scroll one step at a time (src/scripts/review-scroll.ts, loaded only in this mode), and each entry
 //   is a time-based spring keyed on `data-on`. After the last review the scene scrolls away with the page. No
@@ -40,7 +40,7 @@ interface Props {
 
 const { uid = 'proof', places, playback = 'loop' } = Astro.props;
 const model = await reviewLoopModel(places);
-const { items, countries } = model;
+const { items } = model;
 const scroll = playback === 'scroll';
 const loop = items.length > 1;
 const id = (s: string) => `${uid}-${s}`;
@@ -130,7 +130,7 @@ const listed = [...items].sort(
           </div>
         ) : (
           <div class="ctl">
-            <fieldset class="work-filter pick">
+            <fieldset class="pick">
               <legend class="sr-only">{t('proof.loop.pick')}</legend>
               <input
                 type="radio"
@@ -139,21 +139,26 @@ const listed = [...items].sort(
                 id={id('all')}
                 checked
               />
-              <label for={id('all')}>{t('proof.loop.all')}</label>
-              {countries.map((c) => (
-                <>
-                  <input
-                    type="radio"
-                    class="cr"
-                    name={id('c')}
-                    id={id(`c-${c.iso}`)}
-                    aria-describedby={c.items
-                      .map((it) => id(`r-${it.i}`))
-                      .join(' ')}
-                  />
-                  <label for={id(`c-${c.iso}`)}>{c.name}</label>
-                </>
-              ))}
+              <span class="pips">
+                {items.map((it) => (
+                  <>
+                    <input
+                      type="radio"
+                      class="cr"
+                      name={id('c')}
+                      id={id(`p-${it.i}`)}
+                      aria-describedby={id(`r-${it.i}`)}
+                    />
+                    <label for={id(`p-${it.i}`)} class={`q-${it.i}`}>
+                      <span class="sr-only">{author(it)}</span>
+                      <i class="anim" />
+                    </label>
+                  </>
+                ))}
+              </span>
+              <label class="resume" for={id('all')}>
+                {t('proof.loop.resume')}
+              </label>
             </fieldset>
             {loop && (
               <label class="switch">
@@ -213,8 +218,9 @@ const listed = [...items].sort(
     --typing-fg: #a3a3a3;
     --typing-line: #333333;
   }
-  /* The map stage is the size container both layouts (and the generated two-at-a-time rhythm) query. */
-  .area {
+  /* The size container both layouts (and the generated two-at-a-time rhythm) query. It is the pin, not the map
+     area, so the pips under the map get the same rhythm variables as the bubbles (same width). */
+  .pin {
     container: rl / inline-size;
   }
 
@@ -550,16 +556,64 @@ const listed = [...items].sort(
   .rl:has(.cr:checked) .switch {
     display: none;
   }
+  /* Pips (same look as the scroll progress): radios hidden, the label is the target, the picked one is long. */
+  .pick .all,
+  .pick .cr {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+  }
+  .pick label:not(.resume) {
+    display: inline-flex;
+    padding: 0.5rem 0.1875rem;
+    cursor: pointer;
+  }
+  .pick .cr:checked + label i {
+    inline-size: 1.5rem;
+    background-color: var(--ink);
+  }
+  .pick .cr:focus-visible + label i {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .pick .pips {
+    gap: 0;
+  }
+  .resume {
+    display: none;
+    color: var(--ink);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .rl:has(.cr:checked) .resume {
+    display: inline;
+  }
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
 
   /* No rotation (reduced motion, or a single review): the first review and its client show, still. */
   .rl[data-playback='loop'][data-n='one']:has(.all:checked) .bub.q-0 {
     opacity: 1;
     visibility: visible;
   }
+  .rl[data-playback='loop']:not([data-n='loop']):has(.all:checked) .pick .q-0 i {
+    inline-size: 1.5rem;
+    background-color: var(--ink);
+  }
   @media (prefers-reduced-motion: reduce) {
     .rl[data-playback='loop']:has(.all:checked) .bub.q-0 {
       opacity: 1;
       visibility: visible;
+    }
+    .rl[data-playback='loop']:has(.all:checked) .pick .q-0 i {
+      inline-size: 1.5rem;
+      background-color: var(--ink);
     }
     .switch {
       display: none;
@@ -590,6 +644,10 @@ const listed = [...items].sort(
       animation-name: var(--k-type);
       animation-delay: calc(var(--d) + var(--j, 0) * 0.12s);
       animation-timing-function: var(--ease-in-out);
+    }
+    .rl[data-playback='loop'][data-n='loop']:has(.all:checked) .pick i {
+      animation-name: var(--k-pip);
+      animation-timing-function: var(--ease-effect);
     }
     .rl[data-playback='loop'][data-n='loop']:has(.all:checked) .bub {
       animation-name: var(--k-pop), var(--k-fade);
