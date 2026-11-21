@@ -4,7 +4,6 @@ groups:
       - TypeScript
       - JavaScript
       - Go
-      - Python
   - name: Frontend
     items:
       - Vue.js
@@ -13,10 +12,9 @@ groups:
   - name: Backend
     items:
       - Node.js
+      - NestJS
       - SOAP and REST APIs
       - PostgreSQL
-      - MongoDB
-      - Redis
   - name: Infrastructure
     items:
       - Google Cloud

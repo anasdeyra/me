@@ -12,7 +12,7 @@ cvSummary: >-
 photo: photo.jpg
 cutout: cutout.png
 photoAlt: Portrait of Anas Deyra
-researchSummary: '[Draft] Research master''s in information systems at ISI, University of Tunis El Manar.'
+researchSummary: "Research master's in information systems at the Higher Institute of Computer Science, Tunis."
 facts:
   - label: Based in
     value: Tunis, Tunisia (UTC+1)

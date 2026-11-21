@@ -8,5 +8,5 @@ photo: photo.jpeg
 company: Metis
 source: direct
 relatedProject: metis
-featured: false
-order: 3
+featured: true
+order: 4

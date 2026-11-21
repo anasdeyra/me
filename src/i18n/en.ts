@@ -127,7 +127,7 @@ export const en = {
     '{name} is a product engineer based in {city}, {country}. I run this site and decide what happens to the data described below.',
   'privacy.form.title': 'What the contact form collects',
   'privacy.form.body':
-    'Your name, email address and message, so I can reply. I use them only to answer you and to follow up on your project. [Draft] Retention: I keep a conversation for up to 12 months after the last message, unless a project starts, and then for the life of the project.',
+    'Your name, email address and message, so I can reply. I use them only to answer you and to follow up on your project. Retention: I keep a conversation for up to 12 months after the last message, unless a project starts, and then for the life of the project.',
   'privacy.analytics.title': 'Analytics',
   'privacy.analytics.body':
     'The site uses Vercel Web Analytics to count visits and clicks on contact buttons. It sets no cookies and builds no profile of you across sites.',
@@ -136,10 +136,10 @@ export const en = {
     'If you message me on WhatsApp or by email, that service handles your message under its own privacy policy. I see your number or address and what you write.',
   'privacy.processors.title': 'Who else processes data',
   'privacy.processors.body':
-    '[Draft] Resend delivers the contact form to my inbox and Vercel hosts the site. Both process data on my behalf, and I share it with no one else.',
+    'Resend delivers the contact form to my inbox and Vercel hosts the site. Both process data on my behalf, and I share it with no one else.',
   'privacy.rights.title': 'Your rights',
   'privacy.rights.body':
-    '[Draft] You can ask what I hold about you, ask me to correct it, or ask me to delete it. Visitors in the EU have these rights under the GDPR; visitors in Tunisia have them under Law 2004-63 on personal data protection.',
+    'You can ask what I hold about you, ask me to correct it, or ask me to delete it. Visitors in the EU have these rights under the GDPR; visitors in Tunisia have them under Law 2004-63 on personal data protection.',
   'privacy.contact.title': 'Contact',
   'privacy.contact.body':
     'For any request about your data, email {email}. I reply within a day.',

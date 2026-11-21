@@ -8,6 +8,8 @@ year: 2026
 stack:
   - Go
 role: Creator
+heroImage: heroImage.jpg
+heroAlt: Illustration of Huginn, Odin's raven, in black on cream
 featured: true
 order: 1
 draft: false

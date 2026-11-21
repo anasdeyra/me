@@ -4,9 +4,11 @@
 // that names the countries. `full` and `compact` add the visible country list (the real text); `bare` is the map
 // alone, with a default slot rendered inside the stage (after the map frame) for overlays such as the review loop
 // (src/components/proof/ReviewLoop.astro). Under a fine pointer a second dot layer lights the land (pointer.ts).
+import { getImage } from 'astro:assets';
 import { t } from '@/i18n';
 import { getClients, getSettings } from '@/lib/content';
 import { countryName, utcOffset } from '@/lib/place';
+import { getProofPlaces, testimonialPhoto } from '@/lib/proof';
 import { buildWorldMap } from '@/lib/world-map';
 
 interface Props {
@@ -24,7 +26,25 @@ const { city, timezone } = settings.location;
 const names = clientEntries
   .map((c) => countryName(c.entry.isoCode))
   .sort((a, b) => a.localeCompare(b));
-const map = buildWorldMap();
+const map = buildWorldMap({
+  places: clientEntries.map((c) => ({ iso: c.entry.isoCode, ...c.entry })),
+});
+// Avatars sit on each client country (not on `bare`, where the review loop draws its own). A country with a review
+// shows that client's photo; any other country gets a generic person glyph. Positioned with SVG attributes (no style="").
+const R = 7;
+const { places } = variant === 'bare' ? { places: [] } : await getProofPlaces();
+const photoByIso = new Map(
+  await Promise.all(
+    places.map(async (p) => {
+      const src = p.testimonials.map(testimonialPhoto).find(Boolean);
+      return [p.iso, src ? (await getImage({ src, width: 28, height: 28 })).src : undefined] as const;
+    }),
+  ),
+);
+const pins =
+  variant === 'bare'
+    ? []
+    : map.points.map((pt) => ({ ...pt, photo: photoByIso.get(pt.iso) }));
 const label = t('clients.label', {
   count: names.length,
   countries: names.join(', '),
@@ -64,6 +84,34 @@ const landId = `land-${uid}`;
           stroke-dasharray={`0 ${map.pitch}`}
         ></use>
       </svg>
+      {pins.length > 0 && (
+        <svg viewBox={map.viewBox} class="pins" aria-hidden="true" focusable="false">
+          <defs>
+            {pins.map((p) => (
+              <clipPath id={`pin-${uid}-${p.iso}`}>
+                <circle cx={p.x} cy={p.y} r={R} />
+              </clipPath>
+            ))}
+          </defs>
+          {pins.map((p) =>
+            p.photo ? (
+              <>
+                <image href={p.photo} x={p.x - R} y={p.y - R} width={R * 2} height={R * 2} preserveAspectRatio="xMidYMid slice" clip-path={`url(#pin-${uid}-${p.iso})`} />
+                <circle class="pin-ring" cx={p.x} cy={p.y} r={R} />
+              </>
+            ) : (
+              <>
+                <circle class="pin-bg" cx={p.x} cy={p.y} r={R} />
+                <path
+                  class="pin-glyph"
+                  transform={`translate(${p.x - R * 0.6} ${p.y - R * 0.6}) scale(${(R * 1.2) / 24})`}
+                  d="M12 12.25a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Zm0 2.25c-4.1 0-7.5 2.1-7.5 5.25V21h15v-1.25c0-3.15-3.4-5.25-7.5-5.25Z"
+                />
+              </>
+            ),
+          )}
+        </svg>
+      )}
     </div>
     <slot />
   </div>
@@ -95,6 +143,27 @@ const landId = `land-${uid}`;
   }
   .lit {
     display: none;
+  }
+  .pins {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .pin-bg {
+    fill: var(--muted);
+  }
+  .pin-glyph {
+    fill: var(--muted-foreground);
+  }
+  .pin-ring,
+  .pin-bg {
+    stroke: var(--border);
+    stroke-width: 0.8;
+  }
+  .pin-ring {
+    fill: none;
   }
   @media (max-width: 639px) {
     .cmap .land {

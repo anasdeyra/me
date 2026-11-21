@@ -10,7 +10,15 @@ bullets:
   - >-
     Built reservations, online booking and table management for QuickSeat, a
     hospitality platform for restaurants and multi-branch groups.
+  - >-
+    Built a website analytics SaaS for a founder in Germany, delivered in under
+    a day.
+  - >-
+    Built a Solana NFT marketplace with React and Metaplex, and an e-commerce
+    product page with Next.js, for clients in Indonesia and Singapore.
 stack:
   - React
   - Next.js
+  - NestJS
+  - TypeScript
 draft: false

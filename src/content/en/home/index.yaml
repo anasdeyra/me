@@ -1,7 +1,7 @@
 hero:
   headline: I build the parts of your product that make money.
   subline: >-
-    Booking and checkout flows, integrations and AI tools, from the first call
+    Booking and checkout flows and supplier integrations, from the first call
     to production.
 services:
   - title: Booking and checkout flows
@@ -20,13 +20,13 @@ services:
       - Integrations that handle timeouts, retries and supplier errors
       - Alerts that tell you a supplier failed before a customer does
       - Documentation your team can maintain without me
-  - title: AI tools and agent workflows
+  - title: AI-assisted engineering
     forWho: >-
-      Teams that spend hours every week on work a well-built AI tool could do.
+      Teams that want the speed of AI tools without losing control of quality.
     deliverables:
-      - AI features built on Claude, inside your product
-      - Agents and MCP servers connected to your tools and data
-      - Logs, limits and human review on every action that matters
+      - Claude agents plan, review and audit the work
+      - I own every decision and every line that ships
+      - Tests on the critical paths and a written handover
   - title: Product engineering
     forWho: >-
       Founders and teams who need a new product or a major feature built to a
@@ -85,12 +85,16 @@ faq:
   - question: How do you use AI in your work?
     answer: >-
       I use Claude agents to plan, review and audit my work, and I own every
-      decision and every line that ships. For clients, I build AI features,
-      agent workflows and MCP servers.
+      decision and every line that ships.
   - question: How do I know the project will be delivered?
     answer: >-
       Five years of shipping software and 100% Job Success on Upwork. On your
       project: a written scope, a demo every week and a documented handover.
+  - question: Are you available for new work?
+    answer: >-
+      Yes. I'm open to freelance projects, contracts and full-time roles. Tell
+      me what you need and when, and my first reply says whether I can start
+      on your timeline.
   - question: What about language and time zones?
     answer: >-
       I work in English, French and Arabic. Tunis is on UTC+1 all year, so my
@@ -106,5 +110,3 @@ faq:
       support and new work as we agree.
   - question: Will you sign an NDA?
     answer: Yes. I sign your NDA before you share any details.
-  - question: Do you do design too?
-    answer: Either way. Bring your designs, or I'll design the UX and UI.

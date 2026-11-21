@@ -13,6 +13,10 @@ stack:
   - NestJS
   - TypeScript
 role: Built reservations, online booking and table management
+heroImage: heroImage.jpg
+heroAlt: >-
+  Reservation software screens: a table floor plan, a reservations list and a
+  booking calendar with time slots
 links:
   live: https://quickseat.co
 featured: true

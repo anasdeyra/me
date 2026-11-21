@@ -19,7 +19,9 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
       `src/content/en/testimonials/*.yaml`. Without a name the review shows a neutral person glyph, not initials.
 - [ ] **Case studies** (2026-11-21: Metis, QuickSeat, Huginn are live; ArtBeat, Solana NFT and the research project were removed):
       write the `[Draft]`/`[TBD]` problem, approach and result of each, QuickSeat's `clientType` and platform stack, Huginn's role.
-      Optional: one real screenshot per project (co-located `heroImage`). Metis claim wording is fixed: "first technology provider
+      Project images (2026-11-21): each project has a co-located `heroImage`, composed to 16:10 (Metis logo on white, the Huginn
+      raven illustration, the QuickSeat image is a Hostme marketing screenshot, not QuickSeat's UI). Confirm the licence of the raven artwork (it carries the artist's signature)
+      and of the Hostme screenshot. Replace it with a real QuickSeat screenshot if one exists. Metis claim wording is fixed: "first technology provider
       to offer NDC booking split with Air France-KLM" (source: Metis press release, mistertravel.news 2024-12-04); never "first in the world".
 - [ ] **FAQ**: bug-fix window is 15 days after launch (confirmed); drop `[Draft]` on the answers after the copy pass.
 - [ ] **About**: story (`profile/longBio.mdoc`), how I work (`profile/howIWork.mdoc`), research summary
