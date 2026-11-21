@@ -11,7 +11,7 @@ import Section from '@/components/site/Section.astro';
 import SectionHeading from '@/components/site/SectionHeading.astro';
 import { t } from '@/i18n';
 import { getClients, getSettings } from '@/lib/content';
-import { getProofPlaces } from '@/lib/proof';
+import { caseStudies, caseStudyOf, getProofPlaces } from '@/lib/proof';
 import { isSectionLive } from '@/lib/routes';
 
 interface Props {
@@ -27,6 +27,7 @@ const [clients, proof, settings] = live
 const count = clients?.length ?? 0;
 const hasReviews =
   !!proof && (proof.places.length > 0 || proof.unplaced.length > 0);
+const cases = live ? await caseStudies() : new Map();
 ---
 
 {live && proof && settings && (count > 0 || hasReviews) && (
@@ -36,7 +37,7 @@ const hasReviews =
       class="reveal"
       eyebrow={t('proof.eyebrow')}
     >
-      {count > 0 ? t('proof.title', { count }) : t('proof.titlePlain')}
+      {count > 0 ? t('proof.title') : t('proof.titlePlain')}
     </SectionHeading>
     {count > 0 && (
       <div class="col-span-12">
@@ -51,7 +52,12 @@ const hasReviews =
       <ul class="col-span-12 mt-16 grid gap-x-gutter gap-y-12 md:grid-cols-3">
         {proof.unplaced.map((item, i) => (
           <li class:list={['reveal', ['', 'md:[--i:1]', 'md:[--i:2]'][i % 3]]}>
-            <TestimonialCard testimonial={item} variant="card" excerpt />
+            <TestimonialCard
+              testimonial={item}
+              variant="card"
+              excerpt
+              caseStudy={caseStudyOf(item, cases)}
+            />
           </li>
         ))}
       </ul>

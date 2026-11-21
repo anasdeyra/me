@@ -4,8 +4,14 @@ Source of truth for humans and AI agents working on this repo. Keep it short and
 
 ## Goal and intent
 
-Personal portfolio for **Anas Deyra** (GitHub: `anasdeyra`), software developer. The site exists for **conversion**: get
+Personal portfolio for **Anas Deyra** (GitHub: `anasdeyra`), software engineer. The site exists for **conversion**: get
 **clients (primary)** and **recruiters (secondary)** to reach out with the least friction.
+
+Positioning (owner, 2026-11-21): a **product engineer who improves your business** (label since the copy pass; was "software engineer and
+business-growth problem solver"), not a gig freelancer. "Product engineer" is the positioning label (hero, meta, About,
+`profile.title`, so the Person `jobTitle` and CV heading); factual job titles in experience entries stay as held (Metis: Software Engineer). Neutral
+audience; the strongest proof is **3 years on Metis**, a production B2B travel booking platform (booking flows, supplier
+integrations, infrastructure; current role). Also: AI tools and agent workflows with Claude and MCP, mentoring junior developers.
 
 Principles:
 
@@ -51,7 +57,7 @@ src/
                         ContactForm (3 fields + honeypot, one inline script), CopyEmail, QrCode (build-time SVG), Analytics,
                         Search (trigger + native dialog; lazy Pagefind chunk),
                         MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
-  components/home/      Hero (C2 magazine cover: name masthead, copy + doors, ghost-ish portrait, Upwork record as cover lines), Statement, Services, Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
+  components/home/      Hero (C2 magazine cover: name masthead, copy + doors, ghost-ish portrait, Upwork record as cover lines), Services (timelines, per-row WhatsApp ask, quotes), Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
                         Faq (native details), SelectedWork, Proof (clients map + reviews, one `#proof` section), LatestWriting
                         (the gated ones go live via the `sections.*` gates)
   components/cv/        CvEntry
@@ -81,7 +87,7 @@ src/
   scripts/              client modules: shortcuts.ts (the `/` search shortcut + off switch), search-dialog.ts (lazy Pagefind chunk),
                         pointer.ts (--mx/--my on `[data-pointer]` hosts (the map stage), fine pointers only, rAF, CSSOM; ~0.45 KB gz),
                         review-scroll.ts (scroll-mode review stepper: at most one review per 0.9 s, never moves the scroll; 0.75 KB gz)
-  pages/                index (home: hero (incl. Upwork proof line), statement, work, proof, services, process, about, FAQ, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
+  pages/                index (home: hero (incl. Upwork proof line), work, proof, services, process, FAQ, about, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
                         blog/index + blog/[slug], tag/[tag], og/[...key].png.ts, rss.xml.ts, llms.txt.ts
                         (static 303 targets), privacy, 404, robots.txt.ts, api/contact.ts (the only on-demand route)
   styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link)
@@ -173,9 +179,10 @@ Verify with `pnpm build && pnpm check` before finishing any change.
   - Home hero (owner pick 2026-11-20, lab variant C2 "magazine cover"): on the white page, the name as a giant masthead (a `<p>`; the H1
     stays the outcome headline), then three columns on the 12-column grid (4/4/3): headline, subline and the two doors (WhatsApp, CV)
     stacked; the portrait clipped to the M3 `ghost-ish` shape (static polygon from `m3-shapes.ts`, a hashed inline `<style>` in
-    `Hero.astro`, square box, no motion); the Upwork record as cover lines (100% Job Success, 5.0 + pink stars, badge, client countries).
-    Under 64rem it stacks: masthead, portrait, text, record. No `.reveal`, no JS, no animation. Then `Statement` (centred uppercase
-    line, "More about me" pill, two MorphShapes at the edges).
+    `Hero.astro`, square box, no motion); the record as cover lines (years of experience from `career.startYear`, projects shipped
+    from `career.projects`, 5.0 + yellow stars, client countries; Job Success and the Upwork badge left the hero 2026-11-21).
+    Under 64rem it stacks: masthead, headline and doors, portrait, record (the doors stay above the fold on a phone). No `.reveal`,
+    no JS, no animation. The Statement section is gone (2026-11-21): its line is the hero subline's job.
   - Scroll-driven animations: lightningcss drops shorthand `animation-timeline`/`animation-range` in some cascades, so write longhands.
   - Keep any map label above the flashlight layer with a background halo (`paint-order: stroke`), or it is unreadable under the pointer.
   - JS before interaction on `/`: re-measure (last measured ~4 KB gz of the 5 KB budget, which included the now-removed SpecToggle
@@ -229,7 +236,8 @@ Tokens and utilities live in `src/styles/global.css`; reuse them instead of raw 
 - **Single-key shortcuts** (`/` search) must go through `src/scripts/shortcuts.ts` (`shortcutKey`, `shortcutsEnabled`,
   `setShortcutsEnabled`): ignored in fields and with modifiers, with an off switch in the search dialog (WCAG 2.1.4).
 - The chip filter (zero-JS radios + `:has()`) is used on `/work` and `/blog`, and for the home review loop's country chips.
-- **Closing CTA:** `ContactBlock` is a flat two-column block (statement left, contact paths right), no gradient. Props: `location`
+- **Closing CTA:** `ContactBlock` is a flat two-column block (statement left, contact paths right), no gradient. The form (home only) sits
+  in a closed native `<details>` below the WhatsApp, email and form rows, so WhatsApp reads as primary. Props: `location`
   (`final` | `footer_cta`, the analytics location), `headingId`, `form` (inline 3-field form instead of the "Project inquiry" link; one
   per page). `SiteFooter` renders it as `footer_cta` on every page that keeps `footerCta`; the home page renders it as `final` with `form`.
 - **Spec mode was removed** (owner review 2026-11-17; to be reimplemented later). Nothing in the code references it: no `data-spec`
@@ -292,7 +300,7 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - `astro check` needs TypeScript 6 (Astro 7 rejects TS 7 for now); `typescript` pinned to `^6`.
 - Keystatic reader over content collections (documented Keystatic+Astro approach).
 - 2026-11-16 discovery: domain `deyra.dev`; WhatsApp primary CTA (no Cal.com); no public prices; no availability
-  badge; blog pillars = polished products + founder guides (research is a project type, not a blog pillar); 2+ posts/month incl. notes;
+  badge; blog pillars = polished products + founder guides (renamed engineering + for-founders 2026-11-21) (research is a project type, not a blog pillar); 2+ posts/month incl. notes;
   base Tunis (UTC+1); visual direction precise & minimal with a metallic silver accent (superseded: see visual direction below); theme system + toggle; Spec mode was the signature feature (removed 2026-11-17).
 - 2026-11-16: content flattened from 4 types (case studies, articles, notes, research) to 2 collections, `projects`
   and `posts`, each with a `type` field; pillar hubs, /notes and /research routes dropped in favor of chips + /tag/[tag].
@@ -439,6 +447,7 @@ verification): **`docs/launch-checklist.md`**. Summary:
   a Keystatic `country` field (relationship to `clients`) which decides the map selection; untagged reviews follow as plain cards. The
   `proof` gate in `routes.ts` replaces the separate `clients` and `testimonials` gates (live when there is a client or a review).
   `src/lib/proof.ts` builds the places. Home order: hero, statement, trust, work, proof, services, process, about, FAQ, writing, closing CTA.
+  (Superseded 2026-11-21, see the review entry at the end of this log.)
 - 2026-11-17 dark hero + statement (owner review; inspired by an owner-supplied reference image; supersedes the cutout + Blueprint and
   key-light entries): the hero is `class="dark"` black in both themes with a giant uppercase name, the portrait as a card overlapping
   the name, a CSS `.tick-ring`, mono micro-labels (place, local time, email) and pill doors (WhatsApp, CV). The name is a real `<p>`;
@@ -521,3 +530,28 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - Do not require more than 3 fields in the contact form.
 - Do not hardcode UI strings or ship JS where plain Astro/CSS suffices.
 - Do not commit `.env` or secrets.
+- 2026-11-21 home review (owner asked to fix every point of the review): **home order is now hero, work, proof, services, process,
+  FAQ, about, writing, closing CTA.** The Statement section is removed (its line lives in the hero subline; "More about me" appeared
+  twice). Mobile hero: the H1 and doors come before the portrait. Process chat: about 40% shorter track, and a final message box
+  (`ProcessThread` `.compose`) opens WhatsApp with a prefilled message. Services: typical timeline per engagement (`timeline`, Keystatic
+  field, `[Draft]` values to confirm), an "Ask about this" WhatsApp link per row, and "How quotes work" moved under the list. Reviews link
+  to their visible case study (`relatedProject`; bubbles give mouse users the link, the cards give it to everyone); generic "Upwork client"
+  authors show a person glyph instead of "UC". Work frames show the year only (the type is the chip). Hero stats read "Average rating"
+  and "Upwork badge"; the Proof heading no longer repeats the country count; the closing block drops its repeated reply-time claim; the
+  footer's contact column is "Get in touch" (the Site column keeps the Contact link). FAQ: "Why not take the cheapest bid?".
+  `MorphShape` has no caller after the Statement removal (kept for its tokens; candidate for deletion).
+- 2026-11-21 repositioning (owner: "less freelancer, more software engineering"): neutral audience, Metis (3 years, B2B travel
+  booking, current role) as the strongest proof, AI (Claude workflow, AI features, MCP and agents) and mentoring named. Hero record:
+  years of experience (computed from `settings.career.startYear`, never stale) and projects shipped (`career.projects`) replace Job
+  Success and the Upwork badge; rating and countries stay. Services are capabilities ("What I build": booking and checkout flows,
+  supplier and API integrations, AI tools and agent workflows, product engineering); websites/landing pages and the retainer are gone,
+  and so is the design line. The process chat is an engineering engagement ("How a project runs", speaker "Client"). FAQ swaps the
+  freelancer objections (disappearing, cheapest bid, Upwork or direct) for buyer questions (travel only? our codebase? AI use?).
+  Metis experience entry added as `draft: true` until its start date, location and stack are confirmed. All new copy is `[Draft]`.
+- 2026-11-21 content and copy pass (owner interview): "product engineer" is the label (`CONTEXT.md`); hero "I build the parts of your
+  product that make money." /work = Metis (lead case study, type `client` shown as the "Professional" chip; quick facts read "Company"
+  and "Country"), QuickSeat (Lebanon) and Huginn; ArtBeat, Solana NFT and the research project are deleted. Metis claim wording is
+  fixed to its source: "first technology provider to offer NDC booking split with Air France-KLM", never "first in the world".
+  Services have no timelines (the written scope gives them). Blog pillars are `engineering` and `for-founders` (were polished-products
+  and founder-guides); the three seed posts were replaced by three draft posts from real work (no series seed any more).
+

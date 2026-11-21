@@ -1,0 +1,42 @@
+---
+title: 'I tried approaching software engineering like a research paper'
+type:
+  discriminant: article
+  value:
+    cover: null
+    coverAlt: ''
+description: >-
+  Prior work, evidence and limits: what changed when I treated a feature like a
+  research paper before and after building it.
+tags:
+  - engineering
+publishedAt: 2026-11-21
+draft: true
+cta: auto
+---
+
+I'm doing a research master's in information systems, and research has a structure that engineering often skips. A paper has to show what others already did, prove its claim with evidence, and say where the claim stops being true.
+
+I tried applying that structure to features at work. Three parts of it stuck.
+
+## Read the prior work first
+
+A paper starts with a literature review: what has been tried, what worked, what didn't. In engineering, the equivalent is reading before designing. That means the supplier's documentation, how other platforms solved the same problem, the open-source libraries that already exist, and the past attempts in our own codebase.
+
+It feels slow at the start. It pays back the first time it saves me from rediscovering a failure someone already documented.
+
+## Decide the evidence before you build
+
+A research claim needs evidence chosen in advance, or it's easy to pick whichever number looks good afterwards. So before building, I decide what I'll measure and how.
+
+When I worked on booking speed at Metis, the measure was our end-to-end booking test scenarios: the same scenarios, run before and after. That's how I can say booking got 3x faster and show how the number was produced.
+
+## Write the limits section
+
+Every good paper says what its result does not cover. Engineering write-ups almost never do, and that's where the surprises hide.
+
+For each feature I now write a few lines on its limits: which cases it doesn't handle, what the measurement leaves out, what would break the assumptions. The booking speed result, for example, covers the system's time and not the time an agent spends typing. Saying so up front stops a good number from turning into a promise nobody made.
+
+## What it costs, and when it's worth it
+
+This takes time, and a two-line bug fix doesn't need a literature review. I use the full structure for features that touch money, customers or other teams. For those, an hour of reading and a paragraph of limits are cheap next to a week spent building on the wrong assumption.

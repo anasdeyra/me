@@ -108,12 +108,22 @@ const profiles = [
       </li>
 
       {form ? (
-        <li class={cn(row, divider, 'grid-cols-1 gap-y-6 pt-6 pb-8')}>
-          <div>
-            <h3 class={rowLabel}>{t('cta.form.title')}</h3>
-            <p class={rowHint}>{t('cta.form.hint')}</p>
-          </div>
-          <ContactForm location="final" idPrefix="final-block-form" />
+        // Closed by default (native details, no JS): WhatsApp is the path the eye meets first, the form is the fallback.
+        <li class={divider}>
+          <details class="group/form">
+            <summary class={cn(rowLink, 'cursor-pointer list-none [&::-webkit-details-marker]:hidden')}>
+              <span>
+                <span class={rowLabel} data-row-label>
+                  {t('cta.form.title')}
+                </span>
+                <span class={cn(rowHint, 'block')}>{t('cta.form.hint')}</span>
+              </span>
+              <ArrowIcon class={cn(rowArrow, 'rotate-90 group-open/form:-rotate-90')} />
+            </summary>
+            <div class="pt-2 pb-8">
+              <ContactForm location="final" idPrefix="final-block-form" />
+            </div>
+          </details>
         </li>
       ) : (
         <li>

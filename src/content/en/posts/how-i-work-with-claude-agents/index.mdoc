@@ -1,0 +1,58 @@
+---
+title: How I work with Claude agents
+type:
+  discriminant: article
+  value:
+    cover: null
+    coverAlt: ''
+description: >-
+  My engineering workflow with Claude Code: what agents plan, write and review,
+  and the four things I never hand over.
+tags:
+  - engineering
+publishedAt: 2026-11-21
+draft: true
+cta: auto
+---
+
+I use Claude Code every day. It plans with me, writes code under instructions and reviews my changes before they ship. I also keep a short list of things it never touches.
+
+Here is the setup, what the agents do, and where I draw the line.
+
+## The setup
+
+Three pieces make the agents useful on a real codebase:
+
+- **Claude Code in the terminal**, working in the same repository I work in.
+- **Project instructions** in `CLAUDE.md` and `AGENTS.md`: the stack, the conventions, the commands to verify a change and the decisions already made. An agent that reads them doesn't re-argue settled choices.
+- **Custom skills and hooks**: reusable instructions for recurring jobs (a copy pass, an accessibility audit) and hooks that run checks automatically.
+
+Instructions do most of the work. This is an excerpt from the `AGENTS.md` of this site:
+
+```md
+## Do not
+
+- Do not ship Keystatic routes to production; keep the integration dev-only.
+- Do not add a captcha; use a honeypot.
+- Do not hardcode UI strings or ship JS where plain Astro/CSS suffices.
+- Do not commit `.env` or secrets.
+```
+
+Each line records a decision, so the agent doesn't have to guess it again.
+
+## What the agents do
+
+- **Plan.** I describe the change; the agent drafts a plan against the codebase and the documented decisions. I challenge it until it holds up.
+- **Write.** The agent writes the code under the project's rules, then runs the build and the checks.
+- **Review and audit.** Separate review agents read the diff before I ship: bugs, security, accessibility, anything that breaks a documented decision. A reviewer with fresh context often catches what the writing agent missed.
+
+## What I never hand over
+
+1. **Architecture decisions.** The agent can propose; I decide, and I write the decision down.
+2. **Merging to production.** I read and approve every diff that ships.
+3. **Client communication.** Clients talk to me, not to a model.
+4. **Secrets and production data.** Agents never see credentials or live customer data.
+
+## What this means for a client
+
+Agents make me faster at the parts of the job that are writing and checking. The parts that need judgement and accountability stay with me: what to build, whether it's right, and what reaches your users. You get one engineer who owns every line that ships.

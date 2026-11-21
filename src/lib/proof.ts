@@ -2,6 +2,7 @@
 import type { ImageMetadata } from 'astro';
 import { contentImage, getClients, getTestimonials } from './content';
 import { countryName } from './place';
+import { getProjectViews } from './projects';
 
 export type Testimonial = Awaited<ReturnType<typeof getTestimonials>>[number];
 
@@ -38,6 +39,21 @@ export async function getTestimonialFor(
 ): Promise<Testimonial | undefined> {
   return (await getTestimonials()).find((x) => x.entry.relatedProject === slug);
 }
+
+export type CaseStudy = { href: string; title: string };
+
+/** Visible case studies by slug (drafts are hidden in production, so a review never links to a missing page). */
+export async function caseStudies(): Promise<Map<string, CaseStudy>> {
+  return new Map(
+    (await getProjectViews()).map((p) => [p.slug, { href: p.href, title: p.title }]),
+  );
+}
+
+/** The case study a review belongs to (`relatedProject`), if it is visible. */
+export const caseStudyOf = (
+  { entry }: Testimonial,
+  cases: Map<string, CaseStudy>,
+): CaseStudy | undefined => (entry.relatedProject ? cases.get(entry.relatedProject) : undefined);
 
 /** Upwork endorsement badges with counts, from real `endorsement` values only. */
 export async function endorsementTally(): Promise<

@@ -1,0 +1,44 @@
+---
+title: 'How to make legacy systems suck less to maintain'
+type:
+  discriminant: article
+  value:
+    cover: null
+    coverAlt: ''
+description: >-
+  Most old code never gets a rewrite. Practical steps to make a legacy system
+  safer and cheaper to change, starting this week.
+tags:
+  - engineering
+publishedAt: 2026-11-21
+draft: true
+cta: auto
+---
+
+Most legacy systems will never be rewritten. They make money, they're full of knowledge nobody wrote down, and replacing them all at once is a risk few businesses can take. You still have to change them.
+
+Here's how I make old code safer to work on, in the order I do it.
+
+## See what actually runs
+
+Before changing anything, add visibility. Logging on the paths you're about to touch, and monitoring on the errors and timings that matter. Legacy code often does things nobody remembers, and logs show you what really runs in production, as opposed to what the code suggests.
+
+## Pin the current behaviour with tests
+
+Next, write tests that record what the system does today, odd parts included, so you'll know when a change alters it.
+
+End-to-end tests are often the easiest place to start on old code, because they don't need the internals to be testable. They also become your measuring stick: at Metis, the same end-to-end booking scenarios told us when the flow got faster.
+
+## Replace one piece at a time
+
+With visibility and tests in place, change the system in small pieces. The strangler pattern works well: put a new implementation behind the same interface, move traffic or callers over gradually, and remove the old piece once nothing uses it.
+
+Each step is small enough to review, test and roll back. The system keeps working the whole time, and the business never has to bet on a big-bang release.
+
+Sometimes a module can't take the change you need, and rebuilding it is the right call. I did that with a booking module. Make that a decision about one module, with tests around it, never about the whole system.
+
+## Write down what you learn
+
+Every legacy system holds decisions nobody recorded. When you find one, write it down: why this check exists, what this flag does, which client depends on this odd behaviour. A short note in the repository saves the next person days.
+
+This is the cheapest of the four steps, and the one teams skip most often.

@@ -1,7 +1,7 @@
 ---
 // Home proof: the clients map with reviews popping from their client country as chat bubbles. Each client first
-// arrives as an avatar at their country with typing dots under it; then the bubble grows out of the avatar, and the
-// two leave together. The loop order, each bubble's side of its country and the rhythms come from
+// arrives as an avatar at their country with typing dots beside it (the same bubble look as "How we work"); when the
+// review bubble pops, the avatar and dots are gone and the bubble grows out of the avatar's spot. The loop order, each bubble's side of its country and the rhythms come from
 // src/lib/review-loop.ts; the generated CSS (positions, keyframes, the two-at-a-time breakpoint) is ReviewLoopStyle,
 // which the page puts in the head with the same `uid`, `places` and `playback`.
 // The stage is a size container (`rl`): narrow, one bubble at a time sits under the map with its tail at the
@@ -22,7 +22,12 @@ import ClientsMap from '@/components/proof/ClientsMap.astro';
 import ReviewScroll from '@/components/proof/ReviewScroll.astro';
 import TestimonialCard from '@/components/proof/TestimonialCard.astro';
 import { t } from '@/i18n';
-import { briefQuote, type ProofPlace } from '@/lib/proof';
+import {
+  briefQuote,
+  caseStudies,
+  caseStudyOf,
+  type ProofPlace,
+} from '@/lib/proof';
 import { reviewLoopModel } from '@/lib/review-loop';
 
 interface Props {
@@ -39,6 +44,7 @@ const { items, countries } = model;
 const scroll = playback === 'scroll';
 const loop = items.length > 1;
 const id = (s: string) => `${uid}-${s}`;
+const cases = await caseStudies();
 const author = (it: (typeof items)[number]) =>
   it.testimonial.entry.author || t('testimonial.client');
 // The loop order is chosen for layout; the list (screen readers, print, no :has()) keeps the testimonial order.
@@ -93,6 +99,19 @@ const listed = [...items].sort(
                       </span>
                     </div>
                     <p class="q quote">{briefQuote(it.testimonial)}</p>
+                    {caseStudyOf(it.testimonial, cases) && (
+                      /* Mouse only: the bubbles are decorative (aria-hidden), and the country chips and the review
+                         cards reach the same reviews from the keyboard. */
+                      <a
+                        class="case"
+                        href={caseStudyOf(it.testimonial, cases)!.href}
+                        tabindex="-1"
+                      >
+                        {t('proof.caseStudy', {
+                          title: caseStudyOf(it.testimonial, cases)!.title,
+                        })}
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}
@@ -170,10 +189,29 @@ const listed = [...items].sort(
   .rl {
     /* Soft, rounded bubbles that follow the radius token if it grows. */
     --bubble-r: max(1.125rem, var(--radius-xl));
-    --shadow: 0 0.75rem 2rem -0.75rem
-      color-mix(in oklab, var(--ink) 35%, transparent);
+    /* Review bubble: a surface that sits on the map in each theme (white / near-black), with the theme's own text.
+       Typing indicator: the same incoming-bubble surface as "How we work", so the two read as one chat. */
+    --review-bg: #ffffff;
+    --review-line: #e5e5e5; /* hairline edge where the white card sits on the white map */
+    --review-fg: #0a0a0a;
+    --review-muted: #595959;
+    --review-shadow: 0 0.75rem 2rem -0.75rem rgb(0 0 0 / 0.35);
+    --typing-bg: #ffffff;
+    --typing-fg: #595959; /* 7.0:1 on white */
+    --typing-line: #d4d4d4;
     /* The client avatar on the map: sized to read as a person, not a marker (grows with the stage). */
     --av: 1.5rem;
+  }
+  :global(.dark) .rl {
+    /* Dark surface, light text: no white slab glaring on the black page (17:1 text, 7.3:1 secondary). */
+    --review-bg: #171717;
+    --review-line: #333333;
+    --review-fg: #ededed;
+    --review-muted: #a3a3a3;
+    --review-shadow: 0 0.75rem 2rem -0.75rem rgb(0 0 0 / 0.8);
+    --typing-bg: #171717;
+    --typing-fg: #a3a3a3;
+    --typing-line: #333333;
   }
   /* The map stage is the size container both layouts (and the generated two-at-a-time rhythm) query. */
   .area {
@@ -232,7 +270,7 @@ const listed = [...items].sort(
     visibility: hidden;
   }
 
-  /* The client: their avatar at the country, haloed so it reads on the dots, with typing dots under it. */
+  /* The client: their avatar at the country, haloed so it reads on the dots, with typing dots beside it. */
   .av {
     position: absolute;
     left: var(--x);
@@ -250,24 +288,27 @@ const listed = [...items].sort(
     inline-size: 100%;
     block-size: 100%;
   }
+  /* Typing indicator: the incoming bubble of "How we work" (ProcessThread), beside the avatar with its tail toward
+     it (physical sides: the map is not mirrored in RTL). */
   .dots {
     position: absolute;
-    left: 50%;
-    top: 100%;
-    display: flex;
-    gap: 0.1875rem;
-    padding: 0.25rem 0.375rem;
-    translate: -50% -40%;
-    border-radius: 999px;
-    background-color: var(--ink);
-    box-shadow: 0 0 0 2px var(--background);
+    left: calc(100% + 0.25rem);
+    top: 50%;
+    display: inline-flex;
+    gap: 0.3rem;
+    padding: 0.625rem 0.875rem;
+    translate: 0 -50%;
+    border: 1px solid var(--typing-line);
+    border-radius: 1rem;
+    border-top-left-radius: 0.375rem;
+    background-color: var(--typing-bg);
   }
   .dots i {
-    inline-size: 0.25rem;
-    block-size: 0.25rem;
+    inline-size: 0.4rem;
+    block-size: 0.4rem;
     border-radius: 50%;
-    background-color: var(--background);
-    opacity: 0.45;
+    background-color: var(--typing-fg);
+    opacity: 0.7;
   }
   .dots i:nth-child(2) {
     --j: 1;
@@ -281,17 +322,17 @@ const listed = [...items].sort(
     }
   }
 
-  /* The bubble: ink card (navy on light, white on dark), so it pops off the map in both themes. */
+  /* The review bubble: a themed surface (white / near-black) that pops off the map. */
   .card {
     position: relative;
     display: grid;
     gap: 0.625rem;
     padding: 0.875rem 1rem 1rem;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--review-line);
     border-radius: var(--bubble-r);
-    background-color: var(--ink);
-    box-shadow: var(--shadow);
-    color: var(--background);
+    background-color: var(--review-bg);
+    box-shadow: var(--review-shadow);
+    color: var(--review-fg);
     pointer-events: auto;
   }
   .who {
@@ -305,19 +346,26 @@ const listed = [...items].sort(
     display: grid;
   }
   .name {
-    color: var(--background);
+    color: var(--review-fg);
     font-weight: 600;
   }
   .role {
-    color: color-mix(in oklab, var(--background) 72%, var(--ink));
+    color: var(--review-muted);
     font-size: var(--text-xs);
+  }
+  .case {
+    justify-self: start;
+    color: var(--review-fg);
+    font-size: var(--text-xs);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
   .role > * + *::before {
     content: '\00b7' / '';
     margin-inline: 0.375em;
   }
   .q {
-    color: var(--background);
+    color: var(--review-fg);
     font-size: var(--text-base);
     line-height: 1.5;
     display: -webkit-box;
@@ -334,7 +382,10 @@ const listed = [...items].sort(
     inline-size: 12px;
     block-size: 12px;
     margin-left: -6px;
-    background-color: var(--ink);
+    background-color: var(--review-bg);
+    border: 1px solid var(--review-line);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
     rotate: 45deg;
   }
 
@@ -422,6 +473,7 @@ const listed = [...items].sort(
     .v-a .card::before {
       top: auto;
       bottom: -7px;
+      border-color: transparent var(--review-line) var(--review-line) transparent;
     }
   }
 
@@ -500,12 +552,12 @@ const listed = [...items].sort(
   }
 
   /* No rotation (reduced motion, or a single review): the first review and its client show, still. */
-  .rl[data-playback='loop'][data-n='one']:has(.all:checked) .q-0.sel {
+  .rl[data-playback='loop'][data-n='one']:has(.all:checked) .bub.q-0 {
     opacity: 1;
     visibility: visible;
   }
   @media (prefers-reduced-motion: reduce) {
-    .rl[data-playback='loop']:has(.all:checked) .q-0.sel {
+    .rl[data-playback='loop']:has(.all:checked) .bub.q-0 {
       opacity: 1;
       visibility: visible;
     }
@@ -639,11 +691,12 @@ const listed = [...items].sort(
   /* Scroll steps: time-based entries keyed on data-on, never scrubbed. The client pops in, types for --lead, then
      the bubble grows out of the avatar; a step back or a step on (narrow) sends the old one out. cur -> prev keeps
      the same animations, so a bubble that stays one more step does not replay. */
-  .rl[data-playback='scroll'] .av:is([data-on='cur'], [data-on='prev']) {
-    animation-name: rl-s-av-in;
-    animation-duration: var(--dur-spring-fast);
-    animation-timing-function: var(--ease-spring-fast);
-    animation-delay: 0.1s;
+  /* The avatar pops in, types, and is gone when the bubble pops (lead); a step on from it was already gone. */
+  .rl[data-playback='scroll'] .av[data-on='cur'] {
+    animation-name: rl-s-av-in, rl-s-av-away;
+    animation-duration: var(--dur-spring-fast), 0.1s;
+    animation-timing-function: var(--ease-spring-fast), var(--ease-effect);
+    animation-delay: 0.1s, var(--lead);
     animation-fill-mode: both;
   }
   .rl[data-playback='scroll'] .av[data-on='cur'] .dots {
@@ -666,11 +719,17 @@ const listed = [...items].sort(
     animation-delay: var(--lead);
     animation-fill-mode: both;
   }
-  .rl[data-playback='scroll'] :is(.av, .bub)[data-on='out'] {
+  .rl[data-playback='scroll'] .bub[data-on='out'] {
     animation-name: rl-s-out;
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.3, 0, 0.8, 0.15);
     animation-fill-mode: both;
+  }
+  @keyframes rl-s-av-away {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
   @keyframes rl-s-av-in {
     from {
@@ -740,17 +799,20 @@ const listed = [...items].sort(
     .rl[data-playback='scroll'] {
       --lead: 0s;
     }
-    .rl[data-playback='scroll']
-      :is(.av, .bub):is([data-on='cur'], [data-on='prev']) {
+    .rl[data-playback='scroll'] .bub:is([data-on='cur'], [data-on='prev']) {
       animation-name: rl-s-in;
       animation-duration: 0.15s;
       animation-timing-function: linear;
       animation-delay: 0s;
     }
-    .rl[data-playback='scroll'] :is(.av, .bub)[data-on='out'] {
+    .rl[data-playback='scroll'] .bub[data-on='out'] {
       animation-name: rl-s-in;
       animation-direction: reverse;
       animation-duration: 0.1s;
+    }
+    /* No avatar and no dots once the bubble shows (or is leaving): the bubble alone. */
+    .rl[data-playback='scroll'] .av:is([data-on='cur'], [data-on='prev']) {
+      animation: none;
     }
     .rl[data-playback='scroll'] .av[data-on='cur'] .dots {
       animation: none;
@@ -784,10 +846,11 @@ const listed = [...items].sort(
   @media (forced-colors: active) {
     .dots {
       forced-color-adjust: none;
-      background-color: CanvasText;
+      background-color: Canvas;
+      border-color: CanvasText;
     }
     .dots i {
-      background-color: Canvas;
+      background-color: CanvasText;
     }
     .switch:has(input:checked) .track-ui {
       forced-color-adjust: none;

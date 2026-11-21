@@ -49,8 +49,8 @@ export const readingTime = (words: number) =>
 
 /** Pillar tag -> CTA for `cta: auto` (D5). */
 export const pillarCta: Record<string, CtaVariant> = {
-  'founder-guides': 'whatsapp',
-  'polished-products': 'project',
+  'for-founders': 'whatsapp',
+  engineering: 'project',
 };
 
 // Rendering is memoised per slug: views need the word count, pages need the HTML.

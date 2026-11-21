@@ -1,6 +1,6 @@
 export const en = {
   // <title>: home uses the full name (recruiters search it); other pages use the brand.
-  'seo.homeTitle': '{name} | Full-stack engineer for startups',
+  'seo.homeTitle': '{name} | Product engineer for booking, integrations and AI',
   'seo.title': '{page} | {brand}',
   'seo.ogLocale': 'en_US',
 
@@ -38,6 +38,10 @@ export const en = {
     "Hi Anas, I read your About page and I'd like to talk about a project: ",
   'whatsapp.prefill.project':
     "Hi Anas, I saw {title} on deyra.dev and I'd like to build something similar: ",
+  'whatsapp.prefill.service':
+    "Hi Anas, I read about {title} on deyra.dev and I'd like to ask about it: ",
+  'whatsapp.prefill.process':
+    "Hi Anas, I read how we work on deyra.dev and I'd like to start a project: ",
   'whatsapp.prefill.post':
     'Hi Anas, I read "{title}" on deyra.dev and I\'d like to talk about my project: ',
   'contact.email.copy': 'Copy email',
@@ -93,7 +97,7 @@ export const en = {
     'A few lines on the product, the deadline and what a good result looks like are enough to start.',
   'cta.form.title': 'Project inquiry',
   'cta.form.hint': 'Three fields. I reply within a day.',
-  'cta.whatsapp.hint': 'Fastest. Usually replies within an hour.',
+  'cta.whatsapp.hint': 'Fastest way to reach me.',
   'cta.elsewhere': 'Elsewhere',
   'cta.timezone':
     'Based in {city} ({offset}), with full overlap with European working hours. Remote, worldwide.',
@@ -120,7 +124,7 @@ export const en = {
   'privacy.updated': 'Last updated {date}',
   'privacy.who.title': 'Who I am',
   'privacy.who.body':
-    '{name} is a freelance software developer based in {city}, {country}. I run this site and decide what happens to the data described below.',
+    '{name} is a product engineer based in {city}, {country}. I run this site and decide what happens to the data described below.',
   'privacy.form.title': 'What the contact form collects',
   'privacy.form.body':
     'Your name, email address and message, so I can reply. I use them only to answer you and to follow up on your project. [Draft] Retention: I keep a conversation for up to 12 months after the last message, unless a project starts, and then for the life of the project.',
@@ -145,7 +149,7 @@ export const en = {
     'Based in {city}, {country} ({offset}): full overlap with European working hours.',
   'footer.languages': 'I work in {languages}.',
   'footer.site': 'Site',
-  'footer.contact': 'Contact',
+  'footer.contact': 'Get in touch',
   'footer.copyright': '© {year} {name}',
   'footer.privacy': 'Privacy',
   'footer.rss': 'RSS',
@@ -165,24 +169,23 @@ export const en = {
   // Home
   'cta.viewCv': 'Hiring? View my CV',
   // Hero doors: the hints repeat facts kept elsewhere (WhatsApp reply time, settings.career work modes).
-  'home.hero.client': 'Tell me about your project',
-  // Hero cover lines (the Upwork record).
-  'hero.record.jss': 'Job Success',
-  'hero.record.reviews': 'From client reviews',
-  'hero.record.platfrom': 'on Upwork',
+  'home.hero.client': 'Discuss your project',
+  // Hero cover lines (the record: experience, projects, Upwork rating, client countries).
+  'hero.record.years': 'Years of experience',
+  'hero.record.projects': 'Projects shipped',
+  'hero.record.reviews': 'Average rating, {count} reviews',
   'hero.record.countries': 'Countries my clients are in',
-  'home.statement.label': 'Introduction',
-  'home.statement.body':
-    'I turn a founder’s idea into a product people can use. One engineer from first call to launch, with weekly updates along the way.',
   'upwork.badge.risingTalent': 'Rising Talent',
   'upwork.badge.topRated': 'Top Rated',
   'upwork.badge.topRatedPlus': 'Top Rated Plus',
   'upwork.badge.expertVetted': 'Expert-Vetted',
   'trust.verify': 'Verified on Upwork',
-  'home.services.title': 'What I do',
+  'home.services.title': 'What I build',
   'home.services.forWho': 'Who it is for',
   'home.services.youGet': 'What you get',
-  'home.process.title': 'How we work',
+  'home.services.timeline': 'Typical timeline',
+  'home.services.ask': 'Ask about this',
+  'home.process.title': 'How a project runs',
   'home.process.quotes': 'How quotes work',
   'home.process.languages': 'Languages and time zone',
   'home.process.languagesBody': 'I work in {languages}.',
@@ -190,12 +193,15 @@ export const en = {
     'Based in {city} ({offset}): full overlap with European working hours.',
   // Process chat: the thread's accessible name and the speaker before each message (screen readers only).
   'home.process.chat': 'A project from first message to launch, as a chat',
-  'home.process.fromClient': 'Founder:',
+  // The chat's last row: a message box that opens WhatsApp with a prefilled message.
+  'home.process.compose': 'Start your project on WhatsApp',
+  'home.process.composePlaceholder': 'Tell me about your project',
+  'home.process.fromClient': 'Client:',
   'home.process.fromMe': '{name}:',
   'home.about.title': 'About',
   'home.about.more': 'More about me',
   'home.about.practices': 'Agreed at the start of every project',
-  'home.about.card.lead': 'Open to full-time full-stack roles.',
+  'home.about.card.lead': 'Open to full-time software engineering roles.',
   'home.about.card.modes': 'Work mode',
   'home.about.card.relocation': 'Relocation',
   'home.about.card.relocationYes': 'Open to relocation',
@@ -207,14 +213,14 @@ export const en = {
   'workMode.remote': 'remote',
   'workMode.hybrid': 'hybrid',
   'workMode.onsite': 'on-site',
-  'home.faq.title': 'Questions founders ask',
+  'home.faq.title': 'Common questions',
 
   // CV and About
   'cv.title': 'CV',
   'cv.description':
-    'CV of Anas Deyra, full-stack engineer in Tunis, Tunisia. Open to full-time roles: remote, hybrid or on-site, and relocation.',
+    'CV of Anas Deyra, product engineer in Tunis, Tunisia: travel booking platforms, integrations and AI workflows. Open to full-time roles: remote, hybrid or on-site, and relocation.',
   'cv.pdfTitle': 'Anas Deyra, CV',
-  'cv.pdfSubject': 'Curriculum vitae, full-stack engineer',
+  'cv.pdfSubject': 'Curriculum vitae, product engineer',
   'cv.heading': '{name}, {title}',
   'cv.open': 'Open to full-time roles',
   'cv.relocation': 'Open to relocation',
@@ -242,7 +248,7 @@ export const en = {
   'language.level.conversational': 'conversational',
   'about.title': 'About',
   'about.description':
-    'Anas Deyra is a full-stack engineer in Tunis who builds polished web products for startup founders, and a research master’s student in Information Systems.',
+    'Anas Deyra is a product engineer in Tunis. He leads the flight module team at Metis, a B2B travel booking platform, and builds AI tools with Claude and MCP.',
   'about.heading': 'About {name}',
   'about.howIWork': 'How I work',
   'about.languages': 'Languages',
@@ -256,13 +262,13 @@ export const en = {
   // Work (projects)
   'work.title': 'Work',
   'work.description':
-    'Selected projects by Anas Deyra: client work, side projects and research, with the problem, the approach and the result.',
+    'Projects by Anas Deyra, product engineer: travel booking at Metis, restaurant reservations at QuickSeat, and Huginn, an open-source travel API. The problem, the approach and the result.',
   'work.eyebrow': 'Selected work',
   'work.intro':
-    '[Draft] Products built for founders, side projects, and research.',
+    'Production work and side projects: what was broken, what I built, and what changed for the business.',
   'work.filter.legend': 'Filter projects by type',
   'work.filter.all': 'All',
-  'work.type.client': 'Client',
+  'work.type.client': 'Professional',
   'work.type.side': 'Side project',
   'work.type.research': 'Research',
   'work.status.ongoing': 'Ongoing',
@@ -280,9 +286,9 @@ export const en = {
   'work.facts.stack': 'Stack',
   'work.facts.team': 'Team',
   'work.facts.year': 'Year',
-  'work.facts.client': 'Client',
+  'work.facts.client': 'Company',
   'work.facts.clientNda': '{type} (under NDA)',
-  'work.facts.country': 'Client country',
+  'work.facts.country': 'Country',
   'work.facts.lab': 'Lab',
   'work.facts.supervisor': 'Supervisor',
   'work.facts.links': 'Links',
@@ -319,7 +325,7 @@ export const en = {
 
   // Testimonials
   'proof.eyebrow': 'Reviews',
-  'proof.title': 'What clients in {count} countries say',
+  'proof.title': 'What clients say, country by country',
   'proof.titlePlain': 'What clients say',
   'proof.all': 'All reviews on Upwork',
   'proof.loop.auto': 'Auto-play reviews',
@@ -328,22 +334,23 @@ export const en = {
   'proof.loop.list': 'Client reviews',
   'proof.scroll.hint': 'Scroll for the next review',
   'testimonial.client': 'Upwork client',
+  'proof.caseStudy': 'Case study: {title}',
   'about.endorsements': 'Endorsed on Upwork',
   // Clients map
   'clients.label': 'World map. Clients in {count} countries: {countries}.',
   'clients.listLabel': 'Countries with past clients',
   'clients.caption':
-    '[Draft] Based in {city} ({offset}, no DST): full overlap with Europe, mornings with India and Singapore, afternoons with the US East Coast.',
+    'Based in {city} ({offset} all year): most of the European working day, my mornings with India and Singapore, my afternoons with the US East Coast.',
   // Blog and tags
   'blog.title': 'Writing',
   'blog.description':
-    '[Draft] Guides for founders and notes on building polished products, by Anas Deyra.',
+    'Notes on building booking flows, integrations and AI tools, and guides for founders, by Anas Deyra.',
   'blog.eyebrow': 'Writing',
   'blog.intro':
-    '[Draft] Guides for founders and notes from building polished products.',
+    'Notes from building booking flows, integrations and AI tools, and guides for the founders who pay for them.',
   'blog.empty.title': 'Writing is on the way',
   'blog.empty.body':
-    '[Draft] Articles and notes are being written. Message me with a question and I will answer it directly.',
+    'The first posts are being written. Send me your question on WhatsApp and I’ll answer it directly.',
   'blog.filter.legend': 'Filter writing by type',
   'blog.filter.all': 'All',
   'blog.type.article': 'Article',
@@ -379,7 +386,7 @@ export const en = {
   'rss.title': '{brand}: articles and notes',
   'rss.description': 'Articles and notes by Anas Deyra.',
   'og.alt': 'Preview card: {title}',
-  'og.default.title': 'Full-stack engineer for startups',
+  'og.default.title': 'Software engineer for booking platforms and AI workflows',
   'og.chip.topic': 'Topic',
   'about.clients': 'Clients worldwide',
   'search.trigger': 'Search',

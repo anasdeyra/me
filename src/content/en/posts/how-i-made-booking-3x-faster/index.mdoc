@@ -1,0 +1,78 @@
+---
+title: How I made booking 3x faster
+type:
+  discriminant: article
+  value:
+    cover: null
+    coverAlt: ''
+description: >-
+  Fewer steps, parallel supplier calls and careful caching: what each change
+  bought on a production travel booking platform.
+tags:
+  - engineering
+publishedAt: 2026-11-21
+draft: true
+cta: auto
+---
+
+Metis is a B2B platform that travel agencies use to book flights. When I started on the booking flow, it was slow. Agents waited on suppliers, clicked through confirmation screens and waited again. Today our end-to-end booking scenarios finish 3x faster than before.
+
+Four changes got us there. The one that bought the most speed had little to do with supplier performance.
+
+## How I measured it
+
+We have end-to-end test scenarios that run a booking the way an agent would: pick an offer, fill in the passengers, confirm, and wait for the booking to come back from the supplier. I ran the same scenarios before and after the changes, so the comparison is like for like.
+
+That number covers the whole flow, from offer to confirmed booking. It doesn't include the time an agent spends typing a passenger's name, which no engineering change will shorten.
+
+## Fewer steps: the biggest win
+
+Every step in a booking flow costs twice: one click, then one wait. The flow had steps that only existed because the code needed them, so I removed them.
+
+- **Merged screens.** Information the agent entered across separate screens now sits on one.
+- **Fewer confirmations.** Intermediate "are you sure?" screens went. The agent confirms once, at the point where money is committed.
+- **Work in the background.** Pricing and checks start while the agent is still filling in the form, so the answer is ready when they click.
+
+All of it came from walking through the flow the way the agent sees it, step by step, and asking why each wait exists.
+
+## Parallel supplier calls
+
+The old flow asked suppliers for data one after another, so the total wait was the sum of every call. Now the calls run at the same time, and the wait is roughly the slowest call. Each call gets its own timeout, so one slow supplier can't hold the whole booking hostage.
+
+A simplified version of the pattern in TypeScript:
+
+```ts
+const withTimeout = <T>(p: Promise<T>, ms: number) =>
+  Promise.race([
+    p,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), ms),
+    ),
+  ]);
+
+const results = await Promise.allSettled(
+  suppliers.map((s) => withTimeout(s.search(query), TIMEOUT_MS)),
+);
+
+const offers = results.flatMap((r) =>
+  r.status === 'fulfilled' ? r.value : [],
+);
+```
+
+`allSettled` matters here. With `Promise.all`, one failing supplier would throw away every other supplier's answer.
+
+## Caching without selling a stale price
+
+Caching is where speed work can cost a business money. Sell a fare at yesterday's price and the agency or the platform pays the difference. So I cached in layers:
+
+- **Reference data** (airports, airlines, fare rules) changes rarely, so it is cached for a long time.
+- **Search results and offers** are cached briefly, with short expiry times, so repeat searches don't hit the supplier again.
+- **Before every booking, the price is confirmed with the supplier.** The cache makes searching fast; it never decides what the customer pays.
+
+## The rewrite that made it possible
+
+The other changes needed room to work. The old booking module wasn't built for parallel calls or background work, so I rebuilt it on a new architecture. A rewrite is expensive, and I'd only do it when the changes you need can't fit in the old structure. Here they couldn't.
+
+## Where to start on your own flow
+
+If your booking or checkout feels slow, measure the whole flow first, with a scenario you can repeat. Then count the steps and the waits. In my experience the biggest gains sit in the flow itself, before any supplier or database tuning.

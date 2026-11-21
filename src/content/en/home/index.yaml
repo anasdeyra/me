@@ -1,77 +1,110 @@
 hero:
-  headline: '[Draft] Polished software for startup founders'
-  subline: '[Draft] I build MVPs, new features and marketing sites, from Tunis.'
+  headline: I build the parts of your product that make money.
+  subline: >-
+    Booking and checkout flows, integrations and AI tools, from the first call
+    to production.
 services:
-  - title: MVP build
-    forWho: '[TBD] Who it is for'
+  - title: Booking and checkout flows
+    forWho: >-
+      Products where customers drop off between search and payment, or where
+      the flow slows down when traffic peaks.
     deliverables:
-      - '[TBD] What you get'
-  - title: Features on existing apps
-    forWho: '[TBD] Who it is for'
+      - Search, offer, booking and payment flows with fewer steps
+      - Prices and availability that stay correct at peak traffic
+      - Speed and conversion measured before and after
+  - title: Supplier and API integrations
+    forWho: >-
+      Platforms that sell other companies' inventory, or depend on payment
+      providers and partner APIs.
     deliverables:
-      - '[TBD] What you get'
-  - title: Websites and landing pages
-    forWho: '[TBD] Who it is for'
+      - Integrations that handle timeouts, retries and supplier errors
+      - Alerts that tell you a supplier failed before a customer does
+      - Documentation your team can maintain without me
+  - title: AI tools and agent workflows
+    forWho: >-
+      Teams that spend hours every week on work a well-built AI tool could do.
     deliverables:
-      - '[TBD] What you get'
-  - title: Retainer
-    forWho: '[TBD] Who it is for'
+      - AI features built on Claude, inside your product
+      - Agents and MCP servers connected to your tools and data
+      - Logs, limits and human review on every action that matters
+  - title: Product engineering
+    forWho: >-
+      Founders and teams who need a new product or a major feature built to a
+      production standard.
     deliverables:
-      - '[TBD] What you get'
-designNote: Bring your designs, or I'll design it.
+      - An MVP or new features, from architecture to launch
+      - Fast, accessible and secure from the first release
+      - Code and docs your next hire can pick up
 process:
-  - title: Chat on WhatsApp or a call
+  - title: Discovery call
     messages:
       - from: client
         text: >-
-          [Draft] Hi Anas, I have an idea for a product and a launch date in
-          mind. Can we talk?
+          Hi Anas, we're losing bookings at checkout and peak season is two
+          months away. Can we talk?
       - from: me
-        text: '[Draft] Happy to. Tell me about it here, or pick a time for a call.'
-  - title: Scope and quote
+        text: >-
+          Yes. Send me the flow and any numbers you have, and let's book a call
+          this week.
+  - title: Technical scope and quote
     messages:
       - from: me
         text: >-
-          [Draft] Here is the scope and the quote, in writing. You work with me
-          from this first call to launch.
+          Here's the written scope: what I'll change, the risks, the milestones
+          and the price of each one.
       - from: client
-        text: '[Draft] Looks good. Let’s start.'
-  - title: Build with weekly updates
+        text: Clear. Let's start.
+  - title: Build with weekly demos
     messages:
       - from: me
         text: >-
-          [Draft] Weekly update: what shipped this week, what comes next, and
-          anything I need from you.
+          This week's demo: the new checkout runs end to end in staging, two
+          steps shorter. Next: payment errors and monitoring.
       - from: client
-        text: '[Draft] Clear, thanks. Talk next week.'
+        text: Looks great. See you next week.
   - title: Launch, handover and support
     messages:
       - from: me
         text: >-
-          [Draft] We’re live. Here is the documented handover, and I’m here for
-          support after launch.
-quoteProcess: '[TBD] How quotes work (no public prices).'
+          We're live and monitored. Here's the handover doc, and bug fixes are
+          on me for the next 15 days.
+quoteProcess: >-
+  After the first call you get a written scope. If the scope is clear, I quote
+  a fixed price per milestone. If it's open-ended, I bill by time against a
+  written estimate.
 faq:
-  - question: Do you do design too?
-    answer: Either way. Bring your designs, or I'll design the UX and UI.
-  - question: How do I know you won't disappear mid-project?
+  - question: Do you only work on travel products?
     answer: >-
-      [Draft] 100% Job Success on Upwork, a written process, weekly updates and
-      a documented handover.
-  - question: Why not hire a cheaper developer offshore?
+      No. Travel booking is where I've gone deepest: three years on a
+      production platform. Payments, supplier integrations and speed under load
+      matter to any product that takes orders or bookings.
+  - question: Can you work inside our existing codebase and team?
     answer: >-
-      [Draft] Price the rewrite: a product built properly from the start costs
-      less over its life.
+      Yes. I work in your repository, with your tools and your review process,
+      and I document what I build.
+  - question: How do you use AI in your work?
+    answer: >-
+      I use Claude agents to plan, review and audit my work, and I own every
+      decision and every line that ships. For clients, I build AI features,
+      agent workflows and MCP servers.
+  - question: How do I know the project will be delivered?
+    answer: >-
+      Five years of shipping software and 100% Job Success on Upwork. On your
+      project: a written scope, a demo every week and a documented handover.
   - question: What about language and time zones?
     answer: >-
-      [Draft] I work in English, French and Arabic. Tunis is UTC+1 with no
-      daylight saving: full overlap with Europe, part of the day with Asia and
-      the US East Coast.
+      I work in English, French and Arabic. Tunis is on UTC+1 all year, so my
+      working day covers most of Europe's, and part of Asia's and the US East
+      Coast's.
   - question: Who owns the code?
-    answer: '[TBD]'
+    answer: >-
+      You do. The code lives in your repository and runs on your accounts from
+      day one. All rights transfer to you on final payment.
   - question: What happens after launch?
-    answer: '[TBD]'
+    answer: >-
+      Bug fixes are included for 15 days after launch. After that, I quote
+      support and new work as we agree.
   - question: Will you sign an NDA?
-    answer: '[TBD]'
-  - question: Should I hire you through Upwork or directly?
-    answer: '[TBD]'
+    answer: Yes. I sign your NDA before you share any details.
+  - question: Do you do design too?
+    answer: Either way. Bring your designs, or I'll design the UX and UI.

@@ -1,5 +1,6 @@
 ---
-// Home (study 6.1). Sections 3, 4 (Phase 3) and 10 (Phase 4) are gated by isSectionLive and added later.
+// Home (study 6.1), order per the 2026-11-21 review: hero, work, proof, services, process, FAQ, about, writing, closing CTA.
+// Work, proof and writing are gated by isSectionLive inside their components.
 import AboutTeaser from '@/components/home/AboutTeaser.astro';
 import Faq from '@/components/home/Faq.astro';
 import LatestWriting from '@/components/home/LatestWriting.astro';
@@ -9,7 +10,6 @@ import ReviewLoopStyle from '@/components/proof/ReviewLoopStyle.astro';
 import Proof from '@/components/home/Proof.astro';
 import SelectedWork from '@/components/home/SelectedWork.astro';
 import Services from '@/components/home/Services.astro';
-import Statement from '@/components/home/Statement.astro';
 import ContactBlock from '@/components/site/ContactBlock.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getImage } from 'astro:assets';
@@ -44,13 +44,12 @@ const reviewPlayback: 'loop' | 'scroll' = 'loop';
   )}
   <main id="main">
     <Hero />
-    <Statement />
     <SelectedWork />
     <Proof playback={reviewPlayback} />
     <Services />
     <Process />
-    <AboutTeaser />
     <Faq />
+    <AboutTeaser />
     <LatestWriting />
     <ContactBlock location="final" headingId="final-cta-title" form />
   </main>

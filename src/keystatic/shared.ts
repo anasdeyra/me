@@ -95,6 +95,16 @@ export const settings = singleton({
           defaultValue: ['remote', 'hybrid', 'onsite'],
         }),
         openToRelocation: fields.checkbox({ label: 'Open to relocation', defaultValue: true }),
+        startYear: fields.integer({
+          label: 'Career start year',
+          description: 'The hero shows the years of experience counted from it, so the figure never goes stale',
+          validation: { isRequired: true, min: 2000, max: 2100 },
+        }),
+        projects: fields.text({
+          label: 'Projects shipped',
+          description: 'Shown in the hero, e.g. 10+',
+          validation: { isRequired: true },
+        }),
       },
       { label: 'Career (recruiter facts)' },
     ),

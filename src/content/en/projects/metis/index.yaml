@@ -1,0 +1,32 @@
+title: Metis
+type:
+  discriminant: client
+  value:
+    clientType: B2B travel booking platform
+    nda: false
+outcome: >-
+  Made end-to-end booking 3x faster on a B2B travel platform, integrated 8
+  suppliers and built the first NDC booking split for Air France-KLM.
+year: 2023
+stack:
+  - Vue.js
+  - TypeScript
+  - Node.js
+  - SOAP APIs
+  - NDC
+  - Google Cloud
+role: Software Engineer, flight module lead
+timeline: Since October 2023
+team: Mid-size engineering team; I lead the flight module team
+metrics:
+  - value: 3x
+    label: faster end-to-end booking
+    context: end-to-end booking test scenarios, offer to confirmed booking
+  - value: '8'
+    label: travel suppliers integrated
+  - value: 1st
+    label: tech provider to offer NDC booking split with Air France-KLM
+    context: December 2024
+featured: true
+order: 0
+draft: false

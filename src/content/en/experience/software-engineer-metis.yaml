@@ -1,0 +1,25 @@
+title: Software Engineer
+company: Metis
+location: Tunis, Tunisia (hybrid)
+employment: full-time
+start: 2023-10-01
+bullets:
+  - >-
+    Build the booking flow of a production B2B travel booking platform, from
+    search and offers to confirmed booking; made end-to-end booking 3x faster.
+  - Integrated 8 travel suppliers through their SOAP APIs.
+  - >-
+    Built NDC booking split and flight exchange for Air France-KLM; Metis was
+    the first technology provider to offer the split (December 2024).
+  - >-
+    Run the platform's infrastructure on Google Cloud: performance, reliability
+    and deployments.
+  - Lead the flight module team and mentor junior developers.
+stack:
+  - Vue.js
+  - TypeScript
+  - Node.js
+  - SOAP APIs
+  - NDC
+  - Google Cloud
+draft: false

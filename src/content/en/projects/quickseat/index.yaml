@@ -2,11 +2,19 @@ title: QuickSeat
 type:
   discriminant: client
   value:
-    clientType: '[TBD]'
+    clientType: All-in-one reservation and table management system
+    country: lebanon
     nda: false
-outcome: '[TBD] Outcome. Next.js static site.'
+outcome: >-
+  Advanced reservation, table management and guest CRM for restaurants, bars,
+  clubs, hotel dining venues and multi-branch hospitality groups.
 stack:
-  - Next.js
-featured: false
-order: 0
-draft: true
+  - React
+  - NestJS
+  - TypeScript
+role: Built reservations, online booking and table management
+links:
+  live: https://quickseat.co
+featured: true
+order: 2
+draft: false

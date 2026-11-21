@@ -2,12 +2,15 @@ title: Full-stack Engineer
 company: Freelance (Upwork)
 location: Remote
 employment: freelance
+start: 2021-05-01
 bullets:
   - >-
-    Top Rated on Upwork with 100% Job Success across 10+ jobs for clients in 7
+    Top Rated on Upwork with 100% Job Success across 10+ jobs for clients in 8
     countries.
-  - '[TBD] Two or three result bullets with numbers.'
+  - >-
+    Built reservations, online booking and table management for QuickSeat, a
+    hospitality platform for restaurants and multi-branch groups.
 stack:
   - React
   - Next.js
-draft: true
+draft: false

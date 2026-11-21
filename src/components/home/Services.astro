@@ -1,11 +1,14 @@
 ---
-// Home section 6: the four engagement types, as a list split by hairlines (heading left, rows right).
+// Home section 4: the engagement types as a list split by hairlines (heading left, rows right). Each row has a typical
+// timeline and its own "Ask about this" WhatsApp link (prefilled with the engagement). How quotes work sits under the
+// list, because that is the next question after choosing an engagement.
 import SectionHeading from '@/components/site/SectionHeading.astro';
 import Section from '@/components/site/Section.astro';
 import { t } from '@/i18n';
-import { getHome } from '@/lib/content';
+import { whatsappHref, whatsappServicePrefill } from '@/lib/contact';
+import { getHome, getSettings } from '@/lib/content';
 
-const home = await getHome();
+const [home, settings] = await Promise.all([getHome(), getSettings()]);
 ---
 
 <Section id="services" labelledby="services-title">
@@ -28,6 +31,27 @@ const home = await getHome();
               {String(i + 1).padStart(2, '0')}
             </p>
             <h3 class="text-xl">{service.title}</h3>
+            {service.timeline && (
+              <p class="mt-2 text-sm text-muted-foreground">
+                {t('home.services.timeline')}: <span class="text-ink">{service.timeline}</span>
+              </p>
+            )}
+            <p class="mt-4">
+              <a
+                href={whatsappHref(
+                  settings.whatsappNumber,
+                  whatsappServicePrefill(service.title),
+                )}
+                class="link text-sm"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-track="contact_whatsapp"
+                data-track-location="services"
+              >
+                {t('home.services.ask')}
+                <span class="sr-only"> {t('a11y.newTab')}</span>
+              </a>
+            </p>
           </div>
           <div class="space-y-5">
             <div>
@@ -51,5 +75,9 @@ const home = await getHome();
       ))}
     </ol>
     {home.designNote && <p class="mt-8 text-lg text-ink">{home.designNote}</p>}
+    <div class="mt-12 border-t border-border pt-8">
+      <h3 class="text-xl">{t('home.process.quotes')}</h3>
+      <p class="mt-3 max-w-measure">{home.quoteProcess}</p>
+    </div>
   </div>
 </Section>

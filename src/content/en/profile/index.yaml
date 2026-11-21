@@ -1,12 +1,24 @@
-title: Full-stack Engineer
+title: Product Engineer
 shortBio: >-
-  [Draft] Full-stack engineer in Tunis building polished web products for startup
-  founders. Also a research master's student in Information Systems.
-cvSummary: '[TBD] Three-line CV summary with role keywords.'
+  Product engineer in Tunis. At Metis, a B2B travel booking platform, I lead the
+  flight module team and made booking 3x faster. I also build AI tools with
+  Claude and MCP.
+cvSummary: >-
+  Product engineer with 5 years of experience. Since 2023 at Metis, a production
+  B2B travel booking platform: lead the flight module team, made end-to-end
+  booking 3x faster, integrated 8 travel suppliers and built the first NDC
+  booking split with Air France-KLM. Builds AI features, agent workflows and MCP
+  servers with Claude. Mentors junior developers.
 photo: photo.jpg
 cutout: cutout.png
 photoAlt: Portrait of Anas Deyra
-researchSummary: '[TBD] Two sentences on the research focus.'
+researchSummary: '[Draft] Research master''s in information systems at ISI, University of Tunis El Manar.'
 facts:
-  - label: '[TBD] Label'
-    value: '[TBD] Value'
+  - label: Based in
+    value: Tunis, Tunisia (UTC+1)
+  - label: Currently
+    value: Flight module lead at Metis
+  - label: Shipping software since
+    value: '2021'
+  - label: Languages
+    value: English, French, Arabic

@@ -8,27 +8,33 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 
 - [ ] **Home hero**: replace the `[Draft]` headline and subline (`src/content/en/home/index.yaml` `hero`) and set `shortBio`
       (`src/content/en/profile/index.yaml`). Feeds the meta description, OG, Person JSON-LD, `/llms.txt`, About teaser.
-- [ ] **Hero statement**: review the new centred statement copy under the hero (`src/i18n/en.ts`, `home.statement.body`).
 - [ ] **Testimonial countries**: set `country` on every testimonial in Keystatic (Testimonials -> Country; Solana, React product page and React form app carry RANDOM placeholder countries marked `[TBD]`, the
       real client country is not in the repo, so it is an owner fact). The home proof map
       picks a review by country; untagged reviews fall back to plain cards below the map. Countries available: France, Germany,
-      India, Singapore, Spain, United States, Tunisia.
-- [ ] **Services**: who it is for / what you get for the 4 offers (`home/index.yaml`, Keystatic: Home).
-- [ ] **Process**: the `[Draft]` chat messages of the 4 steps (`home/index.yaml`, `process[].messages`) and "How quotes work".
-- [ ] **FAQ**: answers on code ownership, after launch, NDA, Upwork vs direct; drop `[Draft]` on the other answers.
+      India, Lebanon, Singapore, Spain, United States, Tunisia. QuickSeat's review is Lebanon (confirmed 2026-11-21).
+- [ ] **Services**: who it is for / what you get for the 4 offers, and the `[Draft]` typical timelines (`home/index.yaml`, Keystatic: Home).
+      Timelines are suggestions, not facts: confirm them or delete the `timeline` line. "How quotes work" sits under Services.
+- [ ] **Process**: the `[Draft]` chat messages of the 4 steps (`home/index.yaml`, `process[].messages`).
+- [ ] **Reviews**: reviewers are "Upwork client" with no role; add real first names and roles (with the reviewer's OK) in
+      `src/content/en/testimonials/*.yaml`. Without a name the review shows a neutral person glyph, not initials.
+- [ ] **Case studies** (2026-11-21: Metis, QuickSeat, Huginn are live; ArtBeat, Solana NFT and the research project were removed):
+      write the `[Draft]`/`[TBD]` problem, approach and result of each, QuickSeat's `clientType` and platform stack, Huginn's role.
+      Optional: one real screenshot per project (co-located `heroImage`). Metis claim wording is fixed: "first technology provider
+      to offer NDC booking split with Air France-KLM" (source: Metis press release, mistertravel.news 2024-12-04); never "first in the world".
+- [ ] **FAQ**: bug-fix window is 15 days after launch (confirmed); drop `[Draft]` on the answers after the copy pass.
 - [ ] **About**: story (`profile/longBio.mdoc`), how I work (`profile/howIWork.mdoc`), research summary
-      (`profile/index.yaml`), and the "A few things about me" row (`[TBD] Label/Value`: fill or delete).
-- [ ] **CV** (`/cv` and `/cv.pdf`): summary (`profile/index.yaml`), skills Languages/Backend/Infrastructure
-      (`src/content/en/skills.yaml`), university name, dates and research focus (`src/content/en/education/*.yaml`).
-- [ ] **Experience**: replace the `[TBD]` result bullets in `src/content/en/experience/freelance-full-stack-engineer.yaml`,
-      add real dates, set `draft: false`.
+      (`profile/index.yaml`; or delete it). The facts row is filled.
+- [ ] **CV** (`/cv` and `/cv.pdf`): summary (`profile/index.yaml`); dates of the bachelor's (FST) and the master's (ISI, in
+      progress) and the research focus (`src/content/en/education/*.yaml`). Skills are filled.
+- [ ] **Experience**: add the 2021 start month to `src/content/en/experience/freelance-full-stack-engineer.yaml`, then set
+      `draft: false`. Metis is done (October 2023, live).
 - [ ] **Privacy** (`src/i18n/en.ts`, `privacy.*`): confirm retention (12 months), processors (Resend, Vercel; add Cloudflare
       Email Routing and Gmail if `hello@` is the contact address), rights text; remove `[Draft]`; update "Last updated".
 - [ ] **Time-zone line**: `src/i18n/en.ts` time-zone copy (`home.process.timezone`, `cta.timezone`, `footer.base`, `clients.caption`); soften "full overlap with European working hours".
-- [ ] **Claims to confirm**: "usually replies within an hour" (WhatsApp), "I reply within a day" (email/form);
-      "Clients in 7 countries" (counts Tunisia, the home country: confirm it is the Upwork tally, or list 6 / label Tunisia as home).
-- [ ] **Unlock Work**: publish at least 2 projects (`src/content/en/projects/*`: remove `draft`, replace every `[TBD]`
-      incl. `clientType` and `outcome`; add `links` so `project_link` events exist). The research project title is `[TBD]`.
+- [ ] **Claims to confirm**: "usually replies within an hour" (WhatsApp: hero door hint, chat header, WhatsApp hints in `src/i18n/en.ts`;
+      the closing block no longer repeats it), "I reply within a day" (email/form);
+      "Clients in 8 countries" (Lebanon added 2026-11-21; counts Tunisia, the home country: confirm it is the Upwork tally, or list 6 / label Tunisia as home).
+- [x] **Unlock Work**: 3 projects published (Metis, Huginn, QuickSeat). Their `[TBD]` prose is listed under Case studies.
 - [ ] **Unlock Writing**: publish at least 3 posts (`src/content/en/posts/*`: real descriptions, `draft: false`).
       Gated sections, nav, RSS and sitemap entries appear by themselves once the gates pass.
 - [ ] Finish: `grep -rn "\[TBD\]\|\[Draft\]" src/content src/i18n` is empty, and so is

@@ -1,10 +1,9 @@
 ---
 // The one frame for every project visual (docs/ux-study.md 7.2): 16:10, hairline grid, 1px border, 2px radius.
 // With an image the picture fills the frame; without one a typographic fallback shows the project name,
-// type and year (no fake UI screenshots). Aspect ratio is always set, so swapping in a real image never shifts layout.
+// year (no fake UI screenshots; the type is the chip below the frame, not repeated here). Aspect ratio is always set, so swapping in a real image never shifts layout.
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { t } from '@/i18n';
 import type { ProjectView } from '@/lib/projects';
 import { cn } from '@/lib/utils';
 
@@ -42,7 +41,6 @@ const word =
     .replace(/\[[^\]]*\]\s*/g, '')
     .trim()
     .split(/\s+/)[0] || project.title;
-const label = t(`work.type.${project.type}`);
 ---
 
 <div
@@ -85,8 +83,8 @@ const label = t(`work.type.${project.type}`);
       >
         {word}
       </span>
-      <span class="flex items-baseline justify-between gap-3 font-mono text-xs text-muted-foreground">
-        <span>{label}</span>
+      {/* The type is the chip under the frame, so only the year sits here. */}
+      <span class="flex items-baseline justify-end gap-3 font-mono text-xs text-muted-foreground">
         {project.year && <span class="tabular-nums">{project.year}</span>}
       </span>
     </div>

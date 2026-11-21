@@ -1,17 +1,32 @@
 groups:
   - name: Languages
     items:
-      - '[TBD]'
+      - TypeScript
+      - JavaScript
+      - Go
+      - Python
   - name: Frontend
     items:
+      - Vue.js
       - React
       - Next.js
   - name: Backend
     items:
-      - '[TBD]'
+      - Node.js
+      - SOAP and REST APIs
+      - PostgreSQL
+      - MongoDB
+      - Redis
   - name: Infrastructure
     items:
-      - '[TBD]'
+      - Google Cloud
+      - Docker
+      - CI/CD
+  - name: AI
+    items:
+      - Claude
+      - MCP servers
+      - Agent workflows
   - name: Practices
     items:
       - Performance budgets

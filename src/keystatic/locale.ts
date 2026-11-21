@@ -89,6 +89,7 @@ export const home = (locale: string) =>
         fields.object({
           title: fields.text({ label: 'Engagement', validation: { isRequired: true } }),
           forWho: fields.text({ label: 'Who it is for', multiline: true }),
+          timeline: fields.text({ label: 'Typical timeline', description: 'e.g. 6–10 weeks. No prices.' }),
           deliverables: textList('What you get', 'Deliverable'),
         }),
         { label: 'What I do', itemLabel: (p) => p.fields.title.value || 'Untitled' },
@@ -97,13 +98,13 @@ export const home = (locale: string) =>
       process: fields.array(
         fields.object({
           title: fields.text({ label: 'Step', validation: { isRequired: true } }),
-          // Shown on the home page as a chat between a founder and me, one step after another.
+          // Shown on the home page as a chat between a client and me, one step after another.
           messages: fields.array(
             fields.object({
               from: fields.select({
                 label: 'From',
                 options: [
-                  { label: 'Founder (the visitor)', value: 'client' },
+                  { label: 'Client (the visitor)', value: 'client' },
                   { label: 'Me', value: 'me' },
                 ],
                 defaultValue: 'me',
@@ -112,7 +113,7 @@ export const home = (locale: string) =>
             }),
             {
               label: 'Chat messages',
-              itemLabel: (p) => `${p.fields.from.value === 'me' ? 'Me' : 'Founder'}: ${p.fields.text.value || '…'}`,
+              itemLabel: (p) => `${p.fields.from.value === 'me' ? 'Me' : 'Client'}: ${p.fields.text.value || '…'}`,
             },
           ),
         }),

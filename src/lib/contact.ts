@@ -24,7 +24,7 @@ export function formatPhone(number: string): string {
 export const mailtoHref = (email: string) => `mailto:${email}`;
 
 export type WhatsappContext =
-  'home_hero' | 'final' | 'contact' | 'cv' | 'about';
+  'home_hero' | 'final' | 'contact' | 'cv' | 'about' | 'process';
 
 /** Prefilled WhatsApp message for the page or block the visitor clicked from (FR-11). */
 export const whatsappPrefill = (context: WhatsappContext): string =>
@@ -33,6 +33,10 @@ export const whatsappPrefill = (context: WhatsappContext): string =>
 /** FR-11 `project:<slug>` context: message that names the project the visitor was looking at. */
 export const whatsappProjectPrefill = (title: string): string =>
   t('whatsapp.prefill.project', { title });
+
+/** A home service row: the message names the engagement the visitor asks about. */
+export const whatsappServicePrefill = (title: string): string =>
+  t('whatsapp.prefill.service', { title });
 
 /** FR-11 `post:<slug>` context: message that names the post the visitor was reading. */
 export const whatsappPostPrefill = (title: string): string =>

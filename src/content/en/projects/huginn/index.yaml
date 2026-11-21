@@ -1,0 +1,13 @@
+title: Huginn
+type:
+  discriminant: side
+outcome: >-
+  An open-source Go API that aggregates airline and travel suppliers for
+  booking and servicing. In development.
+year: 2026
+stack:
+  - Go
+role: Creator
+featured: true
+order: 1
+draft: false

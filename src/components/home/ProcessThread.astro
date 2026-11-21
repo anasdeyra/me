@@ -13,7 +13,9 @@
 // No style="" (CSP): the per-item slice (--k) and the item count (--n) are literal Tailwind classes below.
 import { Image } from 'astro:assets';
 import { t } from '@/i18n';
+import { whatsappHref, whatsappPrefill } from '@/lib/contact';
 import { contentImage, getHome, getProfile, getSettings } from '@/lib/content';
+import ArrowIcon from '@/components/site/ArrowIcon.astro';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -26,6 +28,7 @@ const [home, settings, profile] = await Promise.all([
   getProfile(),
 ]);
 const photo = contentImage('en/profile', profile.photo);
+const composeHref = whatsappHref(settings.whatsappNumber, whatsappPrefill('process'));
 
 // Literal class lists so Tailwind generates them (it cannot see computed class names).
 // prettier-ignore
@@ -135,6 +138,24 @@ const speaker = (from: 'client' | 'me') =>
               </li>
             ))}
           </ol>
+          {/* The last row: a message box that starts the project on WhatsApp (the natural place to ask). Always shown. */}
+          <a
+            href={composeHref}
+            class="compose"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="contact_whatsapp"
+            data-track-location="process"
+          >
+            <span class="compose-field">{t('home.process.composePlaceholder')}</span>
+            <span class="compose-send bg-whatsapp text-white" aria-hidden="true">
+              <ArrowIcon class="size-4" />
+            </span>
+            <span class="sr-only">
+              {t('home.process.compose')}
+              <span class="sr-only"> {t('a11y.newTab')}</span>
+            </span>
+          </a>
         </div>
       </div>
     </div>
@@ -144,7 +165,7 @@ const speaker = (from: 'client' | 'me') =>
 <style>
   .pt {
     /* Scroll distance per item, and the window height while it sticks. */
-    --per: clamp(6rem, 18svh, 10rem);
+    --per: clamp(3.5rem, 9svh, 5rem);
     --win: min(38rem, calc(100svh - var(--spacing-header) - 3rem));
     /* Share of the contain range the items use; the rest holds the finished thread before the window leaves. */
     --span: 88%;
@@ -189,6 +210,34 @@ const speaker = (from: 'client' | 'me') =>
     justify-content: center;
   }
   /* Spacing is margin on the content (inside the clipped .in), never padding on .in, so a folded row is 0 tall. */
+  /* The message box: an input-shaped row that opens WhatsApp; the send chip is the WhatsApp colour. */
+  .compose {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-start: 1rem;
+    padding: 0.375rem 0.375rem 0.375rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background-color: var(--background);
+    color: var(--muted-foreground);
+    text-decoration: none;
+  }
+  .compose:hover,
+  .compose:focus-visible {
+    color: var(--ink);
+  }
+  .compose-field {
+    flex: 1;
+    font-size: var(--text-sm);
+  }
+  .compose-send {
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border-radius: 999px;
+  }
   .chip-t {
     margin-block: 1.25rem 0.25rem;
     display: inline-flex;
@@ -381,7 +430,8 @@ const speaker = (from: 'client' | 'me') =>
       grid-template-rows: 1fr !important;
       translate: none !important;
     }
-    .pt .ty {
+    .pt .ty,
+    .pt .compose {
       display: none !important;
     }
   }

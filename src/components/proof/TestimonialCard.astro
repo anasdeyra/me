@@ -4,11 +4,13 @@
 // swaps in the verbatim `excerpt` field only when the entry has one. Quote marks are CSS only.
 import Avatar from '@/components/proof/Avatar.astro';
 import { t } from '@/i18n';
-import { briefQuote, type Testimonial } from '@/lib/proof';
+import { briefQuote, type CaseStudy, type Testimonial } from '@/lib/proof';
 import { cn } from '@/lib/utils';
 
 interface Props {
   testimonial: Testimonial;
+  /** The review's case study, when it is visible: linked under the author. */
+  caseStudy?: CaseStudy;
   variant?: 'card' | 'pull';
   excerpt?: boolean;
   /** Id on the <figure>, so a control can point at it (aria-describedby). */
@@ -20,6 +22,7 @@ const {
   testimonial,
   variant = 'card',
   excerpt = false,
+  caseStudy,
   id,
   class: className,
 } = Astro.props;
@@ -49,4 +52,9 @@ const pull = variant === 'pull';
       {entry.role && <span class="text-muted-foreground">{entry.role}</span>}
     </span>
   </figcaption>
+  {caseStudy && (
+    <a href={caseStudy.href} class="link text-sm">
+      {t('proof.caseStudy', { title: caseStudy.title })}
+    </a>
+  )}
 </figure>

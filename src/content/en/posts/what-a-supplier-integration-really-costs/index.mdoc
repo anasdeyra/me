@@ -1,0 +1,61 @@
+---
+title: What a supplier integration really costs
+type:
+  discriminant: article
+  value:
+    cover: null
+    coverAlt: ''
+description: >-
+  Documentation gaps, certification and data mapping: where the time goes in a
+  supplier integration, and what to ask before you sign.
+tags:
+  - for-founders
+publishedAt: 2026-11-21
+draft: true
+cta: auto
+---
+
+At Metis I have integrated 8 travel suppliers through their SOAP APIs. When a founder asks me how long the next one will take, my honest answer is that it varies a lot. Very little of that variation comes from writing code.
+
+Here is where the time goes, and how to budget for it before you commit to a launch date.
+
+## The documentation is not the API
+
+Every supplier sends documentation. Then you call the API, and it behaves differently: a field the docs call optional is required, an error comes back in a format nobody described, a flow needs a step the guide skips.
+
+You only find these gaps by testing against the real thing, one flow at a time. Plan discovery as a phase of its own, with time in the schedule.
+
+## Certification
+
+Many suppliers won't give you production access until they have tested your integration. You book test reservations, cancel them, handle their error cases, and they check the result against their rules.
+
+Certification runs on the supplier's calendar. If they find a problem, you fix it and resubmit, and the wait starts again. A plan that puts certification in the last week before launch is a plan to miss the launch.
+
+## Mapping their world onto yours
+
+Each supplier models fares, passengers, baggage and errors in its own way. Your platform needs one model, so every integration includes a translation layer between the two.
+
+This is why the eighth integration still takes real time. The plumbing gets reused; the mapping doesn't. Each new supplier brings new edge cases: a passenger type you hadn't seen, a fare rule expressed differently, an error that means two things.
+
+## The cost after launch
+
+An integration is never finished. Suppliers time out, return errors at peak hours and change their APIs. A production-ready integration includes:
+
+- timeouts and retries, so one slow supplier doesn't freeze your platform;
+- clear error handling, so customers see a useful message rather than a crash;
+- alerts, so you find out a supplier is failing before your customers do;
+- documentation, so the next engineer can maintain it.
+
+If a quote for an integration leaves these out, it's quoting for a demo.
+
+## What to ask a supplier before you sign
+
+These questions tell you more about your timeline than any estimate:
+
+1. Do you require certification? What does it cover, and how long does a review take?
+2. How complete is your test environment? Does it have realistic test data?
+3. When was the documentation last updated? Can we see it before signing?
+4. Who answers technical questions during the integration, and how fast?
+5. How do you announce API changes, and how much notice do you give?
+
+The answers won't give you an exact number, but they show you where the risk sits. You can then plan the launch around certification and testing, which no amount of coding can speed up.

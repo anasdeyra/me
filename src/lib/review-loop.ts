@@ -1,6 +1,6 @@
 // Build-time model for the home review map (src/components/proof/ReviewLoop.astro): reviews pop from their client
 // country on the map as chat bubbles. Each review's client first arrives as an avatar at the country with typing
-// dots, then the bubble grows out of the avatar; avatar and bubble leave together. Everything is computed here and
+// dots; when the bubble pops, the avatar and dots are gone and the bubble grows out of the avatar's spot. Everything is computed here and
 // emitted as data (classes, positions) or as one generated stylesheet (ReviewLoopStyle.astro).
 //
 // Two playbacks (the `playback` prop):
@@ -87,7 +87,7 @@ const r3 = (n: number) => Math.round(n * 1000) / 1000;
  * (`@container rl (min-width: 64rem)`), `inline-size: min(20rem, 28cqi)`, tail at least 1.5rem in from a side,
  * 1.75rem from the country (clear of the 2.25rem avatar). Height is estimated: padding + header (name and role
  * lines) + quote lines (text-base at its largest, line-height 1.5, a conservative average glyph width, clamped like
- * `.q`). The avatar footprint (AV) includes the typing dots under it.
+ * `.q`). The avatar footprint (AV) includes the typing dots beside it, to the right.
  */
 const FLOAT_PX = 1024;
 const TWO_UP_PX = [1024, 1088, 1152, 1216];
@@ -103,7 +103,7 @@ const B = {
   glyph: 0.5,
   clamp: 6,
 };
-const AV = { half: 18, below: 28 };
+const AV = { half: 18, right: 84 };
 /** Required space between two bubbles (covers the pop's overshoot) and around the other bubble's avatar. */
 const CLEAR = 24;
 const ANCHOR_CLEAR = 8;
@@ -176,7 +176,7 @@ function bubbleBox(W: number, ratio: number, s: Spot, side: Side): Box {
 const avatarBox = (W: number, ratio: number, s: Spot): Box => {
   const x = s.x * W;
   const y = s.y * W * ratio;
-  return { l: x - AV.half, r: x + AV.half, t: y - AV.half, b: y + AV.below };
+  return { l: x - AV.half, r: x + AV.right, t: y - AV.half, b: y + AV.half };
 };
 
 const overflow = (W: number, ratio: number, b: Box) =>
@@ -470,8 +470,8 @@ export async function reviewLoopModel(
 /*
  * Motion (M3 Expressive): the client's avatar pops in on the fast spatial spring and types (three dots) for LEAD s;
  * then the bubble grows out of the avatar on the bouncy spring (scale and a hint of rotation, from the avatar
- * point), its opacity on the effects spring, while the dots fade. Exits are shorter and softer: an accelerating fade
- * and a small shrink, the avatar just after its bubble. The easings are the global.css tokens, set on the elements
+ * point), its opacity on the effects spring, while the dots fade. The avatar is gone as the bubble pops. Exits are
+ * shorter and softer: an accelerating fade and a small shrink. The easings are the global.css tokens, set on the elements
  * (ReviewLoop.astro); the springs' durations come from spring.ts, which generated those tokens, so each eased
  * segment of a keyframe lasts exactly its spring's settle time.
  */
@@ -495,7 +495,7 @@ function keyframes(
   const shown = 'opacity:1;visibility:visible';
   const hidden = 'opacity:0;visibility:hidden';
   const up = 'transform:translateY(-.1875rem);opacity:1';
-  const rest = 'transform:none;opacity:.45';
+  const rest = 'transform:none;opacity:.6';
   const out = [
     // The dots show while the client types and fade as the bubble pops; each dot bounces twice (a per-dot delay).
     `@keyframes ${name('dots')}{0%{${hidden}}${p(0.25)}{${shown}}${p(LEAD - 0.02)}{${shown};${ex}}${p(LEAD + 0.18)},100%{${hidden}}}`,
@@ -504,7 +504,7 @@ function keyframes(
   for (const L of new Set(lives)) {
     const end = LEAD + L;
     out.push(
-      `@keyframes ${name('av', L)}{0%{${hidden};transform:scale(.3)}${p(AV_IN)}{${shown};transform:none}${p(end - 0.1)}{${shown};transform:none;${ex}}${p(end + 0.12)},100%{${hidden};transform:scale(.6)}}`,
+      `@keyframes ${name('av', L)}{0%{${hidden};transform:scale(.3)}${p(AV_IN)}{${shown};transform:none}${p(LEAD - 0.02)}{${shown};transform:none;${ex}}${p(LEAD + 0.1)},100%{${hidden};transform:scale(.6)}}`,
       `@keyframes ${name('pop', L)}{0%,${p(LEAD)}{transform:scale(.5) rotate(var(--rl-rot,0deg))}${p(LEAD + POP_IN)}{transform:none}${p(end - EXIT)}{transform:none;${ex}}${p(end)},100%{transform:scale(.92)}}`,
       `@keyframes ${name('fade', L)}{0%,${p(LEAD)}{${hidden}}${p(LEAD + FADE_IN)}{${shown}}${p(end - EXIT)}{${shown};${ex}}${p(end)},100%{${hidden}}}`,
     );

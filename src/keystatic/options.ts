@@ -2,7 +2,7 @@
 // display labels on the site come from src/i18n, not from these labels.
 
 export const projectTypes = [
-  { label: 'Client (case study)', value: 'client' },
+  { label: 'Professional (client or employer case study)', value: 'client' },
   { label: 'Side project', value: 'side' },
   { label: 'Research', value: 'research' },
 ] as const;
