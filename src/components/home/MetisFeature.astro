@@ -1,0 +1,287 @@
+---
+// Home "Selected work" lead: Metis as a boarding pass. A Before/After radio pair (zero JS, `:has()`) drives the
+// booking-time bar, the flow steps and the eight supplier nodes. Every number comes from the Metis project entry
+// (3 min -> 1 min, 8 suppliers, NDC split); nothing here is invented. Without `:has()` the toggle hides and the
+// "After" state shows.
+import ArrowIcon from '@/components/site/ArrowIcon.astro';
+import Button from '@/components/site/Button.astro';
+import { t } from '@/i18n';
+import type { ProjectView } from '@/lib/projects';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  project: ProjectView;
+  headingId: string;
+  class?: string;
+}
+
+const { project, headingId, class: className } = Astro.props;
+const steps: { key: 'search' | 'pricing' | 'ancillaries' | 'modal' | 'recap' | 'booked'; note?: 'Background' | 'Gone' }[] = [
+  { key: 'search' },
+  { key: 'pricing' },
+  { key: 'ancillaries', note: 'Background' },
+  { key: 'modal', note: 'Gone' },
+  { key: 'recap', note: 'Gone' },
+  { key: 'booked' },
+];
+---
+
+<article
+  class={cn('metis', className)}
+  aria-labelledby={headingId}
+>
+  <div class="metis-main">
+    <p class="metis-kicker">
+      <span>{t('home.metis.kicker')}</span>
+      <span aria-hidden="true">{t('home.metis.pass')}</span>
+    </p>
+    <h3 id={headingId} class="text-4xl">{project.title}</h3>
+    <p class="mt-4 max-w-measure text-muted-foreground">
+      {t('home.metis.lede')}
+    </p>
+
+    <fieldset class="work-filter mt-8">
+      <legend class="sr-only">{t('home.metis.compare')}</legend>
+      <input type="radio" name="metis-flow" id="mb-before" />
+      <label for="mb-before">{t('home.metis.before')}</label>
+      <input type="radio" name="metis-flow" id="mb-after" checked />
+      <label for="mb-after">{t('home.metis.after')}</label>
+    </fieldset>
+
+    <div class="mt-8 grid gap-8">
+      <div>
+        <p class="flex items-baseline justify-between gap-4 text-sm">
+          <span class="text-muted-foreground">{t('home.metis.timeLabel')}</span>
+          <strong class="font-medium text-ink">
+            <span class="on-before">{t('home.metis.timeBefore')}</span>
+            <span class="on-after">{t('home.metis.timeAfter')}</span>
+          </strong>
+        </p>
+        <div class="metis-track mt-3" aria-hidden="true">
+          <div class="metis-fill"></div>
+          <svg viewBox="0 0 24 24" class="metis-plane" fill="currentColor">
+            <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div>
+        <p class="flex items-baseline justify-between gap-4 text-sm">
+          <span class="text-muted-foreground">{t('home.metis.stepsLabel')}</span>
+          <span class="text-ink on-after">{t('home.metis.stepsAfter')}</span>
+        </p>
+        <ol class="metis-route mt-5">
+          {steps.map((s) => (
+            <li class:list={['metis-stop', s.note && `is-${s.note.toLowerCase()}`]}>
+              <div class="metis-stop-inner">
+                <span class="metis-dot" aria-hidden="true"></span>
+                <span class="metis-stop-name">{t(`home.metis.step.${s.key}`)}</span>
+                {s.key === 'search' && (
+                  <span class="metis-stop-note">
+                    <span class="on-before">{t('home.metis.searchBefore')}</span>
+                    <span class="on-after">{t('home.metis.searchAfter')}</span>
+                  </span>
+                )}
+                {s.note === 'Background' && (
+                  <span class="metis-stop-note on-after">{t('home.metis.stepNowBackground')}</span>
+                )}
+                {s.note === 'Gone' && (
+                  <span class="sr-only on-after">{t('home.metis.stepNowGone')}</span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <dl class="mt-8 grid gap-6 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm text-muted-foreground">{t('home.metis.problemLabel')}</dt>
+        <dd class="mt-1 text-sm">{t('home.metis.problem')}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-muted-foreground">{t('home.metis.doneLabel')}</dt>
+        <dd class="mt-1 text-sm">{t('home.metis.done')}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <aside class="metis-stub" aria-label={t('home.metis.pass')}>
+    <ul class="grid gap-6">
+      {project.metrics.map((m) => (
+        <li>
+          <p class="text-5xl font-semibold tracking-tight text-ink">{m.value}</p>
+          <p class="mt-1 text-sm text-muted-foreground">{m.label}</p>
+        </li>
+      ))}
+    </ul>
+    <ul class="mt-6 flex flex-wrap gap-1.5">
+      {project.stack.map((s) => <li class="chip">{s}</li>)}
+    </ul>
+    <Button href={project.href} size="lg" class="mt-8 w-full justify-between">
+      {t('home.metis.cta')}
+      <span class="go-chip bg-background text-ink"><ArrowIcon class="size-4" /></span>
+    </Button>
+  </aside>
+</article>
+
+<style>
+  .metis {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: clip;
+    background: var(--background);
+  }
+  .metis-main {
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+  }
+  .metis-kicker {
+    display: flex;
+    justify-content: space-between;
+    margin-block-end: 0.75rem;
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .metis-stub {
+    position: relative;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    border-block-start: 2px dashed var(--border);
+    background: var(--muted);
+  }
+  /* Boarding-pass notches where the stub tears off. */
+  .metis-stub::before,
+  .metis-stub::after {
+    content: '';
+    position: absolute;
+    inset-block-start: -0.75rem;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border-radius: 50%;
+    background: var(--background);
+    border: 1px solid var(--border);
+  }
+  .metis-stub::before { inset-inline-start: -0.75rem; }
+  .metis-stub::after { inset-inline-end: -0.75rem; }
+  @media (min-width: 64rem) {
+    .metis { grid-template-columns: minmax(0, 1fr) 22rem; }
+    .metis-stub { border-block-start: 0; border-inline-start: 2px dashed var(--border); }
+    .metis-stub::before,
+    .metis-stub::after { inset-inline: auto; inset-inline-start: -0.75rem; }
+    .metis-stub::before { inset-block-start: -0.75rem; }
+    .metis-stub::after { inset-block-start: auto; inset-block-end: -0.75rem; }
+  }
+
+  /* Track: fill = share of the 3-minute "before" booking. After = a third. */
+  .metis-track {
+    position: relative;
+    block-size: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--muted);
+  }
+  .metis-fill {
+    block-size: 100%;
+    inline-size: 33.333%;
+    border-radius: inherit;
+    background: var(--ink);
+  }
+  .metis-plane {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 33.333%;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    translate: -50% -50%;
+    rotate: 90deg;
+    color: var(--ink);
+    background: var(--background);
+    border-radius: 50%;
+  }
+
+  /* Route: one line through the stops; the two removed stops fold to zero width in After. */
+  .metis-route {
+    display: flex;
+    align-items: flex-start;
+  }
+  .metis-stop {
+    display: grid;
+    grid-template-columns: 1fr;
+    flex: 1 1 0;
+    min-inline-size: 0;
+    position: relative;
+  }
+  .metis-stop::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0.4375rem;
+    inset-inline: 0;
+    border-block-start: 2px solid var(--ink);
+  }
+  .metis-stop:first-child::before { inset-inline-start: 0.4375rem; }
+  .metis-stop:last-child::before { inset-inline-end: calc(100% - 0.4375rem); }
+  .metis-stop.is-background::before { border-block-start-style: dashed; }
+  .metis-stop-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    min-inline-size: 0;
+    overflow: clip;
+    padding-inline-end: 0.25rem;
+  }
+  .metis-dot {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    border-radius: 50%;
+    background: var(--background);
+    border: 2px solid var(--ink);
+  }
+  .is-background .metis-dot { border-style: dashed; }
+  .metis-stop:last-child .metis-dot { background: var(--brand); }
+  .metis-stop-name {
+    font-size: var(--text-xs);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .metis-stop-note {
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+  @media (max-width: 40rem) {
+    .metis-stop-note { display: none; }
+  }
+
+  /* Default state = After (also the no-:has() fallback). */
+  .on-before { display: none; }
+  /* After (default): the removed stops fold away. */
+  .metis-stop.is-gone { flex-grow: 0; flex-basis: 0; }
+  .metis-stop.is-gone .metis-stop-inner { inline-size: 0; padding: 0; }
+
+  .work-filter { display: none; }
+  @supports selector(:has(*)) {
+    .metis:has(#mb-before:checked) .on-before { display: inline; }
+    .metis:has(#mb-before:checked) .on-after { display: none; }
+    .metis:has(#mb-before:checked) .metis-fill { inline-size: 100%; }
+    .metis:has(#mb-before:checked) .metis-plane { inset-inline-start: 100%; }
+    .metis:has(#mb-before:checked) .metis-stop.is-gone { flex: 1 1 0; }
+    .metis:has(#mb-before:checked) .metis-stop.is-gone .metis-stop-inner { inline-size: auto; padding-inline-end: 0.25rem; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .metis-fill {
+      transition: inline-size var(--dur-spring-slow) var(--ease-spring-slow);
+    }
+    .metis-plane {
+      transition: inset-inline-start var(--dur-spring-slow) var(--ease-spring-slow);
+    }
+    .metis-stop { transition: flex-grow var(--dur-spring-slow) var(--ease-spring-slow); }
+    .metis-stop-inner { transition: inline-size var(--dur-spring-slow) var(--ease-spring-slow); }
+  }
+  @media (forced-colors: active) {
+    .metis-fill { background: CanvasText; }
+  }
+</style>

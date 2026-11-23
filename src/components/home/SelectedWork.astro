@@ -1,5 +1,6 @@
 ---
 // Home section 3: up to four projects (featured first). Hidden until at least MIN_PROJECTS are published (FR-22).
+import MetisFeature from './MetisFeature.astro';
 import ProjectCard from '@/components/work/ProjectCard.astro';
 import Section from '@/components/site/Section.astro';
 import SectionHeading from '@/components/site/SectionHeading.astro';
@@ -8,10 +9,12 @@ import { getFeaturedProjects } from '@/lib/projects';
 import { isSectionLive } from '@/lib/routes';
 
 const live = await isSectionLive('selectedWork');
-const projects = live ? await getFeaturedProjects(3) : [];
+const all = live ? await getFeaturedProjects(3) : [];
+const lead = all.find((p) => p.slug === 'metis');
+const projects = all.filter((p) => p !== lead);
 ---
 
-{live && projects.length > 0 && (
+{live && all.length > 0 && (
   <Section id="work" labelledby="work-title">
     <SectionHeading
       id="work-title"
@@ -20,25 +23,23 @@ const projects = live ? await getFeaturedProjects(3) : [];
     >
       {t('home.work.title')}
     </SectionHeading>
-    <ul
-      class:list={[
-        'col-span-12 grid gap-x-gutter gap-y-14 sm:grid-cols-2',
-        projects.length === 3 && 'lg:grid-cols-3',
-      ]}
-    >
-      {projects.map((p, i) => (
-        <li
-          class:list={[
-            'reveal',
-            i % 2 === 1 && 'sm:[--i:1]',
-            // Third card only from lg (one row of 3); below that, two cards.
-            i === 2 && 'hidden lg:block',
-          ]}
-        >
-          <ProjectCard project={p} headingLevel={3} class="h-full" />
-        </li>
-      ))}
-    </ul>
+    {lead && (
+      <MetisFeature project={lead} headingId="metis-title" class="reveal col-span-12" />
+    )}
+    {projects.length > 0 && (
+      <>
+        {lead && (
+          <h3 class="col-span-12 mt-16 text-xl">{t('home.work.more')}</h3>
+        )}
+        <ul class="col-span-12 grid gap-x-gutter gap-y-14 sm:grid-cols-2">
+          {projects.map((p, i) => (
+            <li class:list={['reveal', i % 2 === 1 && 'sm:[--i:1]']}>
+              <ProjectCard project={p} headingLevel={3} class="h-full" />
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
     <p class="col-span-12 mt-12">
       <a href="/work" class="link text-ink">
         {t('home.work.all')}
