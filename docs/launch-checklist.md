@@ -67,6 +67,10 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 - [ ] **Contact form end to end**: submit on `/contact` with JS on and off; the mail arrives with the visitor as
       reply-to; then break the key once and check the Vercel function logs show `contact: resend failed, status ...`.
 - [ ] **Analytics**: click WhatsApp, CV, email in production; events appear in the Vercel dashboard (events: `docs/ux-study.md` section 9).
+- [ ] **GitHub profile** (README live since 2026-11-21 in `anasdeyra/anasdeyra`): its CV door and project links point to
+      `deyra.dev/cv` and `deyra.dev/work/*`, which 404 until this site replaces the old one on `www.deyra.dev`; check them.
+      Then update the GitHub profile itself: name (still "Anass"), bio ("Computer science student and a web development
+      freelancer") and website (`anasdeyra.vercel.app`) to match the product engineer positioning and `https://deyra.dev`.
 - [ ] `pnpm audit` (script: `pnpm run audit`): the high advisory is cleared by `pnpm-workspace.yaml` overrides; one moderate
       `minimatch` advisory remains (CLI/dev only, not in the deployed bundle).
 
@@ -75,7 +79,8 @@ Edit content with `pnpm dev` and `http://localhost:4321/keystatic` (or the YAML/
 - [ ] Recolour `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` to the blue palette (still the black "D" tile).
 - [ ] CI: a workflow running `pnpm build`, `pnpm check` and `pnpm run audit` on every PR (deliberately not added).
 - [ ] Replace the AI-generated portrait (`src/content/en/profile/photo.jpg`, same file name or via Keystatic); the hero now uses the
-      photo card.
+      photo card. The GitHub profile header carries it too: replace `assets/portrait.jpg` (square crop) in `anasdeyra/anasdeyra`
+      and run `pnpm install && pnpm render` there. Re-run it also when the hero headline, subline or record changes.
 - [ ] Clean-up: `src/content/en/profile/cutout.png` (and the optional `cutout` field in `keystatic/locale.ts` / `profile/index.yaml`) and the
       `home.hero.eyebrow` key in `src/i18n/en.ts` are unused since the 2026-11-17 hero redesign: delete them or keep for a future hero.
 - [ ] Drop `@astrojs/react` (and `react`, `react-dom`) if no island is planned: `/_astro` ships a 220 KB React client
