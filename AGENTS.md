@@ -50,6 +50,7 @@ components.json         shadcn config
 docs/ux-study.md        UX study (personas, stories, FR/NFR, IA, layouts, content model, analytics events, build phases: all done)
 docs/launch-checklist.md  Owner to-do before/after launch: content placeholders, Vercel setup, post-deploy verification, options
 .agents/                product-marketing.md (positioning, voice, proof)
+PRODUCT.md              Impeccable's product record (users, purpose, evidence); read by the impeccable skill
 src/
   components/ui/        shadcn components (button: `buttonVariants` is shared with the Astro components)
   components/site/      static primitives: Button (cva variants, zero JS), WhatsAppButton, ThemeToggle, ThemeScript,
@@ -57,7 +58,7 @@ src/
                         ContactForm (3 fields + honeypot, one inline script), CopyEmail, QrCode (build-time SVG), Analytics,
                         Search (trigger + native dialog; lazy Pagefind chunk),
                         MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
-  components/home/      Hero (C2 magazine cover: name masthead, copy + doors, ghost-ish portrait, Upwork record as cover lines), Services (timelines, per-row WhatsApp ask, quotes), Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
+  components/home/      Hero (headline + a WhatsApp draft composer: need chips swap the prefilled message, zero JS), Services (timelines, per-row WhatsApp ask, quotes), Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
                         Faq (native details), SelectedWork, Proof (clients map + reviews, one `#proof` section), LatestWriting
                         (the gated ones go live via the `sections.*` gates)
   components/cv/        CvEntry
@@ -87,7 +88,7 @@ src/
   scripts/              client modules: shortcuts.ts (the `/` search shortcut + off switch), search-dialog.ts (lazy Pagefind chunk),
                         pointer.ts (--mx/--my on `[data-pointer]` hosts (the map stage), fine pointers only, rAF, CSSOM; ~0.45 KB gz),
                         review-scroll.ts (scroll-mode review stepper: at most one review per 0.9 s, never moves the scroll; 0.75 KB gz)
-  pages/                index (home: hero (incl. Upwork proof line), work, proof, services, process, FAQ, about, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
+  pages/                index (home: hero, work, proof, services, process, FAQ, about, writing, closing CTA), about, work/index + work/[slug], cv, cv.pdf.ts, contact, contact/sent|error,
                         blog/index + blog/[slug], tag/[tag], og/[...key].png.ts, rss.xml.ts, llms.txt.ts
                         (static 303 targets), privacy, 404, robots.txt.ts, api/contact.ts (the only on-demand route)
   styles/global.css     design tokens (shadcn names), fluid type scale, utilities (wrap, grid-page, link)
@@ -141,7 +142,7 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - `SHOW_DRAFTS=1 pnpm build` includes draft projects in a production build; verification only, never set on Vercel.
   Finish with a plain `pnpm build`.
 - Clients map geometry is build-time only (no map library; motion is CSS, pointer glow via pointer.ts). Regenerate the land mask with `scripts/generate-land-mask.mjs`.
-  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, Hero's portrait clip, MorphShape)
+  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, MorphShape)
   goes in inline `<style>` hashed with `Astro.csp.insertStyleHash`; `config/security-headers.mjs` also adds inline style hashes to `style-src`.
 - **Motion and interaction (Phase 5b; springs since 2026-11-18).** Tokens in `global.css`, no raw values. M3 Expressive springs (CSS `linear()`
   sampled by `src/lib/spring.ts`; pair each easing with its own duration): `--ease-spring-fast`/`--dur-spring-fast` (buttons, chips, presses),
@@ -176,13 +177,13 @@ Verify with `pnpm build && pnpm check` before finishing any change.
     The hero's arrow chip on that CTA is white with an emerald arrow. There is no `--rule` token: every separator is a neutral `--border` hairline, and fewer lines is the default. There is no
     glow: no gradient/grain layer, no pointer spotlight (tokens `--glow-*`, `--dusk-*`, `--grain*` are gone). Utility: `text-yellow`.
     Exact values and contrast ratios: `:root` / `.dark` in `global.css`. The theme-color hexes live in `src/lib/theme.ts`.
-  - Home hero (owner pick 2026-11-20, lab variant C2 "magazine cover"): on the white page, the name as a giant masthead (a `<p>`; the H1
-    stays the outcome headline), then three columns on the 12-column grid (4/4/3): headline, subline and the two doors (WhatsApp, CV)
-    stacked; the portrait clipped to the M3 `ghost-ish` shape (static polygon from `m3-shapes.ts`, a hashed inline `<style>` in
-    `Hero.astro`, square box, no motion); the record as cover lines (years of experience from `career.startYear`, projects shipped
-    from `career.projects`, 5.0 + yellow stars, client countries; Job Success and the Upwork badge left the hero 2026-11-21).
-    Under 64rem it stacks: masthead, headline and doors, portrait, record (the doors stay above the fold on a phone). No `.reveal`,
-    no JS, no animation. The Statement section is gone (2026-11-21): its line is the hero subline's job.
+  - Home hero (owner pick 2026-11-23, hero lab 2 option C "Composer"): headline and subline on 6 columns, and on columns 8-12 the
+    primary action in working form: a WhatsApp draft addressed to Anas (avatar, name, title, city and UTC offset). Need chips (real
+    radios: booking, integration, AI, product, something else) swap a pre-rendered draft bubble and its prefilled `wa.me` link through
+    `:has()`; no JS. Without `:has()` the chips hide and the generic `home_hero` draft shows. The CV is a plain link under the copy.
+    Under 64rem: headline, CV link, the draft, subline (both doors stay above the fold on a phone). The one motion is the bubble's
+    pop on the bouncy spring when the choice changes (reduced motion: none). No record in the hero (owner, 2026-11-23): rating and
+    countries live in `#proof`; `career.startYear` and `career.projects` are no longer rendered. Chip and draft copy is `[Draft]`.
   - Scroll-driven animations: lightningcss drops shorthand `animation-timeline`/`animation-range` in some cascades, so write longhands.
   - Keep any map label above the flashlight layer with a background halo (`paint-order: stroke`), or it is unreadable under the pointer.
   - JS before interaction on `/`: re-measure (last measured ~4 KB gz of the 5 KB budget, which included the now-removed SpecToggle
@@ -278,7 +279,7 @@ verification): **`docs/launch-checklist.md`**. Summary:
 - **Contact:** WhatsApp is the primary conversation CTA in the body (context-aware prefilled `wa.me` links, QR on desktop); the
   header CTA is "Let's talk" -> /contact. Secondary: email (copy + mailto), 3-field form (plain `POST /api/contact`,
   `prerender = false`, Resend, honeypot), LinkedIn, Upwork, GitHub.
-- **Proof:** Upwork proof line in the hero (5 stars + a chip rolling Top Rated / 100% JSS / reviews / countries); one home `#proof` section joining the client world map from Tunis (build-time
+- **Proof:** one home `#proof` section joining the client world map from Tunis (build-time
   dot-grid SVG, CSS scroll-linked entry and hover loops) with the Upwork review quotes popping from their country as a looping chat
   bubble (country radios + `:has()`, zero JS; each review is tagged with a client `country` in Keystatic, untagged reviews follow as
   plain cards); research projects; case studies
@@ -555,3 +556,7 @@ verification): **`docs/launch-checklist.md`**. Summary:
   Services have no timelines (the written scope gives them). Blog pillars are `engineering` and `for-founders` (were polished-products
   and founder-guides); the three seed posts were replaced by three draft posts from real work (no series seed any more).
 
+- 2026-11-23 hero: owner picked option C "Composer" from a second hero lab (made with the Impeccable skill; the first round-5
+  lab used `design-taste-frontend`). The hero is now the headline plus a working WhatsApp draft (see the Home hero rule above);
+  the C2 masthead, ghost-ish portrait and record lines are gone. Both labs (`/lab/hero`, `/lab/hero-2`) are deleted.
+  `PRODUCT.md` (Impeccable's product record, written from this file and `.agents/product-marketing.md`) stays at the root.

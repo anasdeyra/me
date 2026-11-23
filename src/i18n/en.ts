@@ -28,6 +28,15 @@ export const en = {
     "Hi Anas, I found you on deyra.dev. I'd like to talk about a project: ",
   'whatsapp.prefill.home_hero':
     "Hi Anas, I found you on deyra.dev and I'd like to talk about a project: ",
+  // Hero draft, one per need chip ([Draft] copy, awaiting the copy pass). Each ends open so the visitor types on.
+  'whatsapp.prefill.need.booking':
+    'Hi Anas, I found you on deyra.dev. Our booking or checkout flow needs work: ',
+  'whatsapp.prefill.need.integration':
+    'Hi Anas, I found you on deyra.dev. We need a supplier or API integration: ',
+  'whatsapp.prefill.need.ai':
+    'Hi Anas, I found you on deyra.dev. We want AI to take manual work off our team: ',
+  'whatsapp.prefill.need.product':
+    'Hi Anas, I found you on deyra.dev. We need a new product or feature built: ',
   'whatsapp.prefill.final':
     "Hi Anas, I read your site and I'd like to talk about a project: ",
   'whatsapp.prefill.contact':
@@ -170,16 +179,19 @@ export const en = {
   'cta.viewCv': 'Hiring? View my CV',
   // Hero doors: the hints repeat facts kept elsewhere (WhatsApp reply time, settings.career work modes).
   'home.hero.client': 'Discuss your project',
-  // Hero cover lines (the record: experience, projects, Upwork rating, client countries).
-  'hero.record.years': 'Years of experience',
-  'hero.record.projects': 'Projects shipped',
-  'hero.record.reviews': 'Average rating, {count} reviews',
-  'hero.record.countries': 'Countries my clients are in',
+  // Hero draft ([Draft] copy): who it goes to, the need chips and the send link.
+  'home.hero.where': '{title}, {city} ({offset})',
+  'home.hero.needs': 'What do you need?',
+  'home.hero.need.booking': 'Booking or checkout flow',
+  'home.hero.need.integration': 'Supplier or API integration',
+  'home.hero.need.ai': 'AI tool or agent workflow',
+  'home.hero.need.product': 'New product or feature',
+  'home.hero.need.other': 'Something else',
+  'home.hero.send': 'Continue on WhatsApp',
   'upwork.badge.risingTalent': 'Rising Talent',
   'upwork.badge.topRated': 'Top Rated',
   'upwork.badge.topRatedPlus': 'Top Rated Plus',
   'upwork.badge.expertVetted': 'Expert-Vetted',
-  'trust.verify': 'Verified on Upwork',
   'home.services.title': 'What I build',
   'home.services.forWho': 'Who it is for',
   'home.services.youGet': 'What you get',
@@ -386,7 +398,8 @@ export const en = {
   'rss.title': '{brand}: articles and notes',
   'rss.description': 'Articles and notes by Anas Deyra.',
   'og.alt': 'Preview card: {title}',
-  'og.default.title': 'Software engineer for booking platforms and AI workflows',
+  'og.default.title':
+    'Software engineer for booking platforms and AI workflows',
   'og.chip.topic': 'Topic',
   'about.clients': 'Clients worldwide',
   'search.trigger': 'Search',

@@ -1,73 +1,148 @@
 ---
-// Home section 1 (owner pick 2026-11-20, hero lab C2 "magazine cover"): the name runs across the top as the masthead at
-// the largest display size; under it three columns on the 12-column grid: the outcome headline, sentence and the two
-// doors (WhatsApp for clients, CV for recruiters) on 4, the portrait on 4, the record as cover lines on 3 (years of
-// experience, projects shipped, Upwork rating, client countries; ink figures, yellow stars). Under 64rem: masthead, headline and doors, portrait, cover lines (the doors stay above the
-// fold on a phone). No motion, no JS.
+// Home section 1 (owner pick 2026-11-23, hero lab 2 option C "Composer"): the outcome headline and subline on the
+// left; on the right the primary action in its working form, a WhatsApp draft addressed to Anas. The visitor picks
+// what they need and the draft and its link change with it, so the first message is already half written.
 //
-// Name vs H1: the name is a real <p> (translate="no"), not the H1. The H1 stays the outcome headline ("what I do for
-// whom"), which carries the conversion message and the SEO text.
+// Zero JS: the chips are radios, and `:has()` shows one pre-rendered draft and one link. Without `:has()` the chips
+// hide and the generic draft and link show. The draft bubble pops on the bouncy spring when the choice changes
+// (display toggles restart the animation); off under reduced motion.
 //
-// The portrait is clipped to the Material 3 "ghost-ish" shape (static polygon from src/lib/m3-shapes.ts, generated at
-// build time like the other shapes; the clip is the shape, so the box stays square and nothing shifts). It is the
-// eager, high-priority LCP image.
-import { createHash } from 'node:crypto';
+// Under 64rem: headline, CV link (the recruiter door), the draft, then the subline, so both doors stay above the fold.
+// The H1 carries the conversion message and the SEO text; the avatar is decorative (the name sits beside it).
 import { Image } from 'astro:assets';
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
-import Button from '@/components/site/Button.astro';
 import WhatsAppButton from '@/components/site/WhatsAppButton.astro';
 import { t } from '@/i18n';
 import { whatsappPrefill } from '@/lib/contact';
-import {
-  contentImage,
-  getClients,
-  getHome,
-  getProfile,
-  getSettings,
-} from '@/lib/content';
-import { shapePolygon } from '@/lib/m3-shapes';
+import { contentImage, getHome, getProfile, getSettings } from '@/lib/content';
+import { utcOffset } from '@/lib/place';
 import { isLive } from '@/lib/routes';
 
-const [home, profile, settings, clients] = await Promise.all([
+const [home, profile, settings, showCv] = await Promise.all([
   getHome(),
   getProfile(),
   getSettings(),
-  getClients(),
+  isLive('cv'),
 ]);
 const photo = contentImage('en/profile', profile.photo);
-const showCv = await isLive('cv');
-const { upwork, career } = settings;
-// Counted at build time from the career start year, so the figure never goes stale.
-const years = new Date().getUTCFullYear() - career.startYear;
-const stars = Math.max(0, Math.min(5, Math.round(upwork.rating)));
-// Five-point star path (24 x 24), shared with the other star renderings.
-const star =
-  'm12 2.5 2.94 6.2 6.56.8-4.84 4.55 1.28 6.7L12 17.5l-5.94 3.25 1.28-6.7L2.5 9.5l6.56-.8z';
-// Generated CSS goes in an inline <style> hashed for the CSP (no `style=""`).
-const clipCss = `.hero-photo{clip-path:${shapePolygon('bun')}}`;
-Astro.csp?.insertStyleHash(
-  `sha256-${createHash('sha256').update(clipCss).digest('base64')}`,
-);
+// One chip per engagement, then a generic option. Each draft ends open so the visitor types on.
+const needs = [
+  ...(['booking', 'integration', 'ai', 'product'] as const).map((id) => ({
+    id,
+    label: t(`home.hero.need.${id}`),
+    text: t(`whatsapp.prefill.need.${id}`),
+  })),
+  {
+    id: 'other',
+    label: t('home.hero.need.other'),
+    text: whatsappPrefill('home_hero'),
+  },
+];
 ---
 
-<section class="hero wrap" aria-labelledby="hero-head">
-  <p class="hero-mast text-7xl" translate="no">
-    {settings.name}
-  </p>
-
+<section class="hero wrap grid-page" aria-labelledby="hero-head">
   <div class="hero-copy">
-    <h1 id="hero-head" class="hero-head text-3xl">
+    <h1 id="hero-head" class="text-4xl lg:text-5xl">
       {home.hero.headline}
     </h1>
     <p class="hero-line text-lg">{home.hero.subline}</p>
-    <ul class="hero-doors" role="list">
-      <li>
+    {showCv && (
+      <p class="hero-cv text-sm">
+        <a
+          class="link"
+          href="/cv"
+          data-track="cv_view"
+          data-track-source="hero"
+        >
+          {t('cta.viewCv')}
+        </a>
+      </p>
+    )}
+  </div>
+
+  <div class="hero-box">
+    <div class="hero-to">
+      {photo && (
+        <Image
+          src={photo}
+          alt=""
+          widths={[96]}
+          sizes="48px"
+          class="hero-avatar"
+          loading="eager"
+        />
+      )}
+      <p>
+        <span class="hero-who" translate="no">
+          {settings.name}
+        </span>
+        <span class="hero-where text-sm">
+          {t('home.hero.where', {
+            title: profile.title,
+            city: settings.location.city,
+            offset: utcOffset(settings.location.timezone),
+          })}
+        </span>
+      </p>
+    </div>
+
+    <fieldset class="hero-needs">
+      <legend class="text-sm">{t('home.hero.needs')}</legend>
+      {needs.map(({ id, label }, i) => (
+        <>
+          <input
+            type="radio"
+            name="hero-need"
+            id={`hero-need-${i}`}
+            value={id}
+            checked={i === 0}
+          />
+          <label for={`hero-need-${i}`}>{label}</label>
+        </>
+      ))}
+    </fieldset>
+
+    <div class="hero-draft" aria-live="polite">
+      {needs.map(({ text }, i) => (
+        <p class="hero-bubble" data-need={i}>
+          {text}
+          <span class="hero-caret" aria-hidden="true" />
+        </p>
+      ))}
+      <p class="hero-bubble is-fallback">
+        {whatsappPrefill('home_hero')}
+        <span class="hero-caret" aria-hidden="true" />
+      </p>
+    </div>
+
+    <div class="hero-send">
+      {needs.map(({ id, text }, i) => (
+        <span data-need={i}>
+          <WhatsAppButton
+            size="lg"
+            label={t('home.hero.send')}
+            text={text}
+            trackLocation="hero"
+            trackSlug={id}
+            class="hero-go ps-6 pe-2"
+          >
+            <span
+              slot="end"
+              class="go-chip bg-white text-whatsapp"
+              aria-hidden="true"
+            >
+              <ArrowIcon class="size-4" />
+            </span>
+          </WhatsAppButton>
+        </span>
+      ))}
+      <span class="is-fallback">
         <WhatsAppButton
           size="lg"
           label={t('home.hero.client')}
-          class="hero-door ps-6 pe-2"
           text={whatsappPrefill('home_hero')}
           trackLocation="hero"
+          class="hero-go ps-6 pe-2"
         >
           <span
             slot="end"
@@ -77,213 +152,224 @@ Astro.csp?.insertStyleHash(
             <ArrowIcon class="size-4" />
           </span>
         </WhatsAppButton>
-      </li>
-      {showCv && (
-        <li>
-          <Button
-            href="/cv"
-            variant="outline"
-            size="lg"
-            class="hero-door ps-6 pe-2"
-            data-track="cv_view"
-            data-track-source="hero"
-          >
-            {t('cta.viewCv')}
-            <span class="go-chip bg-ink text-background" aria-hidden="true">
-              <ArrowIcon class="size-4" />
-            </span>
-          </Button>
-        </li>
-      )}
-    </ul>
-  </div>
-
-  {photo && <style is:inline set:html={clipCss} />}
-  {photo && (
-    <div class="hero-photo">
-      <Image
-        src={photo}
-        alt={profile.photoAlt}
-        widths={[320, 480, 640, 700]}
-        sizes="(min-width: 64rem) 28rem, 100vw"
-        loading="eager"
-        fetchpriority="high"
-      />
+      </span>
     </div>
-  )}
-
-  <div class="hero-proof">
-    <dl class="hero-lines">
-      <div>
-        <dt>{t('hero.record.years')}</dt>
-        <dd>{years}+</dd>
-      </div>
-      <div>
-        <dt>{t('hero.record.projects')}</dt>
-        <dd>{career.projects}</dd>
-      </div>
-      <div>
-        <dt>{t('hero.record.reviews', { count: upwork.reviews })}</dt>
-        <dd>
-          {upwork.rating.toFixed(1)}
-          <span class="hero-stars" aria-hidden="true">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d={star} class:list={[i >= stars && 'off']} />
-              </svg>
-            ))}
-          </span>
-        </dd>
-      </div>
-      {clients.length > 0 && (
-        <div>
-          <dt>{t('hero.record.countries')}</dt>
-          <dd>{clients.length}</dd>
-        </div>
-      )}
-    </dl>
-    <a class="link text-sm" href={settings.links.upwork}>
-      {t('trust.verify')}
-    </a>
   </div>
 </section>
 
 <style>
   .hero {
-    display: grid;
-    gap: 2.5rem;
-    padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem)
-      clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    row-gap: 2.5rem;
+    align-content: center;
+    padding-block: 2rem 3rem;
   }
-  .hero-mast {
-    order: -2;
-    min-inline-size: 0;
-    overflow-wrap: break-word;
+  /* Phone: headline, CV link, the draft (the action), then the subline. */
+  .hero-copy {
+    display: contents;
+  }
+  .hero-copy > *,
+  .hero-box {
+    grid-column: 1 / -1;
+  }
+  .hero-cv {
+    order: 1;
+    margin-block-start: -1.5rem;
+  }
+  .hero-box {
+    order: 2;
+  }
+  .hero-line {
+    order: 3;
+    margin-block-start: -1rem;
+    max-inline-size: 34ch;
+  }
+  .hero-copy h1 {
+    max-inline-size: 14ch;
     font-weight: 600;
     color: var(--ink);
     text-wrap: balance;
   }
-  .hero-head {
-    max-inline-size: 16ch;
-    min-inline-size: 0;
-    overflow-wrap: break-word;
-  }
-  .hero-line {
-    margin-block-start: 1.25rem;
-    max-inline-size: 32ch;
-  }
 
-  /* Doors: stacked at every width (a narrow column). */
-  .hero-doors {
+  /* The draft: one bordered surface, the conversation it starts. */
+  .hero-box {
+    display: grid;
+    gap: 1.5rem;
+    align-self: center;
+    padding: clamp(1.25rem, 0.75rem + 2vw, 2rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--background);
+  }
+  .hero-to {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-block-start: 2rem;
-    padding: 0;
-    list-style: none;
+    align-items: center;
+    gap: 0.875rem;
   }
-  .hero-doors > li {
-    inline-size: min(100%, 22rem);
+  .hero-to p {
+    display: grid;
   }
-  .hero-doors :global(.hero-door) {
-    inline-size: 100%;
-    justify-content: space-between;
-  }
-
-  /* Portrait: a square box; the M3 ghost-ish clip-path comes from the generated inline style above. */
-  .hero-photo {
-    aspect-ratio: 1;
-    max-inline-size: 28rem;
-    background: var(--muted);
-  }
-  .hero-photo :global(img) {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
+  .hero-box :global(.hero-avatar) {
+    inline-size: 3rem;
+    block-size: 3rem;
+    border-radius: 50%;
     object-fit: cover;
     object-position: 50% 25%;
   }
-
-  .hero-proof {
-    display: grid;
-    align-content: start;
-    justify-items: start;
-    gap: 1.5rem;
-  }
-  .hero-lines {
-    display: grid;
-    gap: 1.5rem;
-    margin: 0;
-  }
-  .hero-lines > div {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.125rem;
-  }
-  .hero-lines dd {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    margin: 0;
-    font-size: var(--text-2xl);
-    line-height: var(--text-2xl--line-height);
-    letter-spacing: var(--text-2xl--letter-spacing);
+  .hero-who {
     font-weight: 600;
     color: var(--ink);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
   }
-  .hero-lines dt {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+  .hero-where {
     color: var(--muted-foreground);
   }
-  .hero-stars {
+
+  /* Chips: real radios, visually hidden, labels as pills. */
+  .hero-needs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .hero-needs legend {
+    margin-block-end: 0.75rem;
+    padding: 0;
+    color: var(--muted-foreground);
+  }
+  .hero-needs input {
+    position: absolute;
+    opacity: 0;
+    inline-size: 1px;
+    block-size: 1px;
+  }
+  .hero-needs label {
     display: inline-flex;
-    gap: 0.125em;
-    font-size: 1rem;
-    color: var(--yellow);
+    align-items: center;
+    min-block-size: 2.5rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-effect) var(--ease-effect),
+      color var(--dur-effect) var(--ease-effect),
+      border-color var(--dur-effect) var(--ease-effect),
+      border-radius var(--dur-spring-fast) var(--ease-spring-fast);
   }
-  .hero-stars svg {
-    inline-size: 1em;
-    block-size: 1em;
-    overflow: visible;
+  @media (hover: hover) {
+    .hero-needs label:hover {
+      border-color: var(--ink);
+    }
   }
-  .hero-stars path {
-    fill: currentColor;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linejoin: round;
+  .hero-needs input:checked + label {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--background);
   }
-  .hero-stars .off {
-    fill: none;
+  .hero-needs input:focus-visible + label {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-needs input:checked + label {
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  /* The draft bubble: an outgoing message, tail at the end-bottom corner. */
+  .hero-draft {
+    display: grid;
+    justify-items: end;
+  }
+  .hero-bubble {
+    max-inline-size: 34ch;
+    margin: 0;
+    padding: 0.875rem 1.125rem;
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs)
+      var(--radius-lg);
+    background: var(--muted);
+    color: var(--ink);
+    transform-origin: 100% 100%;
+  }
+  .hero-bubble:dir(rtl) {
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg)
+      var(--radius-xs);
+    transform-origin: 0 100%;
+  }
+  .hero-caret {
+    display: inline-block;
+    inline-size: 2px;
+    block-size: 1.1em;
+    margin-inline-start: 1px;
+    vertical-align: text-bottom;
+    background: var(--ink);
+  }
+  .hero-send {
+    display: flex;
+    justify-content: end;
+  }
+  .hero-send :global(.hero-go) {
+    gap: 1rem;
+  }
+
+  /* One draft and one link at a time. Without :has(), the chips go and the generic draft stays. */
+  [data-need] {
+    display: none;
+  }
+  @supports selector(:has(*)) {
+    .is-fallback {
+      display: none;
+    }
+    .hero:has(#hero-need-0:checked) [data-need='0'],
+    .hero:has(#hero-need-1:checked) [data-need='1'],
+    .hero:has(#hero-need-2:checked) [data-need='2'],
+    .hero:has(#hero-need-3:checked) [data-need='3'],
+    .hero:has(#hero-need-4:checked) [data-need='4'] {
+      display: block;
+    }
+  }
+  @supports not selector(:has(*)) {
+    .hero-needs {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-bubble {
+      animation: hero-pop var(--dur-spring-bouncy) var(--ease-spring-bouncy)
+        both;
+    }
+  }
+  @keyframes hero-pop {
+    from {
+      opacity: 0;
+      scale: 0.92;
+    }
   }
 
   @media (width >= 64rem) {
     .hero {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 3fr);
-      grid-template-rows: auto 1fr;
-      column-gap: clamp(2rem, 0.5rem + 3vw, 4rem);
-      row-gap: 2rem;
+      min-block-size: calc(100svh - var(--spacing-header));
     }
-    .hero-mast {
-      grid-column: 1 / -1;
-      order: 0;
-      line-height: 0.85;
+    .hero-copy {
+      display: block;
+      grid-column: 1 / span 6;
+      align-self: center;
     }
-    .hero-copy,
-    .hero-proof {
-      align-self: end;
+    .hero-line {
+      margin-block-start: 1.5rem;
     }
-    .hero-photo {
-      order: 0;
-      max-inline-size: none;
-      inline-size: 100%;
+    .hero-cv {
+      margin-block-start: 2rem;
+    }
+    .hero-box {
+      grid-column: 8 / -1;
     }
   }
-
   @media print {
-    .hero-doors {
+    .hero-box {
       display: none;
     }
   }
