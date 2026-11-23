@@ -1,12 +1,16 @@
 ---
-// Home "Selected work" lead: Metis as a boarding pass. A Before/After radio pair (zero JS, `:has()`) drives the
-// booking-time bar, the flow steps and the eight supplier nodes. Every number comes from the Metis project entry
-// (3 min -> 1 min, 8 suppliers, NDC split); nothing here is invented. Without `:has()` the toggle hides and the
-// "After" state shows.
+// Home "Selected work" lead: Metis as a boarding pass. The booking flow is a race between two lanes on one grid:
+// Before (six steps, about 3 min) and After (Recap page and Confirm modal removed, Ancillaries in the background,
+// about 1 min). Lanes are rows and steps columns on a wide card; on a narrow one the grid flips (steps are rows).
+// Both planes take off together and fly for 3:1 of the same time, so After lands first. The finished race is the
+// default (no JS, reduced motion, Auto-play off); every number comes from the Metis project entry.
+import { createHash } from 'node:crypto';
 import ArrowIcon from '@/components/site/ArrowIcon.astro';
 import Button from '@/components/site/Button.astro';
 import { t } from '@/i18n';
+import { morphBounds, shapePolygon } from '@/lib/m3-shapes';
 import type { ProjectView } from '@/lib/projects';
+import { SPRINGS, springEasing } from '@/lib/spring';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -16,92 +20,142 @@ interface Props {
 }
 
 const { project, headingId, class: className } = Astro.props;
-const steps: { key: 'search' | 'pricing' | 'ancillaries' | 'modal' | 'recap' | 'booked'; note?: 'Background' | 'Gone' }[] = [
-  { key: 'search' },
-  { key: 'pricing' },
-  { key: 'ancillaries', note: 'Background' },
-  { key: 'modal', note: 'Gone' },
-  { key: 'recap', note: 'Gone' },
-  { key: 'booked' },
+const steps: {
+  key: 'search' | 'pricing' | 'recap' | 'ancillaries' | 'modal' | 'booked';
+  after: 'kept' | 'gone' | 'background';
+}[] = [
+  { key: 'search', after: 'kept' },
+  { key: 'pricing', after: 'kept' },
+  { key: 'recap', after: 'gone' },
+  { key: 'ancillaries', after: 'background' },
+  { key: 'modal', after: 'gone' },
+  { key: 'booked', after: 'kept' },
 ];
+
+// Booked's badge springs from a circle into the M3 Expressive "sunny" shape on landing. Both outlines share a point
+// count and anchor, so clip-path morphs point by point; `pad` keeps the bouncy spring's overshoot inside the box.
+// CSP: one hashed inline <style> with the two polygons as custom properties (pattern: MorphShape).
+const POINTS = 48;
+const bouncy = springEasing(SPRINGS.bouncy);
+const reach = morphBounds('circle', 'sunny', bouncy.min, bouncy.max, POINTS);
+const pad = Math.ceil(Math.max(-reach.min, reach.max - 100) * 10) / 10 + 0.2;
+const goalCss = `.metis-race-wrap{--goal-c:${shapePolygon('circle', POINTS, { pad, decimals: 1 })};--goal-s:${shapePolygon('sunny', POINTS, { pad, decimals: 1 })}}`;
+Astro.csp?.insertStyleHash(
+  `sha256-${createHash('sha256').update(goalCss).digest('base64')}`,
+);
 ---
 
-<article
-  class={cn('metis', className)}
-  aria-labelledby={headingId}
->
+<style is:inline set:html={goalCss} />
+
+<article class={cn('metis', className)} aria-labelledby={headingId}>
   <div class="metis-main">
     <p class="metis-kicker">
       <span>{t('home.metis.kicker')}</span>
       <span aria-hidden="true">{t('home.metis.pass')}</span>
     </p>
-    <h3 id={headingId} class="text-4xl">{project.title}</h3>
+    <h3 id={headingId} class="text-4xl">
+      {project.title}
+    </h3>
     <p class="mt-4 max-w-measure text-muted-foreground">
       {t('home.metis.lede')}
     </p>
 
-    <fieldset class="work-filter mt-8">
-      <legend class="sr-only">{t('home.metis.compare')}</legend>
-      <input type="radio" name="metis-flow" id="mb-before" />
-      <label for="mb-before">{t('home.metis.before')}</label>
-      <input type="radio" name="metis-flow" id="mb-after" checked />
-      <label for="mb-after">{t('home.metis.after')}</label>
-    </fieldset>
-
-    <div class="mt-8 grid gap-8">
-      <div>
-        <p class="flex items-baseline justify-between gap-4 text-sm">
-          <span class="text-muted-foreground">{t('home.metis.timeLabel')}</span>
-          <strong class="font-medium text-ink">
-            <span class="on-before">{t('home.metis.timeBefore')}</span>
-            <span class="on-after">{t('home.metis.timeAfter')}</span>
-          </strong>
+    <div class="metis-race-wrap mt-8">
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        <p class="text-sm text-muted-foreground">
+          {t('home.metis.stepsLabel')}
         </p>
-        <div class="metis-track mt-3" aria-hidden="true">
-          <div class="metis-fill"></div>
-          <svg viewBox="0 0 24 24" class="metis-plane" fill="currentColor">
-            <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path>
-          </svg>
-        </div>
+        <label class="switch metis-switch js-only">
+          <input type="checkbox" role="switch" class="metis-auto" checked />
+          <span class="track-ui" aria-hidden="true"></span>
+          <span>{t('home.metis.auto')}</span>
+        </label>
       </div>
-
-      <div>
-        <p class="flex items-baseline justify-between gap-4 text-sm">
-          <span class="text-muted-foreground">{t('home.metis.stepsLabel')}</span>
-          <span class="text-ink on-after">{t('home.metis.stepsAfter')}</span>
+      <div class="race mt-5" role="group" aria-label={t('home.metis.compare')}>
+        <p class="race-axis" aria-hidden="true">
+          <span></span>
+          <span>{t('home.metis.before')}</span>
+          <span class="is-after">{t('home.metis.after')}</span>
         </p>
-        <ol class="metis-route mt-5">
+        <ol class="race-steps">
           {steps.map((s) => (
-            <li class:list={['metis-stop', s.note && `is-${s.note.toLowerCase()}`]}>
-              <div class="metis-stop-inner">
-                <span class="metis-dot" aria-hidden="true"></span>
-                <span class="metis-stop-name">{t(`home.metis.step.${s.key}`)}</span>
+            <li
+              class:list={['race-step', s.after !== 'kept' && `is-${s.after}`]}
+            >
+              <span class="race-name">{t(`home.metis.step.${s.key}`)}</span>
+              <span class="race-cell">
+                <span
+                  class:list={['race-dot', s.key === 'booked' && 'metis-goal']}
+                  aria-hidden="true"
+                />
                 {s.key === 'search' && (
-                  <span class="metis-stop-note">
-                    <span class="on-before">{t('home.metis.searchBefore')}</span>
-                    <span class="on-after">{t('home.metis.searchAfter')}</span>
+                  <span class="race-note is-wide">
+                    {t('home.metis.searchBefore')}
                   </span>
                 )}
-                {s.note === 'Background' && (
-                  <span class="metis-stop-note on-after">{t('home.metis.stepNowBackground')}</span>
+              </span>
+              <span class="race-cell is-after">
+                <span
+                  class:list={['race-dot', s.key === 'booked' && 'metis-goal']}
+                  aria-hidden="true"
+                />
+                {s.key === 'search' && (
+                  <span class="race-note is-wide">
+                    {t('home.metis.searchAfter')}
+                  </span>
                 )}
-                {s.note === 'Gone' && (
-                  <span class="sr-only on-after">{t('home.metis.stepNowGone')}</span>
+                {s.after === 'gone' && (
+                  <span class="race-note">{t('home.metis.stepNowGone')}</span>
                 )}
-              </div>
+                {s.after === 'background' && (
+                  <span class="race-note">
+                    {t('home.metis.stepNowBackground')}
+                  </span>
+                )}
+              </span>
             </li>
           ))}
         </ol>
+        <p class="race-times">
+          <span></span>
+          <span class="race-time">
+            <span class="sr-only">{t('home.metis.before')} </span>
+            {t('home.metis.timeBefore')}
+          </span>
+          <span class="race-time is-after">
+            <span class="sr-only">{t('home.metis.after')} </span>
+            {t('home.metis.timeAfter')}
+          </span>
+        </p>
+        {['', 'is-after'].map((lane) => (
+          <>
+            <div class:list={['race-path race-line', lane]} aria-hidden="true">
+              <i class="race-trail"></i>
+            </div>
+            <div
+              class:list={['race-path race-flight', lane]}
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" class="race-plane" fill="currentColor">
+                <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path>
+              </svg>
+            </div>
+          </>
+        ))}
       </div>
     </div>
 
     <dl class="mt-8 grid gap-6 sm:grid-cols-2">
       <div>
-        <dt class="text-sm text-muted-foreground">{t('home.metis.problemLabel')}</dt>
+        <dt class="text-sm text-muted-foreground">
+          {t('home.metis.problemLabel')}
+        </dt>
         <dd class="mt-1 text-sm">{t('home.metis.problem')}</dd>
       </div>
       <div>
-        <dt class="text-sm text-muted-foreground">{t('home.metis.doneLabel')}</dt>
+        <dt class="text-sm text-muted-foreground">
+          {t('home.metis.doneLabel')}
+        </dt>
         <dd class="mt-1 text-sm">{t('home.metis.done')}</dd>
       </div>
     </dl>
@@ -111,20 +165,77 @@ const steps: { key: 'search' | 'pricing' | 'ancillaries' | 'modal' | 'recap' | '
     <ul class="grid gap-6">
       {project.metrics.map((m) => (
         <li>
-          <p class="text-5xl font-semibold tracking-tight text-ink">{m.value}</p>
+          <p class="text-5xl font-semibold tracking-tight text-ink">
+            {m.value}
+          </p>
           <p class="mt-1 text-sm text-muted-foreground">{m.label}</p>
         </li>
       ))}
     </ul>
     <ul class="mt-6 flex flex-wrap gap-1.5">
-      {project.stack.map((s) => <li class="chip">{s}</li>)}
+      {project.stack.map((s) => (
+        <li class="chip">{s}</li>
+      ))}
     </ul>
     <Button href={project.href} size="lg" class="mt-8 w-full justify-between">
       {t('home.metis.cta')}
-      <span class="go-chip bg-background text-ink"><ArrowIcon class="size-4" /></span>
+      <span class="go-chip bg-background text-ink">
+        <ArrowIcon class="size-4" />
+      </span>
     </Button>
   </aside>
 </article>
+
+<script>
+  // Auto-play the race while it is on screen. All motion is CSS keyed on data-race; this only sequences it:
+  // 'armed' (paused at take-off), 'flying', 'resetting' (a spring rewind to empty), then a fresh take-off.
+  // WCAG 2.2.2: the Auto-play switch stops it. Off, off screen or in a hidden tab, it rests (finished, or armed).
+  const race = document.querySelector<HTMLElement>('.metis .race');
+  const auto = document.querySelector<HTMLInputElement>('.metis-auto');
+  if (race && auto && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const FLY = 7500; // the Before plane lands at 4.9 s, then the finished race holds
+    const FADE = 600; // the rewind: dots deflate from Booked back to Search (0.24 s stagger + the spring's settle)
+    let timer = 0;
+    let inView = false;
+    let playing = false;
+    const restart = (state: string) => {
+      race.dataset.race = '';
+      void race.offsetWidth; // restart every animation from take-off
+      race.dataset.race = state;
+    };
+    const play = () => {
+      restart('flying');
+      timer = window.setTimeout(() => {
+        race.dataset.race = 'resetting';
+        timer = window.setTimeout(play, FADE);
+      }, FLY);
+    };
+    const update = () => {
+      const go = auto.checked && inView && !document.hidden;
+      if (go === playing) return;
+      playing = go;
+      clearTimeout(timer);
+      if (go && race.dataset.race === '') {
+        race.dataset.race = 'resetting'; // Auto-play back on: rewind the finished race, then take off
+        timer = window.setTimeout(play, FADE);
+      } else if (go) play();
+      else if (auto.checked) restart('armed');
+      else race.dataset.race = '';
+    };
+    if (auto.checked) restart('armed');
+    // Take off once most of the race is visible; rest only when it has fully left (no reset in plain sight).
+    new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= 0.75) inView = true;
+        else if (!entry.isIntersecting) inView = false;
+        update();
+      },
+      { threshold: [0, 0.75] },
+    ).observe(race);
+    auto.addEventListener('change', update);
+    document.addEventListener('visibilitychange', update);
+  }
+</script>
 
 <style>
   .metis {
@@ -164,124 +275,483 @@ const steps: { key: 'search' | 'pricing' | 'ancillaries' | 'modal' | 'recap' | '
     background: var(--background);
     border: 1px solid var(--border);
   }
-  .metis-stub::before { inset-inline-start: -0.75rem; }
-  .metis-stub::after { inset-inline-end: -0.75rem; }
+  .metis-stub::before {
+    inset-inline-start: -0.75rem;
+  }
+  .metis-stub::after {
+    inset-inline-end: -0.75rem;
+  }
   @media (min-width: 64rem) {
-    .metis { grid-template-columns: minmax(0, 1fr) 22rem; }
-    .metis-stub { border-block-start: 0; border-inline-start: 2px dashed var(--border); }
+    .metis {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+    }
+    .metis-stub {
+      border-block-start: 0;
+      border-inline-start: 2px dashed var(--border);
+    }
     .metis-stub::before,
-    .metis-stub::after { inset-inline: auto; inset-inline-start: -0.75rem; }
-    .metis-stub::before { inset-block-start: -0.75rem; }
-    .metis-stub::after { inset-block-start: auto; inset-block-end: -0.75rem; }
+    .metis-stub::after {
+      inset-inline: auto;
+      inset-inline-start: -0.75rem;
+    }
+    .metis-stub::before {
+      inset-block-start: -0.75rem;
+    }
+    .metis-stub::after {
+      inset-block-start: auto;
+      inset-block-end: -0.75rem;
+    }
   }
 
-  /* Track: fill = share of the 3-minute "before" booking. After = a third. */
-  .metis-track {
-    position: relative;
-    block-size: 0.5rem;
-    border-radius: var(--radius-pill);
-    background: var(--muted);
+  /* Race grid. Narrow (default): steps are rows, the two lanes are columns. Wide: lanes are rows, steps columns. */
+  .metis-race-wrap {
+    container: race / inline-size;
   }
-  .metis-fill {
-    block-size: 100%;
-    inline-size: 33.333%;
+  .race {
+    --dot: 0.875rem;
+    --slot: 1.25rem; /* the dot's line box; lane labels and times share it, so the path runs through every centre */
+    --row: 2.75rem;
+    --pre: 0.4s;
+    --d-before: 4.5s;
+    --d-after: 1.5s; /* 3:1, as about 3 min against about 1 min */
+    /* Flight path: eases out of the first stop and into the last, cruises in between (--at below is its inverse). */
+    --cruise: linear(0, 0.0139 5%, 0.0556 10%, 0.9444 90%, 0.9861 95%, 1);
+    --clear: 0.08; /* a dot pops once the plane's disc has cleared it (share of the flight: ~17px of the path) */
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: auto repeat(6, var(--row)) auto;
+    column-gap: 0.75rem;
+    font-size: var(--text-sm);
+  }
+  .race-axis,
+  .race-times,
+  .race-step {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: center;
+  }
+  .race-axis {
+    grid-row: 1;
+    padding-block-end: 0.5rem;
+    color: var(--muted-foreground);
+  }
+  .race-times {
+    grid-row: 8;
+    padding-block-start: 0.5rem;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .race-axis .is-after,
+  .race-time.is-after {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .race-steps {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 2 / 8;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+  }
+  .race-name {
+    color: var(--ink);
+  }
+  .race-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-inline-size: 0;
+  }
+  .race-dot {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    inline-size: var(--dot);
+    block-size: var(--dot);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--background);
+  }
+  .race-dot::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
     border-radius: inherit;
     background: var(--ink);
   }
-  .metis-plane {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 33.333%;
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
-    translate: -50% -50%;
-    rotate: 90deg;
-    color: var(--ink);
-    background: var(--background);
-    border-radius: 50%;
+  /* Booked: an ink outline (the element) round a hole (::before) and a yellow fill (::after), one size up from the
+     dots and centred on the same line. All three share the clip-path (--goal-c / --goal-s, generated above). */
+  .race-dot.metis-goal {
+    inline-size: var(--slot);
+    block-size: var(--slot);
+    margin-inline-start: calc((var(--dot) - var(--slot)) / 2);
+    border: 0;
+    border-radius: 0;
+    background: var(--ink);
+    clip-path: var(--goal-s);
   }
-
-  /* Route: one line through the stops; the two removed stops fold to zero width in After. */
-  .metis-route {
-    display: flex;
-    align-items: flex-start;
-  }
-  .metis-stop {
-    display: grid;
-    grid-template-columns: 1fr;
-    flex: 1 1 0;
-    min-inline-size: 0;
-    position: relative;
-  }
-  .metis-stop::before {
+  .race-dot.metis-goal::before,
+  .race-dot.metis-goal::after {
     content: '';
     position: absolute;
-    inset-block-start: 0.4375rem;
-    inset-inline: 0;
-    border-block-start: 2px solid var(--ink);
+    inset: 2px;
+    clip-path: var(--goal-s);
   }
-  .metis-stop:first-child::before { inset-inline-start: 0.4375rem; }
-  .metis-stop:last-child::before { inset-inline-end: calc(100% - 0.4375rem); }
-  .metis-stop.is-background::before { border-block-start-style: dashed; }
-  .metis-stop-inner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    min-inline-size: 0;
-    overflow: clip;
-    padding-inline-end: 0.25rem;
-  }
-  .metis-dot {
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
-    border-radius: 50%;
+  .race-dot.metis-goal::before {
     background: var(--background);
-    border: 2px solid var(--ink);
   }
-  .is-background .metis-dot { border-style: dashed; }
-  .metis-stop:last-child .metis-dot { background: var(--brand); }
-  .metis-stop-name {
-    font-size: var(--text-xs);
-    color: var(--ink);
-    overflow-wrap: anywhere;
+  .race-dot.metis-goal::after {
+    background: var(--brand);
   }
-  .metis-stop-note {
+  /* After: the removed steps keep their slot (the line runs straight through), Ancillaries no longer blocks. */
+  .race-step.is-gone .is-after .race-dot {
+    visibility: hidden;
+  }
+  .race-step.is-background .is-after .race-dot {
+    border-style: dashed;
+  }
+  .race-step.is-background .is-after .race-dot::after {
+    content: none;
+  }
+  .race-note {
     font-size: var(--text-xs);
+    line-height: 1.35;
     color: var(--muted-foreground);
   }
-  @media (max-width: 40rem) {
-    .metis-stop-note { display: none; }
+  .race-note.is-wide {
+    display: none;
   }
 
-  /* Default state = After (also the no-:has() fallback). */
-  .on-before { display: none; }
-  /* After (default): the removed stops fold away. */
-  .metis-stop.is-gone { flex-grow: 0; flex-basis: 0; }
-  .metis-stop.is-gone .metis-stop-inner { inline-size: 0; padding: 0; }
-
-  .work-filter { display: none; }
-  @supports selector(:has(*)) {
-    .metis:has(#mb-before:checked) .on-before { display: inline; }
-    .metis:has(#mb-before:checked) .on-after { display: none; }
-    .metis:has(#mb-before:checked) .metis-fill { inline-size: 100%; }
-    .metis:has(#mb-before:checked) .metis-plane { inset-inline-start: 100%; }
-    .metis:has(#mb-before:checked) .metis-stop.is-gone { flex: 1 1 0; }
-    .metis:has(#mb-before:checked) .metis-stop.is-gone .metis-stop-inner { inline-size: auto; padding-inline-end: 0.25rem; }
+  /* Paths: the line (under the dots) and the flight (over them), from the first dot's centre to the last. */
+  .race-path {
+    position: absolute;
+    grid-row: 2 / 8;
+    grid-column: 2;
+    inset-block: calc(var(--row) / 2);
+    inset-inline-start: calc(var(--dot) / 2 - 1px);
+    inline-size: 2px;
+  }
+  .race-path.is-after {
+    grid-column: 3;
+  }
+  .race-path:dir(rtl) {
+    scale: -1 1;
+  }
+  .race-line {
+    background: var(--border);
+  }
+  .race-trail {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform-origin: 50% 0;
+  }
+  .race-flight {
+    z-index: 2;
+    container-type: size;
+  }
+  .race-plane {
+    position: absolute;
+    top: calc(var(--slot) / -2);
+    left: calc(1px - var(--slot) / 2);
+    inline-size: var(--slot);
+    block-size: var(--slot);
+    padding: 0.125rem;
+    border-radius: 50%;
+    /* A clean token over the dots it passes; they pop once it has cleared them. */
+    background: var(--background);
+    color: var(--ink);
+    --heading: 180deg;
+    rotate: var(--heading);
+    opacity: 0;
   }
 
+  /* Booked only needs its label, so its column is 0.6fr and the times sit close to the finish. */
+  @container race (min-width: 36rem) {
+    .race {
+      --clear: 0.045; /* ~17px of the shortest wide path (36rem container) */
+      grid-template-columns:
+        auto repeat(5, minmax(0, 1fr)) minmax(0, 0.6fr)
+        auto;
+      grid-template-rows: repeat(3, auto);
+      column-gap: 0;
+      row-gap: 1rem;
+    }
+    .race-axis,
+    .race-times,
+    .race-step {
+      grid-column: auto;
+      grid-row: 1 / -1;
+      grid-template-columns: none;
+      grid-template-rows: subgrid;
+      align-items: start;
+      line-height: var(--slot);
+    }
+    .race-axis {
+      grid-column: 1;
+      padding-block-end: 0;
+      padding-inline-end: 1.5rem;
+    }
+    .race-times {
+      grid-column: 8;
+      padding-block-start: 0;
+      padding-inline-start: 1rem;
+    }
+    .race-steps {
+      grid-column: 2 / 8;
+      grid-row: 1 / -1;
+    }
+    .race-name {
+      padding-inline-end: 0.5rem;
+      font-size: var(--text-xs);
+    }
+    .race-cell {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.375rem;
+      padding-inline-end: 0.75rem;
+    }
+    .race-dot {
+      margin-block: calc((var(--slot) - var(--dot)) / 2);
+    }
+    .race-dot.metis-goal {
+      margin-block: 0;
+    }
+    .race-note.is-wide {
+      display: block;
+    }
+    .race-path {
+      grid-row: 2;
+      grid-column: 2 / 8;
+      inset-block: calc(var(--slot) / 2 - 1px) auto;
+      block-size: 2px;
+      inset-inline: calc(var(--dot) / 2) calc(100% * 0.6 / 5.6 - var(--dot) / 2);
+      inline-size: auto;
+    }
+    .race-path.is-after {
+      grid-row: 3;
+      grid-column: 2 / 8;
+    }
+    .race-trail {
+      transform-origin: 0 50%;
+    }
+    .race-plane {
+      top: calc(1px - var(--slot) / 2);
+      left: calc(var(--slot) / -2);
+      --heading: 90deg;
+    }
+  }
+
+  /* The race, on the M3 Expressive springs. Both planes pop in on the bouncy spring, nose up, and settle onto their
+     heading (overshoot on scale and rotation only), then cruise their lane on --cruise (--d: 3:1; position never
+     overshoots). The trail draws behind each plane; every dot pops on the bouncy spring once its plane has cleared it
+     (--at: when --cruise reaches that stop, plus --clear). On touchdown the plane shrinks into Booked, which spins and
+     springs from a circle into the "sunny" badge; each time turns ink as its plane lands. Animations fill backwards
+     only, so the finished race is also the end of every flight. 'resetting' rewinds from there on springs: the trails
+     retract, the dots deflate from Booked back to Search and the badge turns back into a circle. */
+  @keyframes race-pop {
+    from {
+      scale: 0;
+    }
+  }
+  @keyframes race-trail-y {
+    from {
+      scale: 1 0;
+    }
+  }
+  @keyframes race-trail-x {
+    from {
+      scale: 0 1;
+    }
+  }
+  @keyframes race-fly-y {
+    to {
+      translate: 0 100cqh;
+    }
+  }
+  @keyframes race-fly-x {
+    to {
+      translate: 100cqw 0;
+    }
+  }
+  @keyframes race-appear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes race-takeoff {
+    from {
+      scale: 0.4;
+      rotate: calc(var(--heading) - 40deg);
+    }
+  }
+  @keyframes race-touchdown {
+    from {
+      opacity: 1;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 0.3;
+    }
+  }
+  @keyframes race-goal {
+    from {
+      clip-path: var(--goal-c);
+      rotate: -72deg;
+    }
+  }
+  @keyframes race-goal-shape {
+    from {
+      clip-path: var(--goal-c);
+    }
+  }
+  @keyframes race-goal-fill {
+    from {
+      clip-path: var(--goal-c);
+      scale: 0;
+    }
+  }
+  @keyframes race-arrive {
+    from {
+      color: var(--muted-foreground);
+    }
+  }
   @media (prefers-reduced-motion: no-preference) {
-    .metis-fill {
-      transition: inline-size var(--dur-spring-slow) var(--ease-spring-slow);
+    .race-step:nth-child(2) {
+      --at: 0.23;
     }
-    .metis-plane {
-      transition: inset-inline-start var(--dur-spring-slow) var(--ease-spring-slow);
+    .race-step:nth-child(3) {
+      --at: 0.41;
     }
-    .metis-stop { transition: flex-grow var(--dur-spring-slow) var(--ease-spring-slow); }
-    .metis-stop-inner { transition: inline-size var(--dur-spring-slow) var(--ease-spring-slow); }
+    .race-step:nth-child(4) {
+      --at: 0.59;
+    }
+    .race-step:nth-child(5) {
+      --at: 0.77;
+    }
+    .race-step:nth-child(6) {
+      --at: 1;
+    }
+    .race-cell,
+    .race-path,
+    .race-time {
+      --d: var(--d-before);
+    }
+    .race-cell.is-after,
+    .race-path.is-after,
+    .race-time.is-after {
+      --d: var(--d-after);
+    }
+    .race:is([data-race='armed'], [data-race='flying']) .race-dot::after {
+      animation: race-pop var(--dur-spring-bouncy) var(--ease-spring-bouncy)
+        calc(var(--pre) + var(--d) * (var(--at, 0) + var(--clear))) backwards;
+    }
+    /* Booked opens just before touchdown, so the plane sinks into a growing badge. */
+    .race:is([data-race='armed'], [data-race='flying']) .metis-goal {
+      --land: calc(var(--pre) + var(--d) - 0.15s);
+      animation: race-goal var(--dur-spring-bouncy) var(--ease-spring-bouncy)
+        var(--land) backwards;
+    }
+    .race:is([data-race='armed'], [data-race='flying']) .metis-goal::before {
+      animation: race-goal-shape var(--dur-spring-bouncy)
+        var(--ease-spring-bouncy) var(--land) backwards;
+    }
+    .race:is([data-race='armed'], [data-race='flying'])
+      .race-dot.metis-goal::after {
+      animation: race-goal-fill var(--dur-spring-bouncy)
+        var(--ease-spring-bouncy) var(--land) backwards;
+    }
+    .race:is([data-race='armed'], [data-race='flying']) .race-trail {
+      animation: race-trail-y var(--d) var(--cruise) var(--pre) backwards;
+    }
+    /* Touchdown is last in the list, so once it starts it beats the held opacity and scale. */
+    .race:is([data-race='armed'], [data-race='flying']) .race-plane {
+      animation:
+        race-fly-y var(--d) var(--cruise) var(--pre) backwards,
+        race-appear var(--dur-effect) var(--ease-effect) var(--pre) both,
+        race-takeoff var(--dur-spring-bouncy) var(--ease-spring-bouncy)
+          var(--pre) backwards,
+        race-touchdown 0.25s linear calc(var(--pre) + var(--d) - 0.25s) forwards;
+    }
+    .race:is([data-race='armed'], [data-race='flying']) .race-time {
+      animation: race-arrive var(--dur-effect) var(--ease-effect)
+        calc(var(--pre) + var(--d)) backwards;
+    }
+    @container race (min-width: 36rem) {
+      .race:is([data-race='armed'], [data-race='flying']) .race-trail {
+        animation-name: race-trail-x;
+      }
+      .race:is([data-race='armed'], [data-race='flying']) .race-plane {
+        animation-name: race-fly-x, race-appear, race-takeoff, race-touchdown;
+      }
+    }
+    .race[data-race='armed'] .race-dot,
+    .race[data-race='armed'] .race-dot::before,
+    .race[data-race='armed'] .race-dot::after,
+    .race[data-race='armed'] .race-trail,
+    .race[data-race='armed'] .race-plane,
+    .race[data-race='armed'] .race-time {
+      animation-play-state: paused;
+    }
+    /* Rewind (exits on the default spatial spring, faster than the entries). */
+    .race[data-race='resetting'] .race-dot::after {
+      scale: 0;
+      transition: scale var(--dur-spring) var(--ease-spring)
+        calc((1 - var(--at, 0)) * 0.24s);
+    }
+    .race[data-race='resetting'] .race-trail {
+      scale: 1 0;
+      transition: scale var(--dur-spring-slow) var(--ease-spring-slow);
+    }
+    .race[data-race='resetting'] .metis-goal,
+    .race[data-race='resetting'] .metis-goal::before {
+      clip-path: var(--goal-c);
+      transition: clip-path var(--dur-spring) var(--ease-spring);
+    }
+    .race[data-race='resetting'] .race-dot.metis-goal::after {
+      clip-path: var(--goal-c);
+      transition:
+        clip-path var(--dur-spring) var(--ease-spring),
+        scale var(--dur-spring) var(--ease-spring);
+    }
+    .race[data-race='resetting'] .race-time {
+      color: var(--muted-foreground);
+      transition: color calc(var(--dur-effect) * 2) var(--ease-effect);
+    }
+    @container race (min-width: 36rem) {
+      .race[data-race='resetting'] .race-trail {
+        scale: 0 1;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .metis-switch {
+      display: none;
+    }
   }
   @media (forced-colors: active) {
-    .metis-fill { background: CanvasText; }
+    .race-line,
+    .race-trail,
+    .race-dot::after {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+    .race-line {
+      background: GrayText;
+    }
+    .race-dot.metis-goal {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+    .race-dot.metis-goal::before {
+      forced-color-adjust: none;
+      background: Canvas;
+    }
   }
 </style>

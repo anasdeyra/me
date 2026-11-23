@@ -59,7 +59,7 @@ src/
                         Search (trigger + native dialog; lazy Pagefind chunk),
                         MorphShape (decorative M3 shape that morphs, twists and changes tone with scroll; replaces the tick rings)
   components/home/      Hero (headline + a WhatsApp draft composer: need chips swap the prefilled message, zero JS), Services (timelines, per-row WhatsApp ask, quotes), Process + ProcessThread (the process as a scroll-linked founder/me chat), AboutTeaser (two readers: founder story + recruiter spec card),
-                        Faq (native details), SelectedWork, Proof (clients map + reviews, one `#proof` section), LatestWriting
+                        Faq (native details), SelectedWork + MetisFeature (lead case study: boarding pass with the booking race), Proof (clients map + reviews, one `#proof` section), LatestWriting
                         (the gated ones go live via the `sections.*` gates)
   components/cv/        CvEntry
   components/work/      ProjectCard, ProjectVisual (typographic fallback frame), TypeChip, ResultsBar, QuickFacts
@@ -142,7 +142,7 @@ Verify with `pnpm build && pnpm check` before finishing any change.
 - `SHOW_DRAFTS=1 pnpm build` includes draft projects in a production build; verification only, never set on Vercel.
   Finish with a plain `pnpm build`.
 - Clients map geometry is build-time only (no map library; motion is CSS, pointer glow via pointer.ts). Regenerate the land mask with `scripts/generate-land-mask.mjs`.
-  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, MorphShape)
+  The map is land only (no markers, arcs or base marker since 2026-11-18). Generated CSS (ReviewLoopStyle, MorphShape, the MetisFeature badge)
   goes in inline `<style>` hashed with `Astro.csp.insertStyleHash`; `config/security-headers.mjs` also adds inline style hashes to `style-src`.
 - **Motion and interaction (Phase 5b; springs since 2026-11-18).** Tokens in `global.css`, no raw values. M3 Expressive springs (CSS `linear()`
   sampled by `src/lib/spring.ts`; pair each easing with its own duration): `--ease-spring-fast`/`--dur-spring-fast` (buttons, chips, presses),
@@ -160,8 +160,10 @@ Verify with `pnpm build && pnpm check` before finishing any change.
   - Hover rules live inside `@media (hover: hover)` with a `:focus-visible` (or `:has(a:focus-visible)`) equivalent. Motion is
     wrapped in `prefers-reduced-motion: no-preference`; `forced-colors` guards on decorative layers. No magnetic buttons, no counters.
   - WCAG 2.2.2: no `infinite` animations. Loops are bounded and hover-initiated; entries and MorphShape are scroll-linked (user controlled,
-    no pause needed). One exception: the home review loop (`ReviewLoop`, `playback="loop"`) cycles reviews indefinitely, with an Auto-play switch,
-    pause on focus in the country chips (not on hover over the map, owner 2026-11-20), and no rotation under reduced motion. `playback="scroll"` is user-driven (no pause control needed).
+    no pause needed). Two exceptions, each with an Auto-play switch (global `.switch` + `.track-ui`) and no motion under reduced motion: the home
+    review loop (`ReviewLoop`, `playback="loop"`) cycles reviews indefinitely, pausing on focus in the country chips (not on hover over the map,
+    owner 2026-11-20); `playback="scroll"` is user-driven (no pause control needed). And the Metis booking race (`MetisFeature`, owner
+    2026-11-23) loops only while it is >= 75% in view and the tab is visible; off, it shows the finished race.
   - Process chat (`ProcessThread`): a sticky chat window over a tall track; each item (step chip, typing dots, message) takes a slice of
     the track's `contain` range (`[--k:n]`/`[--n:n]` literal Tailwind classes, no `style=""`) and grows from `0fr` to `1fr` in a
     bottom-aligned feed, so new messages push older ones up. Zero JS, no timers; messages are always in the DOM (folded rows are clipped,
@@ -560,3 +562,4 @@ verification): **`docs/launch-checklist.md`**. Summary:
   lab used `design-taste-frontend`). The hero is now the headline plus a working WhatsApp draft (see the Home hero rule above);
   the C2 masthead, ghost-ish portrait and record lines are gone. Both labs (`/lab/hero`, `/lab/hero-2`) are deleted.
   `PRODUCT.md` (Impeccable's product record, written from this file and `.agents/product-marketing.md`) stays at the root.
+- 2026-11-23 motion pass (owner): `.reveal` now also on SectionHeading, work/blog cards, CV entries and contact rows; FAQ panels open on the spatial spring (`::details-content` + `interpolate-size`), the +/- turns on the bouncy spring; link chips scale on hover/press. `MetisFeature` (polish pass the same day, owner picked "race" over a polished Before/After toggle, and a loop while visible over play-once): the booking flow is a **race of two lanes** on one grid (lanes are rows and steps columns from a 36rem container, flipped below it, one DOM through subgrid). Before has six steps; After skips Recap page and Confirm modal ("removed", the line runs through) and shows Ancillaries as a dashed ring. Both planes take off together and fly 4.5 s vs 1.5 s (3:1, as about 3 min vs about 1 min) on a cruise `linear()` (position never overshoots); a trail draws behind each and each time turns ink on landing. M3 Expressive pass (owner, same day): planes pop in on the bouncy spring banking nose-up, dots pop on the bouncy spring once the plane has cleared them, and on touchdown Booked spins and springs from a circle into the M3 "sunny" badge (ink outline, yellow fill; polygons from `m3-shapes.ts` in one hashed inline `<style>`). The loop rewinds on springs (trails retract, dots deflate from Booked back to Search, badge back to a circle) instead of fading. All motion is CSS on `data-race` (`armed` / `flying` / `resetting`); a small script sequences the loop. The finished race is the default (no JS, reduced motion, Auto-play off). The Before/After radios and the time bar are gone.

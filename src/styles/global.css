@@ -583,6 +583,10 @@
     }
   }
 }
+/* Two-up card grids enter in pairs. */
+.reveal.work-card:nth-child(even) {
+  --i: 1;
+}
 @media print {
   .reveal {
     animation: none !important;
@@ -665,7 +669,11 @@
   a.chip {
     transition:
       color var(--dur-effect) var(--ease-effect),
-      border-color var(--dur-effect) var(--ease-effect);
+      border-color var(--dur-effect) var(--ease-effect),
+      scale var(--dur-spring-fast) var(--ease-spring-fast);
+  }
+  a.chip:active {
+    scale: 0.94;
   }
   a.chip:focus-visible {
     border-color: var(--brand);
@@ -675,6 +683,10 @@
     a.chip:hover {
       border-color: var(--brand);
       color: var(--brand);
+      scale: 1.05;
+    }
+    a.chip:active {
+      scale: 0.94;
     }
   }
 
@@ -829,9 +841,32 @@ html.js .no-js-only {
     content: '+';
     flex: none;
     font-weight: 400;
+    transition: rotate var(--dur-spring-bouncy) var(--ease-spring-bouncy);
   }
   .faq details[open] > summary::after {
     content: '\2212';
+    rotate: 180deg;
+  }
+  /* Panel opens on the spatial spring where ::details-content and interpolate-size exist; elsewhere it just opens. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) {
+      .faq details {
+        interpolate-size: allow-keywords;
+      }
+      .faq details::details-content {
+        block-size: 0;
+        overflow: clip;
+        opacity: 0;
+        transition:
+          block-size var(--dur-spring) var(--ease-spring),
+          opacity var(--dur-effect) var(--ease-effect),
+          content-visibility var(--dur-spring) allow-discrete;
+      }
+      .faq details[open]::details-content {
+        block-size: auto;
+        opacity: 1;
+      }
+    }
   }
   .faq details > :not(summary) {
     padding-block-end: 1.25rem;
@@ -889,6 +924,74 @@ html.js .no-js-only {
     line-height: var(--text-xs--line-height);
     color: var(--muted-foreground);
     white-space: nowrap;
+  }
+
+  /*
+   * Auto-play switch (the review loop and the Metis race): a checkbox with role="switch" inside a label, then a
+   * `.track-ui` thumb and the visible text. Components place it; hide it where nothing moves.
+   */
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-block-size: 2.5rem;
+    color: var(--ink);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .switch input {
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: 0;
+    opacity: 0;
+  }
+  .track-ui {
+    position: relative;
+    flex: none;
+    inline-size: 2.25rem;
+    block-size: 1.25rem;
+    border: 1px solid var(--input);
+    border-radius: 999px;
+    background-color: var(--background);
+    transition: background-color var(--dur-effect) var(--ease-effect);
+  }
+  .track-ui::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0.125rem;
+    inset-inline-start: 0.125rem;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    border-radius: 50%;
+    background-color: var(--muted-foreground);
+    transition:
+      translate var(--dur-spring-fast) var(--ease-spring-fast),
+      background-color var(--dur-effect) var(--ease-effect);
+  }
+  .switch:has(input:checked) .track-ui {
+    border-color: var(--primary);
+    background-color: var(--primary);
+  }
+  .switch:has(input:checked) .track-ui::after {
+    translate: 1rem 0;
+    background-color: var(--primary-foreground);
+  }
+  [dir='rtl'] .switch:has(input:checked) .track-ui::after {
+    translate: -1rem 0;
+  }
+  .switch:has(input:focus-visible) .track-ui {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (forced-colors: active) {
+    .switch:has(input:checked) .track-ui {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      border-color: Highlight;
+    }
   }
 
   /*

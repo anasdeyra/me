@@ -497,61 +497,7 @@ const listed = [...items].sort(
     min-inline-size: 0;
   }
   .switch {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-    min-block-size: 2.5rem;
     margin-inline-start: auto;
-    color: var(--ink);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-  .switch input {
-    position: absolute;
-    inset-inline-start: 0;
-    inline-size: 1px;
-    block-size: 1px;
-    margin: 0;
-    opacity: 0;
-  }
-  .track-ui {
-    position: relative;
-    flex: none;
-    inline-size: 2.25rem;
-    block-size: 1.25rem;
-    border: 1px solid var(--input);
-    border-radius: 999px;
-    background-color: var(--background);
-    transition: background-color var(--dur-effect) var(--ease-effect);
-  }
-  .track-ui::after {
-    content: '';
-    position: absolute;
-    inset-block-start: 0.125rem;
-    inset-inline-start: 0.125rem;
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
-    border-radius: 50%;
-    background-color: var(--muted-foreground);
-    transition:
-      translate var(--dur-spring-fast) var(--ease-spring-fast),
-      background-color var(--dur-effect) var(--ease-effect);
-  }
-  .switch:has(input:checked) .track-ui {
-    border-color: var(--primary);
-    background-color: var(--primary);
-  }
-  .switch:has(input:checked) .track-ui::after {
-    translate: 1rem 0;
-    background-color: var(--primary-foreground);
-  }
-  :global([dir='rtl']) .switch:has(input:checked) .track-ui::after {
-    translate: -1rem 0;
-  }
-  .switch:has(input:focus-visible) .track-ui {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
   }
   .rl:has(.cr:checked) .switch {
     display: none;
@@ -909,11 +855,6 @@ const listed = [...items].sort(
     }
     .dots i {
       background-color: CanvasText;
-    }
-    .switch:has(input:checked) .track-ui {
-      forced-color-adjust: none;
-      background-color: Highlight;
-      border-color: Highlight;
     }
   }
 </style>
